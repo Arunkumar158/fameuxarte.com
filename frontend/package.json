@@ -1,0 +1,40 @@
+{
+  "name": "startup-nextjs-template",
+  "version": "2.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@paypal/paypal-js": "^7.1.1",
+    "@radix-ui/react-accordion": "^1.2.3",
+    "@stripe/stripe-js": "^6.1.0",
+    "clsx": "^2.1.1",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "15.1.6",
+    "framer-motion": "^12.6.2",
+    "lucide-react": "^0.485.0",
+    "next": "^15.2.4",
+    "next-themes": "^0.2.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-modal-video": "^2.0.1",
+    "stripe": "^14.14.0",
+    "tailwind-merge": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/google-pay": "^0.7.1",
+    "@types/node": "^20.8.9",
+    "@types/react": "19.0.8",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3"
+    
+  }
+}

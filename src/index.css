@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 0 64% 33%;
+    --primary-foreground: 0 0% 95%;
+
+    --secondary: 220 65% 33%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 220 65% 33%;
+    --accent-foreground: 0 0% 95%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 95%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 64% 33%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-black text-foreground font-sans bg-maze-pattern bg-fixed bg-cover;
+    background-blend-mode: overlay;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-bold tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl lg:text-4xl;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl lg:text-3xl;
+  }
+
+  p {
+    @apply text-base leading-relaxed;
+  }
+
+  .prose {
+    @apply text-base leading-relaxed;
+  }
+
+  .prose h1, .prose h2, .prose h3, .prose h4 {
+    @apply font-heading font-bold tracking-tight mt-8 mb-4;
+  }
+
+  .prose p {
+    @apply mb-4;
+  }
+}
+
+@layer components {
+  .gallery-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+  
+  .artwork-card {
+    @apply flex flex-col overflow-hidden rounded-md border border-border transition-all duration-300 hover:shadow-lg hover:border-brand-red relative z-10 bg-black/70 backdrop-blur-sm;
+  }
+
+  .artwork-image {
+    @apply relative w-full overflow-hidden aspect-square;
+  }
+  
+  .artwork-details {
+    @apply p-4 flex flex-col gap-1;
+  }
+
+  .btn-primary {
+    @apply bg-brand-red text-white hover:opacity-90 transition-opacity;
+  }
+
+  .btn-secondary {
+    @apply bg-brand-blue text-white hover:opacity-90 transition-opacity;
+  }
+
+  .section-padding {
+    @apply py-20 md:py-32;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand-red to-brand-blue bg-clip-text text-transparent;
+  }
+
+  .card-hover {
+    @apply transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl;
+  }
+
+  .glass-card {
+    @apply bg-black/60 backdrop-blur-md border border-white/10;
+  }
+}

@@ -1,0 +1,12 @@
+
+User-agent: *
+Allow: /
+Disallow: /checkout
+Disallow: /cart
+Disallow: /account
+Disallow: /auth
+
+# Crawl delay to prevent overwhelming the server
+Crawl-delay: 10
+
+Sitemap: https://gallery-canvas-commerce.vercel.app/sitemap.xml
