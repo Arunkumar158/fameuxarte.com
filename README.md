@@ -93,7 +93,7 @@ Whether you're an artist looking to expand your reach or an art lover searching 
 - **AWS/GCP**: Cloud hosting and services
 
 ### Payment Processing
-- **Stripe**: Secure payment processing
+
 - **PayPal**: Alternative payment method
 
 ## 🧠 AI & ML Integration
