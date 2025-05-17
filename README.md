@@ -26,7 +26,7 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
->>>>>>> 473be8dda3f74d2917fab5afa4293b26e5c687e6
+
 # Fameuxarte
 
 **Connecting local artists with global audiences through AI-powered art discovery**
