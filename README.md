@@ -266,7 +266,7 @@ Our AI/ML infrastructure includes:
 - Node.js 14+
 - PostgreSQL 12+
 - pip and npm package managers
-- TensorFlow 2.x and PyTorch (for AI features)
+- TensorFlow 2.x and PyTorch (for AI features) coming soon
 - CUDA-compatible GPU (recommended for model training)
 
 ### Backend Setup
