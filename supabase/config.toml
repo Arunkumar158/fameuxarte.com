@@ -1,0 +1,6 @@
+
+project_id = "oqslvwynlppuacdrhlxl"
+[functions.create-order]
+verify_jwt = true
+[functions.verify-payment]
+verify_jwt = true

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /checkout
+Disallow: /cart
+Disallow: /account
+Disallow: /auth
+
+Sitemap: https://gallery-canvas-commerce.vercel.app/sitemap.xml
