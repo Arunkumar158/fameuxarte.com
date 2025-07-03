@@ -82,7 +82,6 @@ Whether you're an artist looking to expand your reach or an art lover searching 
 
 ### Database
 - **PostgreSQL**: Primary relational database
-- **Redis**: In-memory data structure store for caching and session management
 - **Vector Database**: For storing and querying artwork embeddings
 
 ### DevOps & Infrastructure
