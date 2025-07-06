@@ -1,0 +1,226 @@
+import { useParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { Heart } from "lucide-react";
+import MainLayout from "@/components/layouts/MainLayout";
+import { Button } from "@/components/ui/button";
+import { Price } from "@/components/shared/Price";
+import { useCart } from "@/contexts/CartContext";
+import { useLikedItems } from "@/hooks/useLikedItems";
+import { useArtworkImage } from "@/hooks/useArtworkImage";
+import { supabase } from "@/integrations/supabase/client";
+import { SEO } from "@/components/SEO";
+import { generateProductStructuredData } from "@/lib/seo";
+
+interface ArtworkData {
+  id: string;
+  title: string;
+  price: number;
+  description: string | null;
+  category: string | null;
+  image_path: string | null;
+  slug: string | null;
+  artist: {
+    full_name: string | null;
+  } | null;
+}
+
+const ArtworkDetails = () => {
+  const { slug } = useParams();
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const { isItemLiked, toggleLike } = useLikedItems();
+
+  const { data: artwork, isLoading, error } = useQuery({
+    queryKey: ["artwork", slug],
+    queryFn: async () => {
+      if (!slug) throw new Error("No artwork identifier provided");
+
+      let query = supabase
+        .from("artworks")
+        .select(`
+          id,
+          title,
+          price,
+          description,
+          category,
+          image_path,
+          slug,
+          artist:profiles!artworks_artist_id_fkey (
+            full_name
+          )
+        `);
+
+      // Check if slug is a number (ID) or string (slug)
+      if (isNaN(Number(slug))) {
+        query = query.eq("slug", slug);
+      } else {
+        query = query.eq("id", slug); // Keep as string since ID is string type
+      }
+
+      const { data, error } = await query.maybeSingle();
+
+      if (error) {
+        console.error("❌ Error fetching artwork:", error);
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error("Artwork not found");
+      }
+
+      console.log("✅ Artwork data fetched:", {
+        id: data.id,
+        title: data.title,
+        image_path: data.image_path,
+        artist: data.artist
+      });
+
+      // Type-safe return with proper validation
+      const artworkData: ArtworkData = {
+        id: data.id,
+        title: data.title,
+        price: data.price,
+        description: data.description,
+        category: data.category,
+        image_path: data.image_path,
+        slug: data.slug,
+        artist: data.artist
+      };
+
+      return artworkData;
+    },
+  });
+
+  // Use the artwork image hook
+  const { imageUrl, isLoading: imageLoading } = useArtworkImage(artwork?.image_path || null);
+
+  if (isLoading || imageLoading) {
+    return (
+      <MainLayout>
+        <div className="container py-8 animate-pulse">Loading artwork details...</div>
+      </MainLayout>
+    );
+  }
+
+  if (error || !artwork) {
+    return (
+      <MainLayout>
+        <div className="container py-8 text-center">
+          <h1 className="text-2xl font-bold mb-4">Artwork Not Found</h1>
+          <p className="text-muted-foreground mb-6">
+            The artwork you're looking for doesn't exist or has been removed.
+          </p>
+          <Button onClick={() => navigate("/artworks")}>Browse Other Artworks</Button>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  const isLiked = isItemLiked(artwork.id);
+
+  const artworkDescription = artwork.description
+    ? artwork.description.length > 160
+      ? artwork.description.slice(0, 157) + "..."
+      : artwork.description
+    : `${artwork.title} by ${artwork.artist?.full_name || "Unknown Artist"}. ${artwork.category || "Artwork"} for sale.`;
+
+  const structuredData = generateProductStructuredData({
+    name: artwork.title,
+    description: artworkDescription,
+    image: imageUrl,
+    price: artwork.price,
+    currency: "USD",
+    availability: "InStock",
+    sku: artwork.id,
+  });
+
+  const handleAddToCart = () => addToCart(artwork.id).catch(console.error);
+  const handleToggleLike = () => toggleLike(artwork.id).catch(console.error);
+
+  return (
+    <MainLayout>
+      <SEO
+        title={`${artwork.title} | ${artwork.artist?.full_name || "Unknown Artist"} | Fameuxarte`}
+        description={artworkDescription}
+        canonicalUrl={`/artworks/${artwork.slug || artwork.id}`}
+        ogImage={imageUrl}
+        type="product"
+        structuredData={structuredData}
+      />
+      <div className="container py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="relative aspect-[3/4] rounded-lg overflow-hidden bg-muted p-4">
+            <img
+              src={imageUrl || "/placeholder.svg"}
+              alt={`${artwork.title} - ${artwork.category || "Artwork"} by ${artwork.artist?.full_name || "Unknown Artist"}`}
+              className="w-full h-full object-contain transition-opacity duration-300"
+              loading="lazy"
+              onError={(e) => {
+                console.log('❌ Image failed to load, using placeholder');
+                e.currentTarget.src = '/placeholder.svg';
+              }}
+              onLoad={() => {
+                console.log('✅ Image loaded successfully');
+              }}
+            />
+            {imageLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-muted/50">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h1 className="text-3xl font-serif mb-2">{artwork.title}</h1>
+            <p className="text-lg text-muted-foreground">by {artwork.artist?.full_name || "Unknown Artist"}</p>
+
+            <div className="text-2xl font-semibold my-2">
+              <Price amount={artwork.price} />
+            </div>
+
+            {artwork.description && (
+              <div className="prose max-w-none mb-4">
+                <p>{artwork.description}</p>
+              </div>
+            )}
+
+            {artwork.category && (
+              <div className="inline-block px-3 py-1 bg-muted rounded-full text-sm">
+                {artwork.category}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-4 mt-6">
+              <div className="flex gap-4">
+                <Button size="lg" className="flex-1" onClick={handleAddToCart}>
+                  Add to Cart
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className={isLiked ? "text-red-500" : ""}
+                  onClick={handleToggleLike}
+                >
+                  <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} />
+                </Button>
+              </div>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="w-full"
+                onClick={() => {
+                  handleAddToCart();
+                  navigate("/checkout");
+                }}
+              >
+                Buy Now
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </MainLayout>
+  );
+};
+
+export default ArtworkDetails;
