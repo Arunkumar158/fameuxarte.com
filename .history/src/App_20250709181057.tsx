@@ -10,6 +10,7 @@ import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { SEO } from "@/components/SEO";
 import Navbar from "@/components/navigation/Navbar";
 import Footer from "@/components/navigation/Footer";
+import { generateOrganizationStructuredData } from "@/lib/seo";
 
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -27,13 +28,14 @@ import PaymentFailed from "./pages/PaymentFailed";
 import Account from "./pages/Account";
 import ArtworkDetails from "./pages/ArtworkDetails";
 import ContactUs from "./pages/ContactUs";
-import Shipping from "./pages/Shipping";
 import FAQ from "./pages/FAQ";
 import OurStory from "./pages/OurStory";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import CancellationsAndRefunds from "./pages/CancellationsAndRefunds";
 
 const queryClient = new QueryClient();
+const organizationStructuredData = generateOrganizationStructuredData();
 
 const Layout = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen flex flex-col">
@@ -56,9 +58,10 @@ const App = () => (
             <CartProvider>
               <CurrencyProvider>
                 <SEO
-                  title="Gallery Canvas Commerce - Premium Art Marketplace"
+                  title="Fameuxarte - Discover Authentic Artworks"
                   description="Discover and purchase unique artworks from talented artists worldwide. Browse our curated collection of paintings, sculptures, and digital art."
                   canonicalUrl="/"
+                  structuredData={organizationStructuredData}
                 />
                 <Layout>
                   <Routes>
@@ -67,22 +70,23 @@ const App = () => (
                     <Route path="/cart" element={<Cart />} />
                     <Route path="/checkout" element={<Checkout />} />
                     <Route path="/artworks" element={<Artworks />} />
-                    <Route path="/artworks/:id" element={<ArtworkDetails />} />
+                    <Route path="/artworks/:slug" element={<ArtworkDetails />} />
                     <Route path="/artists" element={<Artists />} />
                     <Route path="/collections" element={<Collections />} />
                     <Route path="/blog" element={<Blog />} />
-                    <Route path="/blog/:id" element={<BlogPost />} />
+                    <Route path="/blog/:slug" element={<BlogPost />} />
                     <Route path="/liked-items" element={<LikedItems />} />
                     <Route path="/order-success" element={<OrderSuccess />} />
                     <Route path="/payment-failed" element={<PaymentFailed />} />
                     <Route path="/account" element={<Account />} />
                     <Route path="/profile" element={<Account />} />
+                    <Route path="/contact-us" element={<ContactUs />} />
                     <Route path="/contact" element={<ContactUs />} />
-                    <Route path="/shipping" element={<Shipping />} />
                     <Route path="/faq" element={<FAQ />} />
-                    <Route path="/about" element={<OurStory />} />
+                    <Route path="/our-story" element={<OurStory />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms-of-service" element={<TermsOfService />} />
+                    <Route path="/cancellations-and-refunds" element={<CancellationsAndRefunds />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Layout>

@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,7 @@ const Footer = () => {
       <div className="container py-16">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-3 lg:grid-cols-4">
           <div className="space-y-6">
-            <Link to="/" className="font-heading text-2xl md:text-3xl font-bold flex items-center gap-2 logo-text gradient-text">
+            <Link to="/" className="font-heading text-2xl md:text-3xl font-bold flex items-center gap-2">
               <img 
                 src="/lovable-uploads/2918892f-9b80-4b21-a9fe-1f2d9b05f208.png" 
                 alt="Fameuxarte Logo" 
@@ -71,13 +72,13 @@ const Footer = () => {
             <h3 className="font-heading font-semibold text-lg">About</h3>
             <ul className="space-y-3 text-sm text-gray-300">
               <li>
-                <Link to="/about" className="hover:text-brand-red transition-colors">Our Story</Link>
+                <Link to="/blog/our-story" className="hover:text-brand-red transition-colors">Our Story</Link>
               </li>
               <li>
                 <Link to="/contact" className="hover:text-brand-red transition-colors">Contact Us</Link>
               </li>
               <li>
-                <Link to="/shipping" className="hover:text-brand-red transition-colors">Shipping</Link>
+                <Link to="/cancellations-and-refunds" className="hover:text-brand-red transition-colors">Cancellations & Refunds</Link>
               </li>
               <li>
                 <Link to="/faq" className="hover:text-brand-red transition-colors">FAQ</Link>

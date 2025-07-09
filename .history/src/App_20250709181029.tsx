@@ -28,6 +28,7 @@ import PaymentFailed from "./pages/PaymentFailed";
 import Account from "./pages/Account";
 import ArtworkDetails from "./pages/ArtworkDetails";
 import ContactUs from "./pages/ContactUs";
+import Shipping from "./pages/Shipping";
 import FAQ from "./pages/FAQ";
 import OurStory from "./pages/OurStory";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -82,6 +83,7 @@ const App = () => (
                     <Route path="/profile" element={<Account />} />
                     <Route path="/contact-us" element={<ContactUs />} />
                     <Route path="/contact" element={<ContactUs />} />
+                    <Route path="/shipping" element={<Shipping />} />
                     <Route path="/faq" element={<FAQ />} />
                     <Route path="/our-story" element={<OurStory />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
