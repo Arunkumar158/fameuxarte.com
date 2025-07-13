@@ -27,6 +27,7 @@
     "tailwind-merge": "^3.1.0"
   },
   "devDependencies": {
+    "@types/google-pay": "^0.7.1",
     "@types/node": "^20.8.9",
     "@types/react": "19.0.8",
     "autoprefixer": "^10.4.17",
@@ -35,5 +36,6 @@
     "prettier-plugin-tailwindcss": "^0.5.11",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3"
+    
   }
 }

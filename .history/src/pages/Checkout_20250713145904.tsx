@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
@@ -12,6 +11,14 @@ declare global {
     Razorpay: any;
   }
 }
+
+// Helper function to format currency in INR
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+  }).format(amount);
+};
 
 const Checkout = () => {
   const { items, removeFromCart } = useCart();
@@ -38,11 +45,11 @@ const Checkout = () => {
 
       script.onload = () => {
         const options = {
-          key: "rzp_test_vELWKNZjXrLEDO",
+          key: "rzp_test_i99VSCi7UUbsms",
           amount: orderData.amount,
           currency: orderData.currency,
           order_id: orderData.id,
-          name: 'Fameuxarte',
+          name: 'Gallery Canvas',
           description: 'Art Purchase',
           handler: async (response: any) => {
             try {
@@ -56,6 +63,11 @@ const Checkout = () => {
               });
 
               if (verifyError) {
+                toast({
+                  variant: "destructive",
+                  title: "Payment Failed",
+                  description: "Unable to verify your payment. Please try again.",
+                });
                 navigate('/payment-failed');
                 return;
               }
@@ -65,14 +77,28 @@ const Checkout = () => {
                 await removeFromCart(item.id);
               }
 
+              toast({
+                title: "Payment Successful",
+                description: "Your order has been placed successfully!",
+              });
               navigate('/order-success');
             } catch (error) {
               console.error('Payment verification failed:', error);
+              toast({
+                variant: "destructive",
+                title: "Payment Failed",
+                description: "An error occurred while processing your payment.",
+              });
               navigate('/payment-failed');
             }
           },
           modal: {
             ondismiss: function() {
+              toast({
+                variant: "destructive",
+                title: "Payment Cancelled",
+                description: "You cancelled the payment process.",
+              });
               navigate('/payment-failed');
             }
           },
@@ -82,6 +108,8 @@ const Checkout = () => {
           },
           theme: {
             color: '#6366f1',
+            backdrop_color: '#ffffff',
+            hide_topbar: false,
           }
         };
 
@@ -116,13 +144,13 @@ const Checkout = () => {
                   <p className="font-medium">{item.artwork.title}</p>
                   <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
                 </div>
-                <p className="font-medium">${(item.artwork.price * item.quantity).toLocaleString()}</p>
+                <p className="font-medium">{formatCurrency(item.artwork.price * item.quantity)}</p>
               </div>
             ))}
             <div className="border-t mt-4 pt-4">
               <div className="flex justify-between items-center">
                 <p className="font-medium">Total</p>
-                <p className="text-xl font-semibold">${total.toLocaleString()}</p>
+                <p className="text-xl font-semibold">{formatCurrency(total)}</p>
               </div>
             </div>
           </div>
@@ -133,7 +161,7 @@ const Checkout = () => {
             onClick={handlePayment}
             disabled={isProcessing || items.length === 0}
           >
-            {isProcessing ? "Processing..." : `Pay $${total.toLocaleString()}`}
+            {isProcessing ? "Processing..." : `Pay ${formatCurrency(total)}`}
           </Button>
         </div>
       </div>

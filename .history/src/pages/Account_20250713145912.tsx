@@ -36,7 +36,6 @@ import {
 import MainLayout from "@/components/layouts/MainLayout";
 import ArtworkCard from "@/components/shared/ArtworkCard";
 import { useArtworkImage } from "@/hooks/useArtworkImage";
-import { formatCurrency } from "@/lib/utils";
 
 interface Profile {
   id: string;
@@ -78,7 +77,13 @@ const LikedItemCard = ({ item }: { item: {
   );
 };
 
-
+// Helper function to format currency in INR
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+  }).format(amount);
+};
 
 const Account = () => {
   const { user } = useAuth();

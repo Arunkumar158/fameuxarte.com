@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart, X, Plus, Minus } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
-import { formatCurrency } from '@/components/lib/utils';
 
 interface ArtworkItem {
   id: number;
@@ -150,7 +149,7 @@ export default function ShopPage() {
                 <h3 className="text-xl font-semibold mb-2">{artwork.title}</h3>
                 <p className="text-muted-foreground mb-4">{artwork.description}</p>
                 <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold">{formatCurrency(artwork.price)}</span>
+                  <span className="text-2xl font-bold">${artwork.price}</span>
                   <button
                     onClick={() => addToCart(artwork)}
                     className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
@@ -188,7 +187,7 @@ export default function ShopPage() {
                       />
                       <div className="flex-1">
                         <h3 className="font-semibold">{item.title}</h3>
-                        <p className="text-muted-foreground">{formatCurrency(item.price)}</p>
+                        <p className="text-muted-foreground">${item.price}</p>
                         <div className="flex items-center gap-2 mt-2">
                           <button
                             onClick={() => updateQuantity(item.id, -1)}
@@ -219,7 +218,7 @@ export default function ShopPage() {
                   <div className="border-t pt-4 mt-4">
                     <div className="flex justify-between text-lg font-semibold mb-4">
                       <span>Total:</span>
-                      <span>{formatCurrency(cartTotal)}</span>
+                      <span>${cartTotal.toFixed(2)}</span>
                     </div>
                     <button
                       onClick={handleCheckout}

@@ -11,15 +11,13 @@ export function Price({ amount, className = "" }: PriceProps) {
   
   const displayAmount = convertPrice(amount);
   
-  // Use Intl.NumberFormat for proper currency formatting
-  const formattedPrice = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: currency.code,
-  }).format(displayAmount);
-  
   return (
     <span className={className}>
-      {formattedPrice}
+      {currency.symbol}
+      {displayAmount.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}
     </span>
   );
 }

@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
     const lineItems = items.map((item: any) => ({
       price_data: {
-        currency: 'inr',
+        currency: 'usd',
         product_data: {
           name: item.title,
           description: item.description,

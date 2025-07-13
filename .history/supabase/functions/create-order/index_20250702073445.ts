@@ -14,51 +14,24 @@ serve(async (req) => {
   }
 
   try {
-    const { items, totalAmount, orderId } = await req.json();
+    const { items, totalAmount } = await req.json();
     
-    // Validate required fields
-    if (!totalAmount || totalAmount <= 0) {
-      throw new Error('Invalid total amount');
-    }
-
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      throw new Error('Invalid items array');
-    }
-
     const razorpay = new Razorpay({
       key_id: Deno.env.get('RAZORPAY_KEY_ID') || '',
       key_secret: Deno.env.get('RAZORPAY_KEY_SECRET') || '',
     });
 
-    // Validate Razorpay credentials
-    if (!Deno.env.get('RAZORPAY_KEY_ID') || !Deno.env.get('RAZORPAY_KEY_SECRET')) {
-      console.error('Razorpay credentials not configured');
-      throw new Error('Payment gateway not configured');
-    }
-
     const order = await razorpay.orders.create({
       amount: Math.round(totalAmount * 100), // Convert to smallest currency unit (paise)
       currency: 'INR',
-      receipt: orderId ? `order_${orderId}` : `order_${Date.now()}`,
-      notes: {
-        orderId: orderId || '',
-        items: JSON.stringify(items.map(item => ({
-          id: item.artwork.id,
-          title: item.artwork.title,
-          quantity: item.quantity,
-          price: item.artwork.price
-        })))
-      }
+      receipt: `order_${Date.now()}`,
     });
-
-    console.log('Razorpay order created:', order.id);
 
     return new Response(
       JSON.stringify({
         id: order.id,
         amount: order.amount,
         currency: order.currency,
-        receipt: order.receipt,
       }),
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -68,10 +41,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error creating order:', error);
     return new Response(
-      JSON.stringify({ 
-        error: 'Failed to create order',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      }),
+      JSON.stringify({ error: 'Failed to create order' }),
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart, X, Plus, Minus } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
-import { formatCurrency } from '@/components/lib/utils';
 
 interface ArtworkItem {
   id: number;
@@ -55,6 +54,14 @@ const artworks: ArtworkItem[] = [
 ];
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+
+// Helper function to format currency in INR
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+  }).format(amount);
+};
 
 export default function ShopPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
