@@ -38,7 +38,7 @@ const Checkout = () => {
 
       script.onload = () => {
         const options = {
-          key: "rzp_test_i99VSCi7UUbsms",
+          key: orderData.key_id, // Use key from API response
           amount: orderData.amount,
           currency: orderData.currency,
           order_id: orderData.id,
