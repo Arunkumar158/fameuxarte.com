@@ -24,21 +24,88 @@ const Checkout = () => {
     try {
       setIsProcessing(true);
 
-      // Create order on server
-      const { data: orderData, error: orderError } = await supabase.functions.invoke('create-order', {
-        body: { items, totalAmount: total }
+      // Debug: Log raw cart items first
+      console.log('Raw cart items:', items);
+
+      // Format items to match Edge Function requirements
+      const formattedItems = items.map(item => {
+        console.log('Processing item:', item);
+        console.log('Artwork object:', item.artwork);
+        
+        // The artwork ID is stored as artwork_id at the root level, not inside artwork object
+        return {
+          artwork: {
+            id: item.artwork_id,  // Use artwork_id from root level
+            title: item.artwork.title,
+            price: item.artwork.price
+          },
+          quantity: item.quantity
+        };
       });
 
-      if (orderError) throw orderError;
+      // Log order payload for debugging
+      console.log('Sending order payload:', {
+        items: formattedItems,
+        totalAmount: total
+      });
 
-      // Load Razorpay script
+      // Create order on server - capture full response
+      const response = await supabase.functions.invoke('create-order', {
+        body: { 
+          items: formattedItems, 
+          totalAmount: total 
+        }
+      });
+
+      console.log('Full response:', response);
+      
+      const { data: orderData, error: orderError } = response;
+
+      // Enhanced error logging
+      if (orderError) {
+        console.error('Order creation failed:', orderError);
+        console.error('Response data:', orderData);
+        
+        // The error details are often in the data object for 400 errors
+        let errorMessage = "Unable to create order";
+        let errorDetails = "";
+        
+        if (orderData && typeof orderData === 'object') {
+          console.error('Error details from response:', orderData);
+          errorMessage = orderData.error || errorMessage;
+          errorDetails = orderData.details ? JSON.stringify(orderData.details, null, 2) : "";
+        }
+        
+        toast({
+          variant: "destructive",
+          title: "Checkout Failed",
+          description: `${errorMessage}${errorDetails ? '\n' + errorDetails : ''}`,
+        });
+        return;
+      }
+
+      // Log successful response
+      console.log('Order created successfully:', orderData);
+
+      // Verify key_id and amount in response
+      if (!orderData.key_id || !orderData.amount) {
+        console.error('Invalid order response:', orderData);
+        toast({
+          variant: "destructive", 
+          title: "Checkout Failed",
+          description: "Invalid order configuration received",
+        });
+        return;
+      }
+
+      // Load and initialize Razorpay
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
       document.body.appendChild(script);
 
       script.onload = () => {
         const options = {
-          key: orderData.key_id, // Use key from API response
+          key: orderData.key_id,  // Live key from Edge Function
           amount: orderData.amount,
           currency: orderData.currency,
           order_id: orderData.id,
