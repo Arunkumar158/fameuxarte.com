@@ -57,34 +57,19 @@ serve(async (req) => {
     console.log('Request URL:', req.url);
     console.log('Request headers:', Object.fromEntries(req.headers.entries()));
 
+    // Get raw body text for debugging
+    const rawBody = await req.text();
+    console.log('Raw request body (first 500 chars):', rawBody.substring(0, 500));
+    
     // Parse request payload ONCE
     let requestPayload: OrderRequest;
     try {
-      // Clone request to read body for logging without consuming the stream
-      const clonedReq = req.clone();
-      const rawBody = await clonedReq.text();
-      console.log('Raw request body (first 1000 chars):', rawBody.substring(0, 1000));
-      console.log('Raw request body length:', rawBody.length);
-      
-      // Parse the original request
-      requestPayload = await req.json();
-      console.log('✅ Successfully parsed JSON payload');
+      requestPayload = JSON.parse(rawBody);
       console.log('Parsed payload type:', typeof requestPayload);
       console.log('Parsed payload keys:', Object.keys(requestPayload));
     } catch (parseError) {
       console.error('❌ Failed to parse request JSON:', parseError);
-      if (parseError instanceof Error) {
-        console.error('Parse error message:', parseError.message);
-        console.error('Parse error stack:', parseError.stack);
-      }
-      // Try to get raw body for debugging if possible
-      try {
-        const clonedReq = req.clone();
-        const rawBody = await clonedReq.text();
-        console.error('Raw body that failed to parse (first 1000 chars):', rawBody.substring(0, 1000));
-      } catch (e) {
-        console.error('Could not read raw body for debugging');
-      }
+      console.error('Raw body that failed to parse:', rawBody);
       throw new Error('Invalid JSON payload');
     }
     
@@ -167,66 +152,57 @@ serve(async (req) => {
     }
 
     // Validate items structure with better error messages and type coercion
-    const validatedItems: OrderItem[] = items.map((item: unknown, index: number) => {
-      // Type guard to ensure item is an object
-      if (!item || typeof item !== 'object') {
-        throw new Error(`Invalid item at index ${index}: item must be an object`);
-      }
-      
-      const itemObj = item as Record<string, unknown>;
+    const validatedItems: OrderItem[] = items.map((item: any, index: number) => {
       const missingFields: string[] = [];
       
       // Check if artwork object exists
-      const artwork = itemObj.artwork;
-      if (!artwork || typeof artwork !== 'object') {
+      if (!item.artwork || typeof item.artwork !== 'object') {
         console.error(`❌ Item ${index} validation failed: Missing artwork object`);
-        console.error(`Item structure:`, JSON.stringify(itemObj, null, 2));
+        console.error(`Item structure:`, JSON.stringify(item, null, 2));
         throw new Error(
           `Invalid item at index ${index}: missing artwork object. ` +
-          `Received: ${JSON.stringify(itemObj)}`
+          `Received: ${JSON.stringify(item)}`
         );
       }
       
-      const artworkObj = artwork as Record<string, unknown>;
-      
       // Check for required fields with clear error messages
-      if (!artworkObj.id) {
+      if (!item.artwork.id) {
         missingFields.push('artwork.id');
       }
-      if (artworkObj.title === undefined || artworkObj.title === null || artworkObj.title === '') {
+      if (item.artwork.title === undefined || item.artwork.title === null || item.artwork.title === '') {
         missingFields.push('artwork.title');
       }
-      if (artworkObj.price === undefined || artworkObj.price === null) {
+      if (item.artwork.price === undefined || item.artwork.price === null) {
         missingFields.push('artwork.price');
       }
-      if (itemObj.quantity === undefined || itemObj.quantity === null) {
+      if (item.quantity === undefined || item.quantity === null) {
         missingFields.push('quantity');
       }
       
       if (missingFields.length > 0) {
         console.error(`❌ Item ${index} validation failed: Missing fields:`, missingFields);
-        console.error(`Item structure:`, JSON.stringify(itemObj, null, 2));
+        console.error(`Item structure:`, JSON.stringify(item, null, 2));
         throw new Error(
           `Invalid item at index ${index}: missing ${missingFields.join(', ')}. ` +
-          `Item structure: ${JSON.stringify(itemObj, null, 2)}`
+          `Item structure: ${JSON.stringify(item, null, 2)}`
         );
       }
 
       // Handle type coercion for price (string to number)
       let price: number;
-      if (typeof artworkObj.price === 'string') {
-        console.log(`⚠️ Item ${index} price is a string, converting:`, artworkObj.price);
-        price = parseFloat(artworkObj.price);
+      if (typeof item.artwork.price === 'string') {
+        console.log(`⚠️ Item ${index} price is a string, converting:`, item.artwork.price);
+        price = parseFloat(item.artwork.price);
         if (isNaN(price)) {
           throw new Error(
-            `Invalid item at index ${index}: artwork.price cannot be converted to number: "${artworkObj.price}"`
+            `Invalid item at index ${index}: artwork.price cannot be converted to number: "${item.artwork.price}"`
           );
         }
-      } else if (typeof artworkObj.price === 'number') {
-        price = artworkObj.price;
+      } else if (typeof item.artwork.price === 'number') {
+        price = item.artwork.price;
       } else {
         throw new Error(
-          `Invalid item at index ${index}: artwork.price must be a number or numeric string, got ${typeof artworkObj.price}`
+          `Invalid item at index ${index}: artwork.price must be a number or numeric string, got ${typeof item.artwork.price}`
         );
       }
 
@@ -240,19 +216,19 @@ serve(async (req) => {
 
       // Handle type coercion for quantity (string to number)
       let quantity: number;
-      if (typeof itemObj.quantity === 'string') {
-        console.log(`⚠️ Item ${index} quantity is a string, converting:`, itemObj.quantity);
-        quantity = parseInt(itemObj.quantity, 10);
+      if (typeof item.quantity === 'string') {
+        console.log(`⚠️ Item ${index} quantity is a string, converting:`, item.quantity);
+        quantity = parseInt(item.quantity, 10);
         if (isNaN(quantity)) {
           throw new Error(
-            `Invalid item at index ${index}: quantity cannot be converted to integer: "${itemObj.quantity}"`
+            `Invalid item at index ${index}: quantity cannot be converted to integer: "${item.quantity}"`
           );
         }
-      } else if (typeof itemObj.quantity === 'number') {
-        quantity = itemObj.quantity;
+      } else if (typeof item.quantity === 'number') {
+        quantity = item.quantity;
       } else {
         throw new Error(
-          `Invalid item at index ${index}: quantity must be a number or numeric string, got ${typeof itemObj.quantity}`
+          `Invalid item at index ${index}: quantity must be a number or numeric string, got ${typeof item.quantity}`
         );
       }
 
@@ -267,8 +243,8 @@ serve(async (req) => {
       // Return validated and normalized item
       const validatedItem: OrderItem = {
         artwork: {
-          id: String(artworkObj.id), // Ensure string
-          title: String(artworkObj.title), // Ensure string
+          id: String(item.artwork.id), // Ensure string
+          title: String(item.artwork.title), // Ensure string
           price: price // Ensure number
         },
         quantity: quantity // Ensure integer

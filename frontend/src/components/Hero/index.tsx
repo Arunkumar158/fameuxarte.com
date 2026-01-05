@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const Hero = () => {
   return (
@@ -9,22 +10,22 @@ const Hero = () => {
       >
         <div className="container">
           <div className="-mx-4 flex flex-wrap">
-            <div className="w-full px-4">
-              <div className="mx-auto max-w-[800px] text-center">
+            <div className="w-full px-4 lg:w-1/2">
+              <div className="mx-auto max-w-[800px] text-center lg:mx-0 lg:text-left">
                 <h1 className="mb-5 text-3xl font-bold leading-tight text-black dark:text-white sm:text-4xl sm:leading-tight md:text-5xl md:leading-tight">
-                Vision.Inspire. Collect.
-                <h2 className="mb-5 text-3xl font-bold leading-tight text-black dark:text-white sm:text-4xl sm:leading-tight md:text-5xl md:leading-tight">
-                An Art Gallery for the Unseen Artists."</h2> 
-                     
+                  Vision.Inspire. Collect.
+                  <h2 className="mb-5 text-3xl font-bold leading-tight text-black dark:text-white sm:text-4xl sm:leading-tight md:text-5xl md:leading-tight">
+                    An Art Gallery for the Unseen Artists."</h2>
+
                 </h1>
                 <p className="mb-12 text-base !leading-relaxed text-body-color dark:text-body-color-dark sm:text-lg md:text-xl">
-                "At Fameuxarte, we bring a visionary approach to art—where inspiration meets discovery. 
-                We are more than just an art gallery; we are a movement dedicated to uncovering and celebrating 
-                unseen artists. Whether you are here to collect, admire, or be inspired, Fameuxarte is your 
-                gateway to a world where every 
-                brushstroke tells a story. Join us in shaping the future of art, one masterpiece at a time."
+                  "At Fameuxarte, we bring a visionary approach to art—where inspiration meets discovery.
+                  We are more than just an art gallery; we are a movement dedicated to uncovering and celebrating
+                  unseen artists. Whether you are here to collect, admire, or be inspired, Fameuxarte is your
+                  gateway to a world where every
+                  brushstroke tells a story. Join us in shaping the future of art, one masterpiece at a time."
                 </p>
-                <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+                <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 lg:justify-start">
                   <Link
                     href="\gallery"
                     className="rounded-sm bg-primary px-8 py-4 text-base font-semibold text-white duration-300 ease-in-out hover:bg-primary/80"
@@ -34,10 +35,23 @@ const Hero = () => {
                   <Link
                     href="\shop"
                     className="inline-block rounded-sm bg-red-600 px-8 py-4 text-base font-semibold text-white duration-300 ease-in-out hover:bg-red-500 dark:bg-red-500/500 dark:text-white dark:hover:bg-red-500/5"
-                    >
+                  >
                     Shop Now!
                   </Link>
                 </div>
+              </div>
+            </div>
+            <div className="w-full px-4 lg:w-1/2">
+              <div
+                className="relative z-10 mx-auto max-w-[500px] lg:mr-0"
+              >
+                <Image
+                  src="/images/hero-image.jpg"
+                  alt="hero"
+                  className="mx-auto max-w-full drop-shadow-three animate-float lg:mr-0 rounded-lg"
+                  width={500}
+                  height={500}
+                />
               </div>
             </div>
           </div>

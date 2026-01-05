@@ -2,7 +2,6 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 // @ts-expect-error - Deno npm: specifier
 import Razorpay from "npm:razorpay@2.9.2";
-// @ts-expect-error - Deno ESM import
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.7';
 
 // Deno global type declaration

@@ -4,14 +4,17 @@ import { ArrowRight } from "lucide-react";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Artistic Background with Pattern */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/90 via-indigo-900/95 to-blue-900/90" />
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:32px_32px]" />
-        </div>
-      </div>
+    <section 
+      className="relative min-h-[80vh] flex items-center overflow-hidden"
+      style={{
+        backgroundImage: "url('/media/image/WhatsApp Image 2025-10-09 at 12.10.39 PM.jpeg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center center',
+        minHeight: '80vh'
+      }}
+    >
+      {/* Overlay for better text readability */}
+      <div className="absolute inset-0 bg-black/30" />
       
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
@@ -25,7 +28,7 @@ const HeroSection = () => {
         <div className="relative mb-4 group">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-blue-600/20 blur-3xl transform group-hover:scale-110 transition-transform duration-700" />
           <h1 className="relative text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 animate-fade-in bg-gradient-to-r from-white via-purple-100 to-blue-100 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-            FAMEUXARTE
+            {/* FAMEUXARTE */}
           </h1>
           <p className="relative text-2xl md:text-3xl font-bold animate-fade-in delay-300 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
             Art Gallery for the unseen artists
