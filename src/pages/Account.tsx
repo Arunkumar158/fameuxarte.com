@@ -176,8 +176,8 @@ const Account = () => {
   // Handle reorder
   const handleReorder = (orderId: string) => {
     toast({
-      title: "Reorder initiated",
-      description: `Reordering items from order #${orderId.slice(0, 8)}...`,
+      title: "Acquire again",
+      description: `Adding items from acquisition #${orderId.slice(0, 8)} to your collection...`,
     });
     // Implement actual reorder functionality here
   };
@@ -284,22 +284,22 @@ const Account = () => {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold flex items-center gap-2">
                   <ShoppingBag size={20} />
-                  Order History
+                  Acquisition History
                 </h3>
               </div>
               
               {ordersLoading ? (
-                <p className="text-muted-foreground">Loading order history...</p>
+                <p className="text-muted-foreground">Loading acquisition history...</p>
               ) : orders && orders.length > 0 ? (
                 <div className="overflow-x-auto">
                   <Table>
-                    <TableCaption>Your recent orders</TableCaption>
+                    <TableCaption>Your recent acquisitions</TableCaption>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Order ID</TableHead>
                         <TableHead>Date</TableHead>
                         <TableHead>Items</TableHead>
-                        <TableHead className="text-right">Total</TableHead>
+                        <TableHead className="text-right">Total Value</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
@@ -322,9 +322,9 @@ const Account = () => {
                               </DialogTrigger>
                               <DialogContent>
                                 <DialogHeader>
-                                  <DialogTitle>Order Details</DialogTitle>
+                                  <DialogTitle>Acquisition Details</DialogTitle>
                                   <DialogDescription>
-                                    Order placed on {new Date(order.created_at).toLocaleDateString()}
+                                    Acquisition completed on {new Date(order.created_at).toLocaleDateString()}
                                   </DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-3">
@@ -362,7 +362,7 @@ const Account = () => {
                               onClick={() => handleReorder(order.id)}
                               className="h-8"
                             >
-                              Reorder
+                              Acquire Again
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -372,7 +372,7 @@ const Account = () => {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-muted-foreground">You haven't placed any orders yet.</p>
+                  <p className="text-muted-foreground">You have no acquisitions yet.</p>
                   <Button variant="outline" className="mt-4">Browse Artworks</Button>
                 </div>
               )}

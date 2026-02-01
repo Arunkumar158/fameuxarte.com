@@ -14,16 +14,16 @@ const PaymentFailed = () => {
           <div className="flex justify-center">
             <XCircle className="w-16 h-16 text-red-500" />
           </div>
-          <h1 className="text-2xl font-semibold">Payment Failed</h1>
+          <h1 className="text-2xl font-semibold">Ownership Confirmation Unsuccessful</h1>
           <p className="text-muted-foreground">
-            We were unable to process your payment. Please try again or contact support if the problem persists.
+            We were unable to complete your ownership confirmation. Please try again or contact support if the issue persists.
           </p>
           <div className="space-x-4 pt-4">
             <Button onClick={() => navigate("/checkout")}>
               Try Again
             </Button>
             <Button variant="outline" onClick={() => navigate("/cart")}>
-              Return to Cart
+              Return to Collection
             </Button>
           </div>
         </div>

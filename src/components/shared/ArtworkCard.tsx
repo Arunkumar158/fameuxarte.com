@@ -34,8 +34,8 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
     if (!user) {
       toast({
         variant: "destructive",
-        title: "Authentication required",
-        description: "Please sign in to add items to your cart",
+        title: "Sign in required",
+        description: "Please sign in to reserve artworks",
       });
       navigate("/auth");
       return;
@@ -46,7 +46,7 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Unable to add item to cart",
+        description: "Unable to reserve artwork",
       });
       return;
     }
@@ -56,7 +56,7 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to add item to cart",
+        description: "Failed to reserve artwork",
       });
     });
   };
@@ -135,7 +135,7 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
             className="w-full" 
             onClick={handleAddToCart}
           >
-            Add to Cart
+            Reserve Artwork
           </Button>
         </div>
       </div>

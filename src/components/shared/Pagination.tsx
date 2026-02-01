@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface PaginationProps {
+/** Reusable page-based pagination: Previous / page numbers / Next. Active page highlighted; Prev/Next disabled at bounds. */
+export interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
@@ -17,8 +18,8 @@ const Pagination = ({
 }: PaginationProps) => {
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
   const maxVisiblePages = 5;
+  // When many pages, show a sliding window of page numbers (e.g. 1 ... 4 5 6 ... 10).
   let visiblePages = pages;
-
   if (totalPages > maxVisiblePages) {
     const start = Math.max(
       Math.min(
@@ -31,13 +32,18 @@ const Pagination = ({
   }
 
   return (
-    <div className={cn("flex items-center justify-center gap-2", className)}>
+    <nav
+      className={cn("flex items-center justify-center gap-2", className)}
+      aria-label="Pagination"
+    >
+      {/* Previous: disabled on first page. */}
       <Button
         variant="outline"
         size="icon"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
         className="h-8 w-8"
+        aria-label="Previous page"
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
@@ -52,26 +58,35 @@ const Pagination = ({
           >
             1
           </Button>
-          {visiblePages[0] > 2 && <span className="px-2">...</span>}
+          {visiblePages[0] > 2 && (
+            <span className="px-2 text-muted-foreground">...</span>
+          )}
         </>
       )}
 
-      {visiblePages.map((page) => (
+      {/* Page numbers: active page uses brand-red (Fameuxarte dark theme). */}
+      {visiblePages.map((p) => (
         <Button
-          key={page}
-          variant={currentPage === page ? "default" : "outline"}
+          key={p}
+          variant={currentPage === p ? "default" : "outline"}
           size="sm"
-          onClick={() => onPageChange(page)}
-          className="h-8 w-8"
+          onClick={() => onPageChange(p)}
+          className={cn(
+            "h-8 w-8",
+            currentPage === p &&
+              "bg-brand-red border-brand-red text-white hover:bg-brand-red/90 hover:text-white"
+          )}
+          aria-label={currentPage === p ? `Page ${p} (current)` : `Page ${p}`}
+          aria-current={currentPage === p ? "page" : undefined}
         >
-          {page}
+          {p}
         </Button>
       ))}
 
       {visiblePages[visiblePages.length - 1] < totalPages && (
         <>
           {visiblePages[visiblePages.length - 1] < totalPages - 1 && (
-            <span className="px-2">...</span>
+            <span className="px-2 text-muted-foreground">...</span>
           )}
           <Button
             variant="outline"
@@ -84,16 +99,18 @@ const Pagination = ({
         </>
       )}
 
+      {/* Next: disabled on last page. */}
       <Button
         variant="outline"
         size="icon"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
         className="h-8 w-8"
+        aria-label="Next page"
       >
         <ChevronRight className="h-4 w-4" />
       </Button>
-    </div>
+    </nav>
   );
 };
 

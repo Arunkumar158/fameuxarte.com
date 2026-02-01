@@ -27,15 +27,15 @@ const TermsOfService = () => {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">3. Purchases and Payments</h2>
+            <h2 className="text-2xl font-semibold mb-4">3. Acquisitions and Ownership Confirmation</h2>
             <p className="text-gray-300">
-              All purchases are subject to:
+              All acquisitions are subject to:
             </p>
             <ul className="list-disc pl-6 mt-2 text-gray-300">
-              <li>Product availability</li>
-              <li>Accurate pricing information</li>
+              <li>Artwork availability</li>
+              <li>Accurate artwork value information</li>
               <li>Valid payment method</li>
-              <li>Successful payment processing</li>
+              <li>Successful ownership confirmation</li>
             </ul>
           </section>
 

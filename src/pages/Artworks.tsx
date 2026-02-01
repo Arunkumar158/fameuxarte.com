@@ -9,7 +9,7 @@ const Artworks = () => {
       <div className="container py-12">
         <SectionTitle
           title="Artworks Gallery"
-          subtitle="Explore our curated collection of exceptional artworks"
+          subtitle="Custom-curated collection of exceptional artworks"
         />
         <ArtworkGrid />
       </div>

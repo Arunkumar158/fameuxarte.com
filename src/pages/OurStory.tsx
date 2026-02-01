@@ -31,7 +31,7 @@ const OurStory = () => {
             </li>
             <li>
               <strong>Transparency:</strong> We believe in clear communication
-              about pricing, shipping, and artwork details.
+              about artwork value, shipping, and acquisition details.
             </li>
             <li>
               <strong>Support for Artists:</strong> We provide a platform that

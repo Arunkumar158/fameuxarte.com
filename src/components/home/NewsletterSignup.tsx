@@ -33,8 +33,8 @@ const NewsletterSignup = () => {
             Stay Updated with <span className="text-gradient">New Arrivals</span>
           </h2>
           <p className="mt-3 text-gray-200 animate-slide-up delay-100">
-            Subscribe to our newsletter to receive updates about new artworks, 
-            artist interviews, and exclusive promotions.
+            Subscribe for updates on new acquisitions, 
+            artist interviews, and exclusive collection access.
           </p>
 
           <form onSubmit={handleSubmit} className="mt-8 flex flex-col sm:flex-row gap-4 sm:mx-auto sm:max-w-md">

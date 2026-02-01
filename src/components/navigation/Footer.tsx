@@ -19,7 +19,7 @@ const Footer = () => {
               FAMEUXARTE
             </Link>
             <p className="text-sm text-gray-300">
-              Discover and collect exceptional artwork from emerging and established artists worldwide.
+              Discover and acquire exceptional, investment-grade artwork from emerging and established artists worldwide.
             </p>
             <div className="flex gap-3">
               <a href="https://www.instagram.com/fameuxarte" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
@@ -89,7 +89,7 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="font-heading font-semibold text-lg">Stay Updated</h3>
             <p className="text-sm text-gray-300">
-              Subscribe to receive updates on new arrivals and special promotions.
+              Subscribe for collection updates and exclusive access to new acquisitions.
             </p>
             <div className="flex gap-2">
               <Input 

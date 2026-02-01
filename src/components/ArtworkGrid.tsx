@@ -131,7 +131,7 @@ const ArtworkGrid = ({ limit }: ArtworkGridProps) => {
   if (isLoading) return <div>Loading artworks...</div>;
 
   if (!artworks?.length) {
-    return <div className="text-center text-gray-500">No artworks available</div>;
+    return <div className="text-center text-gray-500">No artworks available at this time</div>;
   }
 
   return (

@@ -131,7 +131,7 @@ const ArtworkDetails = () => {
     ? artwork.description.length > 160
       ? artwork.description.slice(0, 157) + "..."
       : artwork.description
-    : `${artwork.title} by ${artwork.artist?.full_name || "Unknown Artist"}. ${artwork.category || "Artwork"} for sale.`;
+    : `${artwork.title} by ${artwork.artist?.full_name || "Unknown Artist"}. ${artwork.category || "Artwork"} available for acquisition.`;
 
   const structuredData = generateProductStructuredData({
     name: artwork.title,
@@ -207,7 +207,7 @@ const ArtworkDetails = () => {
             <div className="flex flex-col gap-4 mt-6">
               <div className="flex gap-4">
                 <Button size="lg" className="flex-1" onClick={handleAddToCart}>
-                  Add to Cart
+                  Reserve Artwork
                 </Button>
                 <Button
                   size="lg"
@@ -227,7 +227,7 @@ const ArtworkDetails = () => {
                   navigate("/checkout");
                 }}
               >
-                Buy Now
+                Acquire Artwork
               </Button>
             </div>
           </div>

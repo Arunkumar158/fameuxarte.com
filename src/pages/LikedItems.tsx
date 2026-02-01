@@ -51,12 +51,12 @@ const LikedItems = () => {
     <MainLayout>
       <div className="container py-12">
         <SectionTitle
-          title="Liked Items"
-          subtitle="Your favorite artworks collection"
+          title="Saved Artworks"
+          subtitle="Your curated selection of favorite pieces"
         />
         {isLoading ? (
           <div className="flex justify-center py-10">
-            <div className="animate-pulse">Loading liked items...</div>
+            <div className="animate-pulse">Loading saved artworks...</div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

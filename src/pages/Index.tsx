@@ -17,8 +17,8 @@ const Index = () => {
   return (
     <MainLayout>
       <SEO
-        title="Fameuxarte - Discover Authentic Artworks"
-        description="Explore Fameuxarte: a trusted platform connecting you with authentic physical and digital artworks from talented artists worldwide."
+        title="Fameuxarte | Curated Art for Collectors &amp; Investors"
+        description="Premium marketplace for authentic, investment-grade artworks. Discover custom-curated paintings, sculptures, and digital art from established and emerging artists worldwide."
         canonicalUrl="/"
         ogImage="/og-image.jpg"
         type="website"
@@ -29,7 +29,7 @@ const Index = () => {
       <div className="container py-12">
         <SectionTitle
           title="Featured Artworks"
-          subtitle="Explore our curated collection of exceptional artworks"
+          subtitle="Custom-curated pieces from our collection of exceptional artworks"
         />
         <ArtworkSlider />
       </div>

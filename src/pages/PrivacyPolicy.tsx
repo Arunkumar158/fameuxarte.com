@@ -26,7 +26,7 @@ const PrivacyPolicy = () => {
             </p>
             <ul className="list-disc pl-6 mt-2 text-gray-300">
               <li>Personal identification information (name, email, address)</li>
-              <li>Payment information</li>
+              <li>Ownership confirmation details</li>
               <li>Browsing behavior and preferences</li>
               <li>Device and usage information</li>
             </ul>
@@ -38,7 +38,7 @@ const PrivacyPolicy = () => {
               Your information is used to:
             </p>
             <ul className="list-disc pl-6 mt-2 text-gray-300">
-              <li>Process your orders and payments</li>
+              <li>Process your acquisitions and ownership confirmation</li>
               <li>Provide customer support</li>
               <li>Improve our services</li>
               <li>Send you updates and marketing communications (with your consent)</li>

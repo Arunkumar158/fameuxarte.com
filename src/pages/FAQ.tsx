@@ -19,19 +19,19 @@ const FAQ = () => {
             <AccordionItem value="ordering">
               <AccordionTrigger>How do I place an order?</AccordionTrigger>
               <AccordionContent>
-                Browse our collection, select your desired artwork, and click "Add
-                to Cart." Follow the checkout process, enter your shipping details,
-                and complete your payment. You'll receive an order confirmation
-                email with tracking information once your order ships.
+                Browse our collection, select your desired artwork, and click "Reserve
+                Artwork." Proceed to Secure Acquisition, enter your shipping details,
+                and confirm ownership. You'll receive an acquisition confirmation
+                email with tracking information once your artwork ships.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="payment">
-              <AccordionTrigger>What payment methods do you accept?</AccordionTrigger>
+              <AccordionTrigger>What ownership confirmation methods do you accept?</AccordionTrigger>
               <AccordionContent>
                 We accept all major credit cards (Visa, Mastercard, American
-                Express), PayPal, and bank transfers for larger purchases. All
-                transactions are processed securely through our payment providers.
+                Express), PayPal, and bank transfers for larger acquisitions. All
+                transactions are processed securely through our providers.
               </AccordionContent>
             </AccordionItem>
 
@@ -51,8 +51,8 @@ const FAQ = () => {
               <AccordionTrigger>What is your return policy?</AccordionTrigger>
               <AccordionContent>
                 We offer a 14-day return policy for all artworks. Items must be
-                returned in original condition and packaging. Return shipping costs
-                are the responsibility of the buyer. Once we receive and inspect
+                returned in original condition and packaging. Return shipping investment
+                is the responsibility of the buyer. Once we receive and inspect
                 the return, we'll process your refund within 5-7 business days.
               </AccordionContent>
             </AccordionItem>
@@ -76,7 +76,7 @@ const FAQ = () => {
               <AccordionContent>
                 International orders may be subject to customs duties and taxes,
                 which vary by country. These fees are the responsibility of the
-                buyer and are not included in our shipping costs. Please check
+                buyer and are not included in our shipping investment. Please check
                 your local customs regulations.
               </AccordionContent>
             </AccordionItem>

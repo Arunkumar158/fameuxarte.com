@@ -19,16 +19,16 @@ const OrderSuccess = () => {
           <div className="flex justify-center">
             <CheckCircle className="w-16 h-16 text-green-500" />
           </div>
-          <h1 className="text-2xl font-semibold">Payment Successful!</h1>
+          <h1 className="text-2xl font-semibold">Acquisition Confirmed</h1>
           <p className="text-muted-foreground">
-            Thank you for your purchase. Your order has been confirmed.
+            Thank you for your acquisition. Your ownership has been confirmed.
           </p>
           <div className="space-x-4 pt-4">
             <Button onClick={() => navigate("/orders")}>
-              View Orders
+              View My Acquisitions
             </Button>
             <Button variant="outline" onClick={() => navigate("/artworks")}>
-              Continue Shopping
+              Continue Exploring
             </Button>
           </div>
         </div>

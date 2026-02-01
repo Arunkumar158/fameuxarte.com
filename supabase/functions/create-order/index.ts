@@ -12,12 +12,9 @@ declare const Deno: {
 
 // Type definitions for request and response
 interface OrderItem {
-  artwork: {
-    id: string;
-    title: string;
-    price: number;
-  };
+  artworkId: string;
   quantity: number;
+  price: number;
 }
 
 interface OrderRequest {
@@ -52,6 +49,20 @@ serve(async (req) => {
   }
 
   try {
+    // 📥 Edge Function received - DEBUG LOG
+    const clonedReqForDebug = req.clone();
+    let debugBody: unknown;
+    try {
+      debugBody = await clonedReqForDebug.json();
+    } catch (e) {
+      debugBody = await clonedReqForDebug.text();
+    }
+    console.log('📥 Edge Function received:', {
+      body: debugBody,
+      headers: Object.fromEntries(req.headers.entries()),
+      method: req.method
+    });
+
     console.log('=== CREATE ORDER REQUEST START ===');
     console.log('Request method:', req.method);
     console.log('Request URL:', req.url);
@@ -117,11 +128,9 @@ serve(async (req) => {
       orderId: requestPayload.orderId,
       itemsStructure: requestPayload.items?.map((item: OrderItem, idx: number) => ({
         index: idx,
-        hasArtwork: !!item.artwork,
-        artworkId: item.artwork?.id || 'MISSING',
-        artworkTitle: item.artwork?.title || 'MISSING',
-        artworkPrice: item.artwork?.price ?? 'MISSING',
-        artworkPriceType: typeof item.artwork?.price,
+        artworkId: item.artworkId || 'MISSING',
+        price: item.price ?? 'MISSING',
+        priceType: typeof item.price,
         quantity: item.quantity ?? 'MISSING',
         quantityType: typeof item.quantity
       }))
@@ -167,6 +176,7 @@ serve(async (req) => {
     }
 
     // Validate items structure with better error messages and type coercion
+    // Expected structure: { artworkId: string, quantity: number, price: number }
     const validatedItems: OrderItem[] = items.map((item: unknown, index: number) => {
       // Type guard to ensure item is an object
       if (!item || typeof item !== 'object') {
@@ -176,31 +186,15 @@ serve(async (req) => {
       const itemObj = item as Record<string, unknown>;
       const missingFields: string[] = [];
       
-      // Check if artwork object exists
-      const artwork = itemObj.artwork;
-      if (!artwork || typeof artwork !== 'object') {
-        console.error(`❌ Item ${index} validation failed: Missing artwork object`);
-        console.error(`Item structure:`, JSON.stringify(itemObj, null, 2));
-        throw new Error(
-          `Invalid item at index ${index}: missing artwork object. ` +
-          `Received: ${JSON.stringify(itemObj)}`
-        );
-      }
-      
-      const artworkObj = artwork as Record<string, unknown>;
-      
-      // Check for required fields with clear error messages
-      if (!artworkObj.id) {
-        missingFields.push('artwork.id');
-      }
-      if (artworkObj.title === undefined || artworkObj.title === null || artworkObj.title === '') {
-        missingFields.push('artwork.title');
-      }
-      if (artworkObj.price === undefined || artworkObj.price === null) {
-        missingFields.push('artwork.price');
+      // Check for required fields: artworkId, quantity, price
+      if (!itemObj.artworkId) {
+        missingFields.push('artworkId');
       }
       if (itemObj.quantity === undefined || itemObj.quantity === null) {
         missingFields.push('quantity');
+      }
+      if (itemObj.price === undefined || itemObj.price === null) {
+        missingFields.push('price');
       }
       
       if (missingFields.length > 0) {
@@ -212,21 +206,27 @@ serve(async (req) => {
         );
       }
 
+      // Validate and coerce artworkId
+      const artworkId = String(itemObj.artworkId);
+      if (!artworkId || artworkId.trim() === '') {
+        throw new Error(`Invalid item at index ${index}: artworkId cannot be empty`);
+      }
+
       // Handle type coercion for price (string to number)
       let price: number;
-      if (typeof artworkObj.price === 'string') {
-        console.log(`⚠️ Item ${index} price is a string, converting:`, artworkObj.price);
-        price = parseFloat(artworkObj.price);
+      if (typeof itemObj.price === 'string') {
+        console.log(`⚠️ Item ${index} price is a string, converting:`, itemObj.price);
+        price = parseFloat(itemObj.price);
         if (isNaN(price)) {
           throw new Error(
-            `Invalid item at index ${index}: artwork.price cannot be converted to number: "${artworkObj.price}"`
+            `Invalid item at index ${index}: price cannot be converted to number: "${itemObj.price}"`
           );
         }
-      } else if (typeof artworkObj.price === 'number') {
-        price = artworkObj.price;
+      } else if (typeof itemObj.price === 'number') {
+        price = itemObj.price;
       } else {
         throw new Error(
-          `Invalid item at index ${index}: artwork.price must be a number or numeric string, got ${typeof artworkObj.price}`
+          `Invalid item at index ${index}: price must be a number or numeric string, got ${typeof itemObj.price}`
         );
       }
 
@@ -234,7 +234,7 @@ serve(async (req) => {
       if (price <= 0 || !isFinite(price)) {
         console.error(`❌ Item ${index} validation failed: Invalid price value:`, price);
         throw new Error(
-          `Invalid item at index ${index}: artwork.price must be a positive number, got ${price}`
+          `Invalid item at index ${index}: price must be a positive number, got ${price}`
         );
       }
 
@@ -266,19 +266,15 @@ serve(async (req) => {
       
       // Return validated and normalized item
       const validatedItem: OrderItem = {
-        artwork: {
-          id: String(artworkObj.id), // Ensure string
-          title: String(artworkObj.title), // Ensure string
-          price: price // Ensure number
-        },
-        quantity: quantity // Ensure integer
+        artworkId: artworkId,
+        quantity: quantity,
+        price: price
       };
       
       // Log validated item for debugging
       console.log(`✅ Item ${index} validated:`, {
-        artworkId: validatedItem.artwork.id,
-        title: validatedItem.artwork.title,
-        price: validatedItem.artwork.price,
+        artworkId: validatedItem.artworkId,
+        price: validatedItem.price,
         quantity: validatedItem.quantity
       });
       
@@ -322,10 +318,9 @@ serve(async (req) => {
           orderId: orderId || '',
           itemCount: String(validatedItems.length),
           items: JSON.stringify(validatedItems.map((item: OrderItem) => ({
-            id: item.artwork.id,
-            title: item.artwork.title,
+            artworkId: item.artworkId,
             quantity: item.quantity,
-            price: item.artwork.price
+            price: item.price
           })))
         }
       });

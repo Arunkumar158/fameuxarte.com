@@ -16,9 +16,9 @@ interface RazorpayPaymentResponse {
 }
 
 // Backend order creation request interface
+// Edge Function expects: { artworkId, quantity, price }
 interface OrderItemRequest {
   artworkId: string;
-  title: string;
   quantity: number;
   price: number; // in rupees
 }
@@ -118,7 +118,7 @@ const Checkout = () => {
         toast({
           variant: "destructive",
           title: "Cart Empty",
-          description: "Your cart is empty. Please add items before checkout.",
+          description: "Your collection is empty. Please reserve artworks before proceeding.",
         });
         return;
       }
@@ -129,7 +129,7 @@ const Checkout = () => {
         toast({
           variant: "destructive",
           title: "Authentication Required",
-          description: "Please sign in to proceed with checkout.",
+          description: "Please sign in to proceed with secure acquisition.",
         });
         navigate('/auth');
         return;
@@ -139,44 +139,115 @@ const Checkout = () => {
       console.log('📦 Cart items count:', items.length);
       console.log('💰 Total amount (rupees):', totalAmount);
 
+      // 🔍 DEBUG - Log raw cart items structure
+      console.log('🔍 Cart Items (raw):', JSON.stringify(items, null, 2));
+      console.log('🔍 Cart Items (detailed):', items.map((item, idx) => ({
+        index: idx,
+        cartItemId: item.id,
+        hasArtworkId: !!item.artwork_id,
+        artworkId: item.artwork_id,
+        artworkIdType: typeof item.artwork_id,
+        hasArtwork: !!item.artwork,
+        artwork: item.artwork ? {
+          hasId: !!item.artwork.id,
+          id: item.artwork.id,
+          idType: typeof item.artwork.id,
+          hasTitle: !!item.artwork.title,
+          title: item.artwork.title,
+          hasPrice: item.artwork.price !== undefined && item.artwork.price !== null,
+          price: item.artwork.price,
+          priceType: typeof item.artwork.price
+        } : null,
+        hasQuantity: item.quantity !== undefined && item.quantity !== null,
+        quantity: item.quantity,
+        quantityType: typeof item.quantity
+      })));
+
       // Step 3: Format items according to backend contract
-      // Backend expects: { items: [{ artworkId, title, quantity, price }], totalAmount }
+      // Backend expects: { items: [{ artworkId, quantity, price }], totalAmount }
       const formattedItems: OrderItemRequest[] = items.map((item, index) => {
-        console.log(`Processing item ${index}:`, {
+        console.log(`🔍 Processing item ${index}:`, {
           cartItemId: item.id,
           artworkId: item.artwork_id,
-          title: item.artwork.title,
-          price: item.artwork.price,
-          quantity: item.quantity
+          artworkIdType: typeof item.artwork_id,
+          artworkIdValue: item.artwork_id,
+          hasArtwork: !!item.artwork,
+          artworkIdFromArtwork: item.artwork?.id,
+          artworkTitle: item.artwork?.title,
+          artworkPrice: item.artwork?.price,
+          artworkPriceType: typeof item.artwork?.price,
+          quantity: item.quantity,
+          quantityType: typeof item.quantity
         });
 
-        // Validate item data
+        // Validate item data with detailed error messages
         if (!item.artwork_id) {
+          console.error(`❌ Item ${index} validation failed: artwork_id is missing`, {
+            item: JSON.stringify(item, null, 2)
+          });
           throw new Error(`Item ${index} is missing artwork_id`);
         }
-        if (!item.artwork || !item.artwork.title) {
-          throw new Error(`Item ${index} is missing artwork title`);
+        if (!item.artwork) {
+          console.error(`❌ Item ${index} validation failed: artwork object is missing`, {
+            item: JSON.stringify(item, null, 2)
+          });
+          throw new Error(`Item ${index} is missing artwork object`);
         }
-        if (!item.artwork.price || item.artwork.price <= 0) {
+        if (item.artwork.price === undefined || item.artwork.price === null) {
+          console.error(`❌ Item ${index} validation failed: artwork.price is missing`, {
+            item: JSON.stringify(item, null, 2),
+            artwork: JSON.stringify(item.artwork, null, 2)
+          });
           throw new Error(`Item ${index} has invalid price: ${item.artwork.price}`);
         }
-        if (!item.quantity || item.quantity <= 0) {
+        if (item.artwork.price <= 0) {
+          console.error(`❌ Item ${index} validation failed: artwork.price is not positive`, {
+            price: item.artwork.price
+          });
+          throw new Error(`Item ${index} has invalid price: ${item.artwork.price}`);
+        }
+        if (item.quantity === undefined || item.quantity === null) {
+          console.error(`❌ Item ${index} validation failed: quantity is missing`, {
+            item: JSON.stringify(item, null, 2)
+          });
+          throw new Error(`Item ${index} has invalid quantity: ${item.quantity}`);
+        }
+        if (item.quantity <= 0) {
+          console.error(`❌ Item ${index} validation failed: quantity is not positive`, {
+            quantity: item.quantity
+          });
           throw new Error(`Item ${index} has invalid quantity: ${item.quantity}`);
         }
 
-        return {
-          artworkId: item.artwork_id,
-          title: item.artwork.title,
-          quantity: item.quantity,
-          price: item.artwork.price // in rupees
+        // Extract values with type checking
+        const artworkId = String(item.artwork_id);
+        const quantity = Number(item.quantity);
+        const price = Number(item.artwork.price);
+
+        console.log(`✅ Item ${index} extracted values:`, {
+          artworkId,
+          artworkIdType: typeof artworkId,
+          quantity,
+          quantityType: typeof quantity,
+          price,
+          priceType: typeof price
+        });
+
+        // Return flat structure matching backend's expected format
+        const mappedItem = {
+          artworkId: artworkId,
+          quantity: quantity,
+          price: price // in rupees
         };
+
+        console.log(`✅ Item ${index} mapped result:`, mappedItem);
+        return mappedItem;
       });
 
       console.log('✅ Items formatted successfully:', {
         itemsCount: formattedItems.length,
         items: formattedItems.map(item => ({
           artworkId: item.artworkId,
-          title: item.title,
           quantity: item.quantity,
           price: item.price
         }))
@@ -199,6 +270,51 @@ const Checkout = () => {
       // with the session access token when called from an authenticated context
       console.log('🔐 Calling create-order Edge Function with Authorization header...');
       
+      // 🔍 FULL DEBUG - Detailed request payload logging
+      console.log('🔍 FULL REQUEST PAYLOAD:', JSON.stringify(requestBody, null, 2));
+      console.log('🔍 Cart Items:', items);
+      console.log('🔍 Mapped Items:', requestBody.items);
+      console.log('🔍 Request Body Structure:', {
+        hasItems: !!requestBody.items,
+        itemsIsArray: Array.isArray(requestBody.items),
+        itemsLength: requestBody.items?.length,
+        itemsType: typeof requestBody.items,
+        firstItem: requestBody.items?.[0],
+        firstItemKeys: requestBody.items?.[0] ? Object.keys(requestBody.items[0]) : null,
+        totalAmount: requestBody.totalAmount,
+        totalAmountType: typeof requestBody.totalAmount
+      });
+      
+      // 🔍 DEBUG - Full request details
+      console.log('🔍 DEBUG - Full request details:', {
+        url: 'https://oqslvwynlppuacdrhlxl.supabase.co/functions/v1/create-order',
+        payload: requestBody,
+        payloadStringified: JSON.stringify(requestBody, null, 2),
+        sessionUser: session?.user?.id,
+        authToken: session?.access_token ? 'Present' : 'Missing'
+      });
+      
+      // 🔍 VERIFY - Check the exact structure being sent
+      console.log('🔍 VERIFY - Request body type:', typeof requestBody);
+      console.log('🔍 VERIFY - Request body is object:', typeof requestBody === 'object' && !Array.isArray(requestBody));
+      console.log('🔍 VERIFY - Request body keys:', Object.keys(requestBody));
+      console.log('🔍 VERIFY - Items array check:', Array.isArray(requestBody.items));
+      console.log('🔍 VERIFY - Items length:', requestBody.items?.length);
+      console.log('🔍 VERIFY - First item structure:', requestBody.items?.[0]);
+      console.log('🔍 VERIFY - Total amount:', requestBody.totalAmount, typeof requestBody.totalAmount);
+      
+      // 🔍 EXACT CALL - Log exactly what we're passing to invoke()
+      const invokePayload = {
+        body: requestBody
+      };
+      console.log('🔍 EXACT CALL - What we pass to invoke():', {
+        functionName: 'create-order',
+        bodyType: typeof invokePayload.body,
+        bodyIsObject: typeof invokePayload.body === 'object',
+        bodyKeys: Object.keys(invokePayload.body),
+        bodyStringified: JSON.stringify(invokePayload.body, null, 2)
+      });
+      
       const { data: orderData, error: orderError } = await supabase.functions.invoke('create-order', {
         body: requestBody
       });
@@ -209,17 +325,39 @@ const Checkout = () => {
           error: orderError,
           message: orderError.message,
           context: orderError.context,
-          status: orderError.status
+          status: orderError.status,
+          requestPayload: {
+            itemsCount: requestBody.items.length,
+            totalAmount: requestBody.totalAmount,
+            itemsStructure: requestBody.items.map(item => ({
+              artworkId: item.artworkId,
+              quantity: item.quantity,
+              price: item.price
+            }))
+          }
         });
 
+        // Extract detailed error message from response
         let errorMessage = "Unable to create order. Please try again.";
         if (orderError.message) {
           errorMessage = orderError.message;
         }
+        
+        // Check if error response contains details
+        if (orderError.context && typeof orderError.context === 'object') {
+          const errorDetails = orderError.context as Record<string, unknown>;
+          if (errorDetails.error) {
+            errorMessage = String(errorDetails.error);
+          }
+          if (errorDetails.details && typeof errorDetails.details === 'object') {
+            const details = errorDetails.details as Record<string, unknown>;
+            console.error('Error details:', details);
+          }
+        }
 
         toast({
           variant: "destructive",
-          title: "Checkout Failed",
+          title: "Acquisition Unsuccessful",
           description: errorMessage,
         });
         return;
@@ -230,8 +368,20 @@ const Checkout = () => {
         console.error('❌ No order data received from server');
         toast({
           variant: "destructive",
-          title: "Checkout Failed",
+          title: "Acquisition Unsuccessful",
           description: "Invalid response from server. Please try again.",
+        });
+        return;
+      }
+
+      // Check if response contains an error (sometimes errors are returned in data field)
+      if (typeof orderData === 'object' && 'error' in orderData && orderData.error) {
+        const errorResponse = orderData as { error: string; details?: Record<string, unknown>; timestamp?: string };
+        console.error('❌ Error in response data:', errorResponse);
+        toast({
+          variant: "destructive",
+          title: "Acquisition Unsuccessful",
+          description: errorResponse.error || "Unable to create order. Please try again.",
         });
         return;
       }
@@ -256,7 +406,7 @@ const Checkout = () => {
         });
         toast({
           variant: "destructive",
-          title: "Checkout Failed",
+          title: "Acquisition Unsuccessful",
           description: "Invalid order configuration received from server.",
         });
         return;
@@ -315,8 +465,8 @@ const Checkout = () => {
               });
               toast({
                 variant: "destructive",
-                title: "Payment Verification Failed",
-                description: verifyError.message || "Unable to verify your payment. Please contact support.",
+                title: "Ownership Confirmation Unsuccessful",
+                description: verifyError.message || "We could not confirm your ownership. Please contact support.",
               });
               navigate('/payment-failed');
               return;
@@ -326,8 +476,8 @@ const Checkout = () => {
               console.error('❌ Payment verification returned failure:', verifyData);
               toast({
                 variant: "destructive",
-                title: "Payment Verification Failed",
-                description: "Payment could not be verified. Please contact support.",
+                title: "Ownership Confirmation Unsuccessful",
+                description: "Ownership could not be verified. Please contact support.",
               });
               navigate('/payment-failed');
               return;
@@ -348,8 +498,8 @@ const Checkout = () => {
             console.log('✅ Cart cleared successfully');
 
             toast({
-              title: "Payment Successful! 🎉",
-              description: "Your order has been placed successfully. You will receive a confirmation email shortly.",
+title: "Acquisition Confirmed",
+            description: "Your acquisition has been confirmed. You will receive a confirmation email shortly.",
             });
 
             console.log('=== CHECKOUT PROCESS SUCCESS ===');
@@ -370,8 +520,8 @@ const Checkout = () => {
             });
             toast({
               variant: "destructive",
-              title: "Payment Processing Error",
-              description: "An error occurred while processing your payment. Please contact support if the amount was deducted.",
+title: "Ownership Confirmation Error",
+            description: "An error occurred while confirming ownership. Please contact support if the amount was deducted.",
             });
             navigate('/payment-failed');
           }
@@ -381,8 +531,8 @@ const Checkout = () => {
             console.log('⚠️ User cancelled payment');
             toast({
               variant: "destructive",
-              title: "Payment Cancelled",
-              description: "You cancelled the payment process.",
+title: "Acquisition Cancelled",
+            description: "You cancelled the acquisition process.",
             });
             navigate('/payment-failed');
           }
@@ -402,8 +552,8 @@ const Checkout = () => {
 
       toast({
         variant: "destructive",
-        title: "Checkout Failed",
-        description: error instanceof Error ? error.message : "Unable to process your payment. Please try again.",
+        title: "Acquisition Unsuccessful",
+        description: error instanceof Error ? error.message : "Unable to complete your acquisition. Please try again.",
       });
 
       // Only navigate to payment-failed if we're not already on checkout page
@@ -420,13 +570,13 @@ const Checkout = () => {
   return (
     <MainLayout>
       <div className="container max-w-4xl py-8">
-        <h1 className="text-2xl font-semibold mb-6">Checkout</h1>
+        <h1 className="text-2xl font-semibold mb-6">Secure Acquisition</h1>
         
         <div className="space-y-6">
           <div className="bg-card rounded-lg p-6">
-            <h2 className="text-lg font-medium mb-4">Order Summary</h2>
+            <h2 className="text-lg font-medium mb-4">Acquisition Summary</h2>
             {items.length === 0 ? (
-              <p className="text-muted-foreground">Your cart is empty.</p>
+              <p className="text-muted-foreground">Your collection is empty.</p>
             ) : (
               <>
                 {items.map((item) => (
@@ -440,7 +590,7 @@ const Checkout = () => {
                 ))}
                 <div className="border-t mt-4 pt-4">
                   <div className="flex justify-between items-center">
-                    <p className="font-medium">Total</p>
+                    <p className="font-medium">Total Investment</p>
                     <p className="text-xl font-semibold">{formatCurrency(totalAmount)}</p>
                   </div>
                 </div>
@@ -454,7 +604,7 @@ const Checkout = () => {
             onClick={handlePayment}
             disabled={isProcessing || items.length === 0}
           >
-            {isProcessing ? "Processing..." : `Pay ${formatCurrency(totalAmount)}`}
+            {isProcessing ? "Confirming..." : `Confirm Ownership — ${formatCurrency(totalAmount)}`}
           </Button>
         </div>
       </div>

@@ -28,7 +28,7 @@ const ArtworkCard = ({ artwork, index }) => {
             size="sm"
             className="text-white border-white hover:bg-white/20 w-full"
           >
-            View Details
+            View Artwork Details
           </Button>
         </div>
       </div>

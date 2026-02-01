@@ -88,12 +88,12 @@ const Collections = () => {
       <div className="container py-12">
         <SectionTitle
           title="Collections"
-          subtitle="Explore our curated collections of artworks"
+          subtitle="Custom-curated collections of artworks"
         />
         {initialLoading ? (
           <div>Loading collections...</div>
         ) : Object.entries(collections).length === 0 ? (
-          <div className="text-center text-gray-500">No collections available</div>
+          <div className="text-center text-gray-500">No collections available at this time</div>
         ) : (
           <div className="space-y-12">
             {Object.entries(collections).map(([category, artworks]) => (

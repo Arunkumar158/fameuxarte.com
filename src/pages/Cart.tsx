@@ -16,7 +16,7 @@ const Cart = () => {
       <MainLayout>
         <div className="container py-8">
           <div className="flex justify-center items-center py-12">
-            <div className="animate-pulse">Loading cart...</div>
+            <div className="animate-pulse">Loading your collection...</div>
           </div>
         </div>
       </MainLayout>
@@ -27,13 +27,13 @@ const Cart = () => {
     <MainLayout>
       <div className="container py-8">
         <SectionTitle
-          title="Your Cart"
-          subtitle="Review and manage your selected items"
+          title="Your Collection"
+          subtitle="Review and manage your reserved artworks"
         />
         
         {items.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground mb-6">Your cart is empty</p>
+            <p className="text-muted-foreground mb-6">Your collection is empty</p>
             <Link to="/artworks">
               <Button>Browse Artworks</Button>
             </Link>
@@ -90,14 +90,14 @@ const Cart = () => {
             ))}
             <div className="flex justify-between items-center pt-4">
               <div>
-                <p className="text-lg font-medium">Total</p>
+                <p className="text-lg font-medium">Total Investment</p>
                 <p className="text-2xl font-semibold">
                   <Price amount={total} />
                 </p>
               </div>
               <Link to="/checkout">
                 <Button size="lg" disabled={items.length === 0}>
-                  Proceed to Checkout
+                  Proceed to Secure Acquisition
                 </Button>
               </Link>
             </div>

@@ -12,7 +12,7 @@ const CancellationsAndRefunds = () => (
     <section className="mb-6">
       <h2 className="text-2xl font-semibold mb-2">Refunds</h2>
       <p>Refunds will be issued if the artwork is <strong>damaged on delivery</strong>, or if it <strong>never arrives</strong>.</p>
-      <p className="mt-2">Refunds are processed via <strong>Razorpay</strong> and will reflect in your original payment method within <strong>7–10 business days</strong>.</p>
+      <p className="mt-2">Refunds are processed via <strong>Razorpay</strong> and will reflect in your original payment method within <strong>7–10 business days</strong>. All ownership confirmation is handled securely.</p>
       <p className="mt-2">Please contact us within <strong>48 hours of delivery</strong> for any refund or damage claims (with photo proof).</p>
     </section>
     <section className="mb-6">

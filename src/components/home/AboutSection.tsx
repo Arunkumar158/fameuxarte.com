@@ -19,7 +19,7 @@ const AboutSection = () => {
               Today, we proudly represent over 200 emerging and established artists from across the globe, each bringing their unique perspective and creative vision to our carefully curated collection.
             </p>
             <p>
-              Our mission extends beyond mere transactions—we strive to foster meaningful connections between artists and collectors, to educate and inspire our community, and to champion artwork that challenges, moves, and transforms.
+              Our mission extends beyond acquisitions—we strive to foster meaningful connections between artists and collectors, to educate and inspire our community, and to champion artwork that challenges, moves, and transforms.
             </p>
           </div>
           

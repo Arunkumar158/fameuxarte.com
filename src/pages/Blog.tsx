@@ -1,31 +1,100 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layouts/MainLayout";
 import SectionTitle from "@/components/shared/SectionTitle";
+import Pagination from "@/components/shared/Pagination";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { ArrowRight, Calendar } from "lucide-react";
 import { SEO } from "@/components/SEO";
 
+// --- Pagination config ---
+/** Number of blog posts per page (page-based pagination). Default: 6. */
+const BLOGS_PER_PAGE = 6;
+
+/** Profile subset returned by the blogs query join. */
+interface BlogAuthorProfile {
+  full_name: string | null;
+  avatar_url: string | null;
+}
+
+/** Blog row as returned by Supabase with author profile join. */
+export interface BlogPostListItem {
+  id: string;
+  title: string;
+  content: string;
+  Slug: string;
+  image_url: string | null;
+  published_at: string;
+  author_id: string | null;
+  created_at: string;
+  updated_at: string;
+  profiles: BlogAuthorProfile | null;
+}
+
+/** Response shape from paginated blog fetch (data + total count for pages). */
+interface BlogListResponse {
+  posts: BlogPostListItem[];
+  totalCount: number;
+}
+
 const Blog = () => {
-  const { data: posts, isLoading: initialLoading } = useQuery({
-    queryKey: ["blog-posts"],
-    queryFn: async () => {
-      const { data, error, count } = await supabase
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Pagination: single source of truth is URL (?page=1). Persists on refresh and is SEO-friendly.
+  const page = useMemo(() => {
+    const p = Number(searchParams.get("page")) || 1;
+    return Math.max(1, Math.floor(p));
+  }, [searchParams]);
+
+  // Fetch only the current page: limit = BLOGS_PER_PAGE, offset = (page - 1) * BLOGS_PER_PAGE.
+  // Supabase uses .range(from, to) inclusive; we need total count for page count.
+  const { data, isLoading } = useQuery({
+    queryKey: ["blog-posts", page],
+    queryFn: async (): Promise<BlogListResponse> => {
+      const from = (page - 1) * BLOGS_PER_PAGE;
+      const to = from + BLOGS_PER_PAGE - 1; // inclusive end index
+
+      const { data: rows, error, count } = await supabase
         .from("blogs")
-        .select(`
+        .select(
+          `
           *,
           profiles:author_id (
             full_name,
             avatar_url
           )
-        `, { count: "exact" })
-        .order("published_at", { ascending: false });
-      
+        `,
+          { count: "exact" }
+        )
+        .order("published_at", { ascending: false })
+        .range(from, to);
+
       if (error) throw error;
-      return data || [];
-    }
+
+      return {
+        posts: (rows ?? []) as BlogPostListItem[],
+        totalCount: count ?? 0,
+      };
+    },
   });
+
+  const posts = data?.posts ?? [];
+  const totalCount = data?.totalCount ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalCount / BLOGS_PER_PAGE));
+
+  // If user bookmarked ?page=99 and total shrinks, redirect to last valid page (no 404).
+  useEffect(() => {
+    if (totalCount === 0) return;
+    if (page > totalPages) {
+      setSearchParams({ page: String(totalPages) }, { replace: true });
+    }
+  }, [page, totalPages, totalCount, setSearchParams]);
+
+  const handlePageChange = (newPage: number) => {
+    setSearchParams({ page: String(newPage) });
+  };
 
   return (
     <MainLayout>
@@ -40,9 +109,11 @@ const Blog = () => {
           title="Blog"
           subtitle="Insights and stories from the art world"
         />
-        {initialLoading ? (
+
+        {/* Loading: skeleton grid matching blog card layout (6 placeholders). */}
+        {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
+            {[...Array(BLOGS_PER_PAGE)].map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="h-48 bg-muted rounded-lg mb-4"></div>
                 <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
@@ -52,8 +123,11 @@ const Blog = () => {
               </div>
             ))}
           </div>
-        ) : !posts?.length ? (
-          <div className="text-center text-gray-500">No blog posts available</div>
+        ) : !posts.length ? (
+          <div className="text-center text-muted-foreground py-12">
+            {/* Empty state: no blogs for this page or no blogs at all. */}
+            No blogs found
+          </div>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -104,6 +178,17 @@ const Blog = () => {
                 </Link>
               ))}
             </div>
+
+            {/* Pagination: bottom center. Previous/Next disabled on first/last page; active page highlighted. */}
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-10">
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
           </>
         )}
       </div>

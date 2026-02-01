@@ -19,7 +19,7 @@ const testimonials = [
   },
   {
     id: 3,
-    quote: "As an interior designer, I regularly recommend Fameuxarte to my clients. The variety of styles and price points makes it easy to find the perfect piece for any space.",
+    quote: "As an interior designer, I regularly recommend Fameuxarte to my clients. The variety of styles and artwork values makes it easy to find the perfect piece for any space.",
     author: "Isabella Martinez",
     location: "Barcelona, Spain",
     rating: 5,
