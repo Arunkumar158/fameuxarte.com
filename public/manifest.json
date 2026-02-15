@@ -1,0 +1,45 @@
+{
+    "name": "Fameuxarte - Curated Art Marketplace",
+    "short_name": "Fameuxarte",
+    "description": "Premium marketplace for authentic, investment-grade artworks. Discover custom-curated paintings, sculptures, and digital art from established and emerging artists worldwide.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#1a1a2e",
+    "theme_color": "#000000",
+    "icons": [
+        {
+            "src": "/favicon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/favicon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        }
+    ],
+    "screenshots": [],
+    "categories": [
+        "shopping",
+        "lifestyle",
+        "art"
+    ],
+    "orientation": "portrait-primary"
+}

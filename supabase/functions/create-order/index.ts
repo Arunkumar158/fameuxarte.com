@@ -24,7 +24,7 @@ interface OrderRequest {
 }
 
 interface OrderResponse {
-  id: string;
+  razorpay_order_id: string;
   amount: number;
   currency: string;
   receipt: string;
@@ -42,7 +42,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-serve(async (req) => {
+serve(async (req: Request) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -76,7 +76,7 @@ serve(async (req) => {
       const rawBody = await clonedReq.text();
       console.log('Raw request body (first 1000 chars):', rawBody.substring(0, 1000));
       console.log('Raw request body length:', rawBody.length);
-      
+
       // Parse the original request
       requestPayload = await req.json();
       console.log('✅ Successfully parsed JSON payload');
@@ -98,11 +98,11 @@ serve(async (req) => {
       }
       throw new Error('Invalid JSON payload');
     }
-    
+
     // Get Razorpay environment variables (LIVE KEYS)
     const keyId = Deno.env.get('RAZORPAY_KEY_ID');
     const keySecret = Deno.env.get('RAZORPAY_KEY_SECRET');
-    
+
     console.log('Razorpay Configuration:', {
       key_id: keyId ? `${keyId.slice(0, 8)}...${keyId.slice(-4)}` : 'NOT SET',
       key_secret: keySecret ? `${keySecret.slice(0, 4)}...${keySecret.slice(-4)}` : 'NOT SET',
@@ -135,9 +135,9 @@ serve(async (req) => {
         quantityType: typeof item.quantity
       }))
     });
-    
+
     const { items, totalAmount: rawTotalAmount, orderId } = requestPayload;
-    
+
     // Handle potential string-to-number conversion for totalAmount
     let totalAmount: number;
     if (typeof rawTotalAmount === 'string') {
@@ -182,10 +182,10 @@ serve(async (req) => {
       if (!item || typeof item !== 'object') {
         throw new Error(`Invalid item at index ${index}: item must be an object`);
       }
-      
+
       const itemObj = item as Record<string, unknown>;
       const missingFields: string[] = [];
-      
+
       // Check for required fields: artworkId, quantity, price
       if (!itemObj.artworkId) {
         missingFields.push('artworkId');
@@ -196,7 +196,7 @@ serve(async (req) => {
       if (itemObj.price === undefined || itemObj.price === null) {
         missingFields.push('price');
       }
-      
+
       if (missingFields.length > 0) {
         console.error(`❌ Item ${index} validation failed: Missing fields:`, missingFields);
         console.error(`Item structure:`, JSON.stringify(itemObj, null, 2));
@@ -263,21 +263,21 @@ serve(async (req) => {
           `Invalid item at index ${index}: quantity must be a positive integer, got ${quantity}`
         );
       }
-      
+
       // Return validated and normalized item
       const validatedItem: OrderItem = {
         artworkId: artworkId,
         quantity: quantity,
         price: price
       };
-      
+
       // Log validated item for debugging
       console.log(`✅ Item ${index} validated:`, {
         artworkId: validatedItem.artworkId,
         price: validatedItem.price,
         quantity: validatedItem.quantity
       });
-      
+
       return validatedItem;
     });
 
@@ -325,8 +325,8 @@ serve(async (req) => {
         }
       });
     } catch (razorpayError: unknown) {
-      const errorMessage = razorpayError instanceof Error 
-        ? razorpayError.message 
+      const errorMessage = razorpayError instanceof Error
+        ? razorpayError.message
         : 'Failed to create order';
       const errorDetails = razorpayError && typeof razorpayError === 'object' && 'error' in razorpayError
         ? razorpayError.error
@@ -337,7 +337,7 @@ serve(async (req) => {
       const description = razorpayError && typeof razorpayError === 'object' && 'description' in razorpayError
         ? razorpayError.description
         : undefined;
-      
+
       console.error('❌ Razorpay API error:', {
         message: errorMessage,
         error: errorDetails,
@@ -359,7 +359,7 @@ serve(async (req) => {
 
     // Prepare response with LIVE key_id
     const response: OrderResponse = {
-      id: order.id,
+      razorpay_order_id: order.id,
       amount: order.amount, // Amount in paise (already from Razorpay)
       currency: order.currency || 'INR',
       receipt: order.receipt,
@@ -369,7 +369,7 @@ serve(async (req) => {
     console.log('=== CREATE ORDER REQUEST SUCCESS ===');
     return new Response(
       JSON.stringify(response),
-      { 
+      {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       }
@@ -389,7 +389,7 @@ serve(async (req) => {
     // Handle specific error types
     if (error instanceof Error) {
       errorMessage = error.message;
-      
+
       if (error.message.includes('Payment gateway not configured')) {
         errorDetails = {
           issue: 'Razorpay credentials not configured properly',
@@ -423,7 +423,7 @@ serve(async (req) => {
     console.error('=== CREATE ORDER REQUEST FAILED ===');
     return new Response(
       JSON.stringify(errorResponse),
-      { 
+      {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: statusCode,
       }

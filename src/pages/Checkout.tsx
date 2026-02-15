@@ -28,9 +28,9 @@ interface CreateOrderRequest {
   totalAmount: number; // in rupees, NOT paise
 }
 
-// Backend order creation response interface
+// Backend order creation response interface (matches create-order Edge Function)
 interface CreateOrderResponse {
-  id: string; // razorpay_order_id
+  razorpay_order_id: string;
   amount: number; // in paise
   currency: string; // "INR"
   key_id: string; // live Razorpay key_id
@@ -387,7 +387,7 @@ const Checkout = () => {
       }
 
       console.log('✅ Order created successfully:', {
-        razorpayOrderId: orderData.id,
+        razorpayOrderId: orderData.razorpay_order_id,
         amount: orderData.amount,
         amountInRupees: `₹${(orderData.amount / 100).toFixed(2)}`,
         currency: orderData.currency,
@@ -396,9 +396,9 @@ const Checkout = () => {
       });
 
       // Validate required fields in response
-      if (!orderData.id || !orderData.amount || !orderData.key_id) {
+      if (!orderData.razorpay_order_id || !orderData.amount || !orderData.key_id) {
         console.error('❌ Invalid order response - missing required fields:', {
-          hasId: !!orderData.id,
+          hasRazorpayOrderId: !!orderData.razorpay_order_id,
           hasAmount: !!orderData.amount,
           hasKeyId: !!orderData.key_id,
           hasOrderId: !!orderData.order_id,
@@ -438,7 +438,7 @@ const Checkout = () => {
         amount: orderData.amount, // Amount in paise (from backend)
         currency: orderData.currency || 'INR',
         name: "Fameuxarte",
-        order_id: orderData.id, // Razorpay order ID
+        order_id: orderData.razorpay_order_id,
         handler: async (response: RazorpayPaymentResponse) => {
           try {
             console.log('💳 Payment response received:', {
