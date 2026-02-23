@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
@@ -11,6 +11,7 @@ import { SEO } from "@/components/SEO";
 import Navbar from "@/components/navigation/Navbar";
 import Footer from "@/components/navigation/Footer";
 import { generateOrganizationStructuredData } from "@/lib/seo";
+import { motion, AnimatePresence } from "framer-motion";
 
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -39,10 +40,55 @@ import CancellationsAndRefunds from "./pages/CancellationsAndRefunds";
 const queryClient = new QueryClient();
 const organizationStructuredData = generateOrganizationStructuredData();
 
+const AnimatedRoutes = () => {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="flex-grow"
+      >
+        <Routes location={location}>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/artworks" element={<Artworks />} />
+          <Route path="/artworks/:slug" element={<ArtworkDetails />} />
+          <Route path="/artists" element={<Artists />} />
+          <Route path="/collections" element={<Collections />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/liked-items" element={<LikedItems />} />
+          <Route path="/order-success" element={<OrderSuccess />} />
+          <Route path="/payment-failed" element={<PaymentFailed />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/profile" element={<Account />} />
+          <Route path="/contact-us" element={<ContactUs />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/our-story" element={<OurStory />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/cancellations-and-refunds" element={<CancellationsAndRefunds />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
 const Layout = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen flex flex-col">
     <Navbar />
-    <main className="flex-grow pt-16 sm:pt-20">
+    <main className="flex flex-col flex-grow pt-16 sm:pt-20">
       {children}
     </main>
     <Footer />
@@ -66,33 +112,7 @@ const App = () => (
                   structuredData={organizationStructuredData}
                 />
                 <Layout>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/reset-password" element={<ResetPassword />} />
-                    <Route path="/cart" element={<Cart />} />
-                    <Route path="/checkout" element={<Checkout />} />
-                    <Route path="/artworks" element={<Artworks />} />
-                    <Route path="/artworks/:slug" element={<ArtworkDetails />} />
-                    <Route path="/artists" element={<Artists />} />
-                    <Route path="/collections" element={<Collections />} />
-                    <Route path="/blog" element={<Blog />} />
-                    <Route path="/blog/:slug" element={<BlogPost />} />
-                    <Route path="/liked-items" element={<LikedItems />} />
-                    <Route path="/order-success" element={<OrderSuccess />} />
-                    <Route path="/payment-failed" element={<PaymentFailed />} />
-                    <Route path="/account" element={<Account />} />
-                    <Route path="/profile" element={<Account />} />
-                    <Route path="/contact-us" element={<ContactUs />} />
-                    <Route path="/contact" element={<ContactUs />} />
-                    <Route path="/faq" element={<FAQ />} />
-                    <Route path="/our-story" element={<OurStory />} />
-                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                    <Route path="/terms-of-service" element={<TermsOfService />} />
-                    <Route path="/cancellations-and-refunds" element={<CancellationsAndRefunds />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
+                  <AnimatedRoutes />
                 </Layout>
               </CurrencyProvider>
             </CartProvider>
