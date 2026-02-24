@@ -1,198 +1,181 @@
-// @ts-expect-error - Deno standard library import
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-// @ts-expect-error - Deno npm: specifier
-import Razorpay from "npm:razorpay@2.9.2";
-// @ts-expect-error - Deno ESM import
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.7';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
 // Deno global type declaration
 declare const Deno: {
-  env: {
-    get(key: string): string | undefined;
-  };
+  env: { get(key: string): string | undefined };
 };
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-// Get Supabase configuration from environment
-const supabaseUrl = Deno.env.get('SUPABASE_URL') || "https://oqslvwynlppuacdrhlxl.supabase.co";
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+// ─── HMAC-SHA256 via native WebCrypto (always available in Deno/Supabase) ─────
+// Do NOT use Deno's Node compat crypto — it's unreliable in Supabase Edge runtime.
+// Razorpay spec: HMAC_SHA256( order_id + "|" + payment_id, KEY_SECRET ) → hex
+async function generateHmacSha256(secret: string, message: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(message));
+  return Array.from(new Uint8Array(sig))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
 
-serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+// Constant-time comparison — prevents timing-based signature oracle attacks
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
+function jsonError(message: string, status = 400, details = "") {
+  return new Response(JSON.stringify({ success: false, error: message, details }), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+// ─── Main handler ─────────────────────────────────────────────────────────────
+serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log('=== VERIFY PAYMENT REQUEST START ===');
-    console.log('Request method:', req.method);
+    console.log("🔐 Payment verification started");
 
-    // Parse request payload
-    let requestPayload;
-    try {
-      requestPayload = await req.json();
-    } catch (parseError) {
-      console.error('❌ Failed to parse request JSON:', parseError);
-      throw new Error('Invalid JSON payload');
+    // 1️⃣ Auth header
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      console.error("❌ Missing Authorization header");
+      return jsonError("Unauthorized – Missing Authorization Header", 401);
     }
 
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = requestPayload;
+    // 2️⃣ Supabase client
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      console.error("❌ Missing Supabase configuration");
+      return jsonError("Server configuration error", 500);
+    }
 
-    // Validate required fields
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false },
+    });
+
+    // 3️⃣ Verify user token
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user }, error: userErr } = await supabase.auth.getUser(token);
+    if (userErr || !user) {
+      console.error("❌ Invalid user token:", userErr?.message);
+      return jsonError("Unauthorized – Invalid Token", 401);
+    }
+    console.log("✅ User verified:", user.id);
+
+    // 4️⃣ Parse body
+    // NOTE: Frontend (Checkout.tsx) sends exactly these 3 fields — do not require order_id.
+    //       We locate the order via razorpay_order_id (stored during create-order).
+    const body = await req.json();
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = body;
+
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-      console.error('❌ Missing required payment fields:', {
-        hasOrderId: !!razorpay_order_id,
-        hasPaymentId: !!razorpay_payment_id,
-        hasSignature: !!razorpay_signature
-      });
-      throw new Error('Missing required payment verification fields');
+      console.error("❌ Missing payment parameters");
+      return jsonError("Missing required payment parameters", 400);
     }
 
-    console.log('Payment verification request:', {
-      orderId: razorpay_order_id,
-      paymentId: razorpay_payment_id,
-      hasSignature: !!razorpay_signature
+    console.log("📋 Payment verification request:", {
+      razorpay_order_id,
+      razorpay_payment_id: razorpay_payment_id.substring(0, 10) + "...",
     });
 
-    // Get Razorpay LIVE credentials
-    const keyId = Deno.env.get('RAZORPAY_KEY_ID');
-    const keySecret = Deno.env.get('RAZORPAY_KEY_SECRET');
-
-    console.log('Razorpay Configuration:', {
-      key_id: keyId ? `${keyId.slice(0, 8)}...${keyId.slice(-4)}` : 'NOT SET',
-      environment: keyId?.startsWith('rzp_live_') ? 'LIVE' : 'UNKNOWN'
-    });
-
-    if (!keyId || !keySecret) {
-      console.error('❌ Razorpay credentials not configured');
-      throw new Error('Payment gateway not configured');
+    // 5️⃣ Razorpay secret
+    const RAZORPAY_KEY_SECRET = Deno.env.get("RAZORPAY_KEY_SECRET");
+    if (!RAZORPAY_KEY_SECRET) {
+      console.error("❌ Missing RAZORPAY_KEY_SECRET");
+      return jsonError("Server configuration error", 500);
     }
 
-    // Initialize Razorpay client with LIVE credentials
-    const razorpay = new Razorpay({
-      key_id: keyId,
-      key_secret: keySecret,
-    });
+    // 6️⃣ Generate & compare HMAC-SHA256 signature (constant-time)
+    const expectedSignature = await generateHmacSha256(
+      RAZORPAY_KEY_SECRET,
+      `${razorpay_order_id}|${razorpay_payment_id}`
+    );
 
-    // Verify payment signature using Razorpay webhook verification
-    let isValid = false;
-    try {
-      isValid = razorpay.webhooks.verifyPaymentSignature({
-        order_id: razorpay_order_id,
-        payment_id: razorpay_payment_id,
-        signature: razorpay_signature,
-      });
-    } catch (verifyError: unknown) {
-      const errorMessage = verifyError instanceof Error 
-        ? verifyError.message 
-        : 'Unknown error';
-      const errorDetails = verifyError && typeof verifyError === 'object' && 'error' in verifyError
-        ? verifyError.error
-        : verifyError;
-      
-      console.error('❌ Signature verification error:', {
-        message: errorMessage,
-        error: errorDetails
-      });
-      throw new Error(`Signature verification failed: ${errorMessage}`);
+    if (!safeEqual(expectedSignature, razorpay_signature)) {
+      console.error("❌ Signature mismatch — payment verification FAILED");
+
+      // Mark this specific order as failed (lookup by razorpay_order_id + user_id for safety)
+      await supabase
+        .from("orders")
+        .update({ status: "failed", payment_status: "failed" })
+        .eq("razorpay_order_id", razorpay_order_id)
+        .eq("user_id", user.id);
+
+      return jsonError("Payment verification failed – Invalid signature", 400);
     }
 
-    if (!isValid) {
-      console.error('❌ Invalid payment signature');
-      throw new Error('Invalid payment signature');
-    }
+    console.log("✅ Signature verified successfully");
 
-    console.log('✅ Payment signature verified successfully');
-
-    // Initialize Supabase client
-    if (!supabaseServiceKey) {
-      console.error('❌ Supabase service role key not configured');
-      throw new Error('Database service not configured');
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Update order status in Supabase
-    // Note: The order_id in Supabase might be different from Razorpay order_id
-    // We'll try to match by razorpay_order_id if that column exists, or by id
-    console.log('Updating order in Supabase:', {
-      razorpayOrderId: razorpay_order_id,
-      paymentId: razorpay_payment_id
-    });
-
-    const { data: updateData, error: updateError } = await supabase
-      .from('orders')
-      .update({ 
-        status: 'completed',
-        payment_intent_id: razorpay_payment_id,
-        razorpay_order_id: razorpay_order_id,
-        updated_at: new Date().toISOString()
+    // 7️⃣ Update order — ONLY after signature passes
+    //    Match by razorpay_order_id + user_id (no extra order_id field needed from frontend)
+    const { data: updatedOrder, error: updateError } = await supabase
+      .from("orders")
+      .update({
+        status: "paid",                           // ✅ correct status value
+        payment_status: "completed",              // ✅ dedicated payment_status column
+        razorpay_payment_id: razorpay_payment_id, // ✅ correct field name
+        payment_signature: razorpay_signature,    // ✅ store for audit trail
+        updated_at: new Date().toISOString(),
       })
-      .eq('razorpay_order_id', razorpay_order_id)
-      .select();
+      .eq("razorpay_order_id", razorpay_order_id)
+      .eq("user_id", user.id)
+      .select()
+      .single();
 
-    // If update by razorpay_order_id fails, try by id
-    if (updateError || !updateData || updateData.length === 0) {
-      console.log('⚠️ Update by razorpay_order_id failed, trying by id:', updateError?.message);
-      const { data: updateData2, error: updateError2 } = await supabase
-        .from('orders')
-        .update({ 
-          status: 'completed',
-          payment_intent_id: razorpay_payment_id,
-          razorpay_order_id: razorpay_order_id,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', razorpay_order_id)
-        .select();
-
-      if (updateError2) {
-        console.error('❌ Failed to update order in Supabase:', updateError2);
-        // Don't throw - payment is verified, just log the database error
-        console.warn('⚠️ Payment verified but order update failed. Payment ID:', razorpay_payment_id);
-      } else {
-        console.log('✅ Order updated in Supabase:', updateData2);
-      }
-    } else {
-      console.log('✅ Order updated in Supabase:', updateData);
+    if (updateError || !updatedOrder) {
+      console.error("❌ Failed to update order:", updateError?.message);
+      return jsonError(
+        "Payment verified but order update failed. Please contact support.",
+        500,
+        updateError?.message ?? "No matching order found"
+      );
     }
 
-    console.log('=== VERIFY PAYMENT REQUEST SUCCESS ===');
-    return new Response(
-      JSON.stringify({ 
-        success: true,
-        message: 'Payment verified successfully',
-        payment_id: razorpay_payment_id,
-        order_id: razorpay_order_id
-      }),
-      { 
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      }
-    );
-  } catch (error) {
-    console.error('❌ Error verifying payment:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      name: error instanceof Error ? error.name : undefined
+    console.log("✅ Order updated successfully:", {
+      order_id: updatedOrder.id,
+      status: updatedOrder.status,
+      payment_status: updatedOrder.payment_status,
     });
 
-    const errorMessage = error instanceof Error ? error.message : 'Payment verification failed';
-    
-    console.error('=== VERIFY PAYMENT REQUEST FAILED ===');
+    // 8️⃣ Success
     return new Response(
-      JSON.stringify({ 
-        success: false,
-        error: errorMessage,
-        timestamp: new Date().toISOString()
+      JSON.stringify({
+        success: true,
+        message: "Payment verified successfully",
+        order_id: updatedOrder.id,
+        status: updatedOrder.status,
       }),
-      { 
+      {
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
       }
     );
+
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("❌ Verification error:", message);
+    return jsonError("Payment verification failed", 500, message);
   }
 });
