@@ -12,7 +12,7 @@ const PaymentFailed = () => {
       <div className="container max-w-2xl py-12">
         <div className="text-center space-y-6">
           <div className="flex justify-center">
-            <XCircle className="w-16 h-16 text-red-500" />
+            <XCircle className="w-16 h-16 text-brand-gold" />
           </div>
           <h1 className="text-2xl font-semibold">Ownership Confirmation Unsuccessful</h1>
           <p className="text-muted-foreground">

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Heart } from "lucide-react";
+import { Heart, ShieldCheck, Award } from "lucide-react";
 import MainLayout from "@/components/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Price } from "@/components/shared/Price";
@@ -156,9 +156,9 @@ const ArtworkDetails = () => {
         type="product"
         structuredData={structuredData}
       />
-      <div className="container py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="relative aspect-[3/4] rounded-lg overflow-hidden bg-muted p-4">
+      <div className="container py-12 md:py-20 lg:max-w-6xl">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+          <div className="relative aspect-[3/4] rounded-2xl overflow-hidden glass-premium p-6 lg:p-10 shadow-2xl">
             <img
               src={imageUrl || "/placeholder.svg"}
               alt={`${artwork.title} - ${artwork.category || "Artwork"} by ${artwork.artist?.full_name || "Unknown Artist"}`}
@@ -178,56 +178,70 @@ const ArtworkDetails = () => {
               </div>
             )}
             {imageError && (
-              <div className="absolute bottom-2 left-2 right-2 bg-red-500/90 text-white text-xs p-2 rounded">
+              <div className="absolute bottom-2 left-2 right-2 bg-brand-gold/90 text-white text-xs p-2 rounded">
                 Image loading failed: {imageError}
               </div>
             )}
           </div>
 
-          <div>
-            <h1 className="text-3xl font-serif mb-2">{artwork.title}</h1>
-            <p className="text-lg text-muted-foreground">by {artwork.artist?.full_name || "Unknown Artist"}</p>
+          <div className="flex flex-col h-full justify-center">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-gold/10 text-brand-gold border border-brand-gold/20 text-xs font-semibold uppercase tracking-widest">
+                <ShieldCheck className="w-4 h-4" />
+                AI Verified
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 text-white/80 border border-white/10 text-xs font-semibold uppercase tracking-widest">
+                <Award className="w-4 h-4" />
+                Authenticity Score: 92%
+              </div>
+            </div>
 
-            <div className="text-2xl font-semibold my-2">
-              <Price amount={artwork.price} />
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 text-white leading-tight">{artwork.title}</h1>
+            <p className="text-xl md:text-2xl text-muted-foreground font-medium mb-8">by <span className="text-white/90">{artwork.artist?.full_name || "Unknown Artist"}</span></p>
+
+            <div className="mb-8">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold mb-2">Investment</p>
+              <div className="text-3xl md:text-4xl font-bold text-brand-gold">
+                <Price amount={artwork.price} />
+              </div>
             </div>
 
             {artwork.description && (
-              <div className="prose max-w-none mb-4">
+              <div className="prose prose-invert max-w-none mb-8 text-white/70 text-lg leading-relaxed">
                 <p>{artwork.description}</p>
               </div>
             )}
 
             {artwork.category && (
-              <div className="inline-block px-3 py-1 bg-muted rounded-full text-sm">
+              <div className="inline-flex px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-sm text-white/80 mb-10">
                 {artwork.category}
               </div>
             )}
 
-            <div className="flex flex-col gap-4 mt-6">
+            <div className="flex flex-col gap-4">
               <div className="flex gap-4">
-                <Button size="lg" className="flex-1" onClick={handleAddToCart}>
-                  Reserve Artwork
+                <Button size="lg" className="flex-1 btn-primary h-14 text-lg rounded-xl" onClick={() => {
+                  handleAddToCart();
+                  navigate("/checkout");
+                }}>
+                  Own This Piece
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
-                  className={isLiked ? "text-red-500" : ""}
+                  className={`h-14 w-14 rounded-xl border-white/20 hover:border-brand-gold bg-transparent transition-all ${isLiked ? "text-brand-gold border-brand-gold bg-brand-gold/5" : "text-white"}`}
                   onClick={handleToggleLike}
                 >
-                  <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} />
+                  <Heart className={`h-6 w-6 ${isLiked ? "fill-current" : ""}`} />
                 </Button>
               </div>
               <Button
                 size="lg"
-                variant="secondary"
-                className="w-full"
-                onClick={() => {
-                  handleAddToCart();
-                  navigate("/checkout");
-                }}
+                variant="outline"
+                className="w-full btn-secondary h-14 text-lg rounded-xl opacity-80"
+                onClick={handleAddToCart}
               >
-                Acquire Artwork
+                Add to Collection
               </Button>
             </div>
           </div>

@@ -124,7 +124,7 @@ const ArtworkSlider = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-slide-up">
             Featured <span className="text-gradient">Artworks</span>
           </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-brand-red to-brand-blue mx-auto mb-6"></div>
+          <div className="w-20 h-1 bg-gradient-to-r from-brand-gold to-brand-gold mx-auto mb-6"></div>
           <p className="text-lg max-w-2xl mx-auto text-gray-300 animate-slide-up delay-100">
             Discover our curated selection of exceptional pieces
           </p>
@@ -158,7 +158,7 @@ const ArtworkSlider = () => {
         </div>
 
         <div className="mt-8 text-center">
-          <Button asChild className="bg-brand-blue hover:bg-brand-blue/90 group rounded-lg">
+          <Button asChild className="bg-brand-gold hover:bg-brand-gold/90 group rounded-lg">
             <Link to="/artworks" className="flex items-center gap-2">
               View All Artworks
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

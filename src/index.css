@@ -6,33 +6,33 @@
 
 @layer base {
   :root {
-    --background: 0 0% 7%;
+    --background: 0 0% 0%;
     --foreground: 0 0% 95%;
 
-    --card: 0 0% 10%;
+    --card: 0 0% 4%;
     --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 7%;
+    --popover: 0 0% 4%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 0 64% 33%;
-    --primary-foreground: 0 0% 95%;
+    --primary: 43 45% 59%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 220 65% 33%;
+    --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 95%;
 
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 220 65% 33%;
-    --accent-foreground: 0 0% 95%;
+    --accent: 43 45% 59%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 95%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 64% 33%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 43 45% 59%;
 
     --radius: 0.5rem;
   }
@@ -98,7 +98,7 @@
   }
   
   .artwork-card {
-    @apply flex flex-col overflow-hidden rounded-md border border-border transition-all duration-300 hover:shadow-lg hover:border-brand-red relative z-10 bg-black/70 backdrop-blur-sm;
+    @apply flex flex-col overflow-hidden rounded-md border border-white/5 transition-all duration-500 hover:shadow-[0_0_30px_rgba(194,163,107,0.1)] hover:border-brand-gold/30 relative z-10 bg-brand-dark backdrop-blur-sm;
   }
 
   .artwork-image {
@@ -110,26 +110,34 @@
   }
 
   .btn-primary {
-    @apply bg-brand-red text-white hover:opacity-90 transition-opacity;
+    @apply bg-brand-gold text-black font-medium hover:bg-brand-goldMuted transition-all duration-300 shadow-sm hover:shadow-[0_0_15px_rgba(194,163,107,0.25)];
   }
 
   .btn-secondary {
-    @apply bg-brand-blue text-white hover:opacity-90 transition-opacity;
+    @apply bg-transparent text-white border border-white/20 hover:border-brand-gold hover:text-brand-gold transition-all duration-300;
   }
 
   .section-padding {
-    @apply py-20 md:py-32;
+    @apply py-24 md:py-32;
   }
 
   .text-gradient {
-    @apply bg-gradient-to-r from-brand-red to-brand-blue bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-brand-gold to-white bg-clip-text text-transparent;
   }
 
   .card-hover {
-    @apply transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl;
+    @apply transition-transform duration-500 hover:scale-[1.01] hover:shadow-xl;
   }
 
   .glass-card {
-    @apply bg-black/60 backdrop-blur-md border border-white/10;
+    @apply bg-black/80 backdrop-blur-xl border border-white/10;
+  }
+
+  .glass-premium {
+    @apply bg-brand-dark/80 backdrop-blur-2xl border border-white/5;
+  }
+
+  .card-hover-gold {
+    @apply transition-all duration-500 hover:scale-[1.01] hover:shadow-[0_0_25px_rgba(194,163,107,0.15)] hover:border-brand-gold/30;
   }
 }

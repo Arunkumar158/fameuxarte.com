@@ -66,7 +66,7 @@ const MobileMenu = ({ onClose }: MobileMenuProps) => {
                   <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
                     <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
                     {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-brand-red text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
+                      <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-brand-gold text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
                         {cartCount}
                       </span>
                     )}
@@ -76,7 +76,7 @@ const MobileMenu = ({ onClose }: MobileMenuProps) => {
                   <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
                     <Heart className="h-4 w-4 sm:h-5 sm:w-5" />
                     {likedCount > 0 && (
-                      <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-brand-red text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
+                      <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-brand-gold text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
                         {likedCount}
                       </span>
                     )}

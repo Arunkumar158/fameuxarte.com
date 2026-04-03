@@ -26,7 +26,7 @@ const NewsletterSignup = () => {
 
   return (
     <section className="bg-maze-pattern bg-fixed py-16 relative">
-      <div className="absolute inset-0 bg-gradient-to-r from-brand-red/30 to-brand-blue/30 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-brand-gold/30 to-brand-gold/30 backdrop-blur-sm"></div>
       <div className="container relative z-10">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl md:text-4xl font-heading font-bold animate-slide-up">
@@ -45,13 +45,13 @@ const NewsletterSignup = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-white/10 border-white/20 placeholder:text-white/50 focus:border-brand-red"
+                className="w-full bg-white/10 border-white/20 placeholder:text-white/50 focus:border-brand-gold"
               />
             </div>
             <Button 
               type="submit" 
               disabled={isSubmitting}
-              className="bg-brand-blue hover:bg-brand-blue/90 group flex items-center gap-2 rounded-lg"
+              className="bg-brand-gold hover:bg-brand-gold/90 group flex items-center gap-2 rounded-lg"
             >
               {isSubmitting ? "Subscribing..." : "Subscribe"}
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />

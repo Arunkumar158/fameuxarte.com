@@ -33,90 +33,61 @@ const HeroSection = () => {
       }}
     >
       {/* Overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-black/40" />
 
-      {/* Animated Background Elements with Parallax */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          style={{ x: moveX, y: moveY }}
-          className="absolute -inset-[20px] bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-blue-500/10 blur-3xl"
-        />
+      {/* Animated Background Elements with Parallax - Subtle Gold */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none mix-blend-screen">
         <motion.div
           style={{ x: useTransform(springX, [0, 1], [30, -30]), y: useTransform(springY, [0, 1], [30, -30]) }}
-          className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"
+          className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 bg-brand-gold/5 rounded-full blur-[100px]"
         />
         <motion.div
           style={{ x: useTransform(springX, [0, 1], [-40, 40]), y: useTransform(springY, [0, 1], [-40, 40]) }}
-          className="absolute bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-gradient-to-br from-pink-500/20 to-blue-500/20 rounded-full blur-3xl"
+          className="absolute bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-brand-gold/5 rounded-full blur-[100px]"
         />
       </div>
 
       {/* Content */}
       <div className="container relative z-10 flex flex-col items-center text-center">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="relative mb-4 group"
+          className="relative mb-6 group"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-blue-600/20 blur-3xl transform group-hover:scale-110 transition-transform duration-700" />
+          <div className="absolute inset-0 bg-brand-gold/10 blur-[80px] transform group-hover:scale-110 transition-transform duration-700" />
 
           <motion.h1
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            className="relative text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 bg-gradient-to-r from-white via-purple-100 to-blue-100 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+            className="relative text-5xl md:text-7xl lg:text-[5.5rem] font-bold tracking-tight mb-6 bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent drop-shadow-sm leading-tight"
           >
-            {/* FAMEUXARTE */}
+            Discover Real Artists.<br />Own Authentic Art.
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="relative text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent"
+            className="relative text-xl md:text-2xl font-medium text-brand-gold/90 max-w-2xl mx-auto"
           >
-            Art Gallery for the unseen artists
+            A curated platform built for trust, emotion, and originality.
           </motion.p>
         </motion.div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="mt-6 max-w-xl text-lg md:text-xl text-white/90 font-light tracking-wide"
-        >
-          <span className="text-purple-300">VISION.</span>{" "}
-          <span className="text-pink-300">INSPIRE.</span>{" "}
-          <span className="text-blue-300">COLLECT</span>
-        </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9, duration: 0.6 }}
-          className="mt-10 flex flex-wrap justify-center gap-4"
+          transition={{ delay: 0.6, duration: 0.6 }}
+          className="mt-8 flex flex-wrap justify-center gap-6"
         >
-          <Button asChild size="lg" className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 group rounded-lg transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-purple-500/25">
+          <Button asChild size="lg" className="btn-primary h-14 px-8 text-lg rounded-full">
             <Link to="/artworks" className="flex items-center gap-2">
-              <span className="relative z-10">Explore Artworks</span>
-              <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-white/20 to-purple-500/0"
-                initial={{ x: "-100%" }}
-                whileHover={{ x: "100%" }}
-                transition={{ duration: 0.6 }}
-              />
+              <span>Explore Collection</span>
+              <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
             </Link>
           </Button>
-          <Button asChild variant="outline" size="lg" className="relative overflow-hidden bg-transparent text-white border-white/30 hover:border-white/50 hover:bg-white/5 rounded-lg transition-all duration-300 group hover:scale-105 active:scale-95">
-            <Link to="/artists" className="relative">
-              <span className="relative z-10">Meet the Artists</span>
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-white/10 to-purple-500/0"
-                initial={{ x: "-100%" }}
-                whileHover={{ x: "100%" }}
-                transition={{ duration: 0.6 }}
-              />
+          <Button asChild variant="outline" size="lg" className="btn-secondary h-14 px-8 text-lg rounded-full bg-black/40 backdrop-blur-md">
+            <Link to="/artists">
+              <span>Meet the Artists</span>
             </Link>
           </Button>
         </motion.div>

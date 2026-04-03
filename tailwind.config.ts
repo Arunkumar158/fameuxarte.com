@@ -75,10 +75,11 @@ export default {
         },
         // Brand colors
         brand: {
-          red: '#8B1E1E',
-          blue: '#1E3F8B',
+          gold: '#C2A36B', // Soft, muted luxury gold
+          goldMuted: '#A38B57',
           black: '#000000',
-          dark: '#121212',
+          dark: '#0A0A0A', // Deep charcoal
+          surface: '#111111',
         }
       },
       fontFamily: {
@@ -132,8 +133,8 @@ export default {
           '100%': { opacity: '1', transform: 'translateY(0)' }
         },
         'glow': {
-          '0%, 100%': { boxShadow: '0 0 5px rgba(139, 30, 30, 0.5)' },
-          '50%': { boxShadow: '0 0 20px rgba(30, 63, 139, 0.8)' }
+          '0%, 100%': { boxShadow: '0 0 5px rgba(194, 163, 107, 0.2)' },
+          '50%': { boxShadow: '0 0 20px rgba(194, 163, 107, 0.5)' }
         },
         'float': {
           '0%, 100%': { transform: 'translateY(0)' },

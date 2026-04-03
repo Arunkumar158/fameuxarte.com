@@ -40,7 +40,7 @@ const ArtworkCard = ({ artwork, index }) => {
         </div>
         {artwork.category && (
           <div className="mt-2">
-            <span className="inline-block px-2 py-1 text-xs bg-brand-red/20 text-brand-red rounded">
+            <span className="inline-block px-2 py-1 text-xs bg-brand-gold/20 text-brand-gold rounded">
               {artwork.category}
             </span>
           </div>
@@ -163,7 +163,7 @@ const FeaturedArtworks = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-slide-up">
             Featured <span className="text-gradient">Artworks</span>
           </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-brand-red to-brand-blue mx-auto mb-6"></div>
+          <div className="w-20 h-1 bg-gradient-to-r from-brand-gold to-brand-gold mx-auto mb-6"></div>
           <p className="text-lg max-w-2xl mx-auto text-gray-300 animate-slide-up delay-100">
             Discover our curated selection of exceptional pieces that represent the pinnacle of contemporary artistic expression
           </p>
@@ -183,7 +183,7 @@ const FeaturedArtworks = () => {
         </div>
 
         <div className="mt-12 text-center">
-          <Button asChild className="bg-brand-blue hover:bg-brand-blue/90 group rounded-lg">
+          <Button asChild className="bg-brand-gold hover:bg-brand-gold/90 group rounded-lg">
             <Link to="/artworks" className="flex items-center gap-2">
               View All Artworks
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

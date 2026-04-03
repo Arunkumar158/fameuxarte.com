@@ -41,7 +41,7 @@ const ContactSection = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-slide-up">
             Get in <span className="text-gradient">Touch</span>
           </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-brand-red to-brand-blue mx-auto mb-6"></div>
+          <div className="w-20 h-1 bg-gradient-to-r from-brand-gold to-brand-gold mx-auto mb-6"></div>
           <p className="text-lg max-w-2xl mx-auto text-gray-300 animate-slide-up delay-100">
             Connect with us to discuss acquisitions, artist representation, or any questions
           </p>
@@ -59,7 +59,7 @@ const ContactSection = () => {
                   onChange={handleChange}
                   placeholder="Your name"
                   required
-                  className="bg-white/5 border-white/10 focus:border-brand-red"
+                  className="bg-white/5 border-white/10 focus:border-brand-gold"
                 />
               </div>
               
@@ -73,7 +73,7 @@ const ContactSection = () => {
                   onChange={handleChange}
                   placeholder="your.email@example.com"
                   required
-                  className="bg-white/5 border-white/10 focus:border-brand-red"
+                  className="bg-white/5 border-white/10 focus:border-brand-gold"
                 />
               </div>
               
@@ -86,13 +86,13 @@ const ContactSection = () => {
                   onChange={handleChange}
                   placeholder="How can we help you?"
                   required
-                  className="bg-white/5 border-white/10 focus:border-brand-red min-h-[150px]"
+                  className="bg-white/5 border-white/10 focus:border-brand-gold min-h-[150px]"
                 />
               </div>
               
               <Button 
                 type="submit" 
-                className="w-full bg-brand-red hover:bg-brand-red/90"
+                className="w-full bg-brand-gold hover:bg-brand-gold/90"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Sending..." : "Send Message"}
@@ -102,7 +102,7 @@ const ContactSection = () => {
           
           <div className="space-y-8 animate-slide-up delay-200">
             <div className="glass-card p-6 rounded-lg flex items-start gap-4">
-              <MapPin className="h-6 w-6 text-brand-red shrink-0 mt-1" />
+              <MapPin className="h-6 w-6 text-brand-gold shrink-0 mt-1" />
               <div>
                 <h3 className="font-heading text-xl mb-1">Visit Our Gallery</h3>
                 <p className="text-gray-300">
@@ -116,7 +116,7 @@ const ContactSection = () => {
             </div>
             
             <div className="glass-card p-6 rounded-lg flex items-start gap-4">
-              <Mail className="h-6 w-6 text-brand-red shrink-0 mt-1" />
+              <Mail className="h-6 w-6 text-brand-gold shrink-0 mt-1" />
               <div>
                 <h3 className="font-heading text-xl mb-1">Email Us</h3>
                 <p className="text-gray-300">fameuxarte@gmail.com</p>
@@ -127,7 +127,7 @@ const ContactSection = () => {
             </div>
             
             <div className="glass-card p-6 rounded-lg flex items-start gap-4">
-              <Phone className="h-6 w-6 text-brand-red shrink-0 mt-1" />
+              <Phone className="h-6 w-6 text-brand-gold shrink-0 mt-1" />
               <div>
                 <h3 className="font-heading text-xl mb-1">Call Us</h3>
                 <p className="text-gray-300">Arun Kumar (8921487385)</p>

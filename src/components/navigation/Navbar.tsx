@@ -45,10 +45,10 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo/Brand - Left */}
           <Link to="/" className={`font-heading font-bold text-xl sm:text-2xl tracking-tight ${logoColor} relative group`}>
-            <span className="relative z-10 bg-gradient-to-br from-white via-white/90 to-brand-red bg-clip-text text-transparent transition-all duration-300 group-hover:from-brand-red group-hover:to-white">
+            <span className="relative z-10 bg-gradient-to-br from-white via-white/90 to-brand-gold bg-clip-text text-transparent transition-all duration-300 group-hover:from-brand-gold group-hover:to-white">
               FAMEUXARTE
             </span>
-            <span className="absolute -inset-x-4 -inset-y-2 z-0 scale-75 bg-gradient-to-r from-brand-red/0 via-white/5 to-brand-red/0 opacity-0 blur-lg transition-all duration-300 group-hover:scale-100 group-hover:opacity-100"></span>
+            <span className="absolute -inset-x-4 -inset-y-2 z-0 scale-75 bg-gradient-to-r from-brand-gold/0 via-white/5 to-brand-gold/0 opacity-0 blur-lg transition-all duration-300 group-hover:scale-100 group-hover:opacity-100"></span>
           </Link>
 
           {/* Navigation Links - Center */}
@@ -56,19 +56,19 @@ const Navbar = () => {
             <div className={`flex-1 flex justify-center items-center space-x-4 sm:space-x-8 ${textColor} mx-4`}>
               <Link to="/artworks" className="text-sm sm:text-base relative group">
                 <span className="relative">Artworks</span>
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-red via-white to-brand-red group-hover:w-full transition-all duration-300"></span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
               </Link>
               <Link to="/artists" className="text-sm sm:text-base relative group">
                 <span className="relative">Artists</span>
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-red via-white to-brand-red group-hover:w-full transition-all duration-300"></span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
               </Link>
               <Link to="/collections" className="text-sm sm:text-base relative group">
                 <span className="relative">Collections</span>
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-red via-white to-brand-red group-hover:w-full transition-all duration-300"></span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
               </Link>
               <Link to="/blog" className="text-sm sm:text-base relative group">
                 <span className="relative">Blog</span>
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-red via-white to-brand-red group-hover:w-full transition-all duration-300"></span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
               </Link>
             </div>
           )}
@@ -83,9 +83,9 @@ const Navbar = () => {
                 
                 <Link to="/cart">
                   <Button variant="ghost" size="icon" className={`${textColor} relative h-8 w-8 sm:h-10 sm:w-10 group`}>
-                    <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:scale-110 group-hover:text-brand-red" />
+                    <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:scale-110 group-hover:text-brand-gold" />
                     {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-gradient-to-br from-brand-red to-red-600 text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shadow-lg">
+                      <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-gradient-to-br from-brand-gold to-yellow-600 text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shadow-lg">
                         {cartCount}
                       </span>
                     )}
@@ -94,9 +94,9 @@ const Navbar = () => {
 
                 <Link to="/liked-items">
                   <Button variant="ghost" size="icon" className={`${textColor} relative h-8 w-8 sm:h-10 sm:w-10 group`}>
-                    <Heart className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:scale-110 group-hover:text-brand-red" />
+                    <Heart className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:scale-110 group-hover:text-brand-gold" />
                     {likedCount > 0 && (
-                      <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-gradient-to-br from-brand-red to-red-600 text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shadow-lg">
+                      <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-gradient-to-br from-brand-gold to-yellow-600 text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shadow-lg">
                         {likedCount}
                       </span>
                     )}
@@ -109,8 +109,8 @@ const Navbar = () => {
               <div className="flex items-center space-x-1 sm:space-x-2">
                 <Link to="/profile">
                   <Button variant="ghost" size="icon" className={`${textColor} h-8 w-8 sm:h-10 sm:w-10 group relative overflow-hidden`}>
-                    <User className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:scale-110 group-hover:text-brand-red" />
-                    <span className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-red/0 via-white/5 to-brand-red/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:scale-110 group-hover:text-brand-gold" />
+                    <span className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-gold/0 via-white/5 to-brand-gold/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                   </Button>
                 </Link>
                 <Button 
@@ -119,9 +119,9 @@ const Navbar = () => {
                   className={`${textColor} hidden md:flex items-center gap-2 text-xs sm:text-sm group relative overflow-hidden`}
                   onClick={() => signOut()}
                 >
-                  <LogOut className="w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-300 group-hover:scale-110 group-hover:text-brand-red" />
+                  <LogOut className="w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-300 group-hover:scale-110 group-hover:text-brand-gold" />
                   <span className="relative z-10">Logout</span>
-                  <span className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-red/0 via-white/5 to-brand-red/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                  <span className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-gold/0 via-white/5 to-brand-gold/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                 </Button>
               </div>
             ) : (
@@ -132,7 +132,7 @@ const Navbar = () => {
                   className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 relative group overflow-hidden border-white/20 hover:border-white/40 transition-colors"
                 >
                   <span className="relative z-10">Sign In</span>
-                  <span className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-red/0 via-white/5 to-brand-red/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                  <span className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-gold/0 via-white/5 to-brand-gold/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                 </Button>
               </Link>
             )}

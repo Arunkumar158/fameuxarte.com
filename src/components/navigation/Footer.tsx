@@ -69,16 +69,16 @@ const Footer = () => {
             <h3 className="font-heading font-semibold text-lg">Shop</h3>
             <ul className="space-y-3 text-sm text-gray-300">
               <li>
-                <Link to="/artworks" className="hover:text-brand-red transition-colors">Artworks</Link>
+                <Link to="/artworks" className="hover:text-brand-gold transition-colors">Artworks</Link>
               </li>
               <li>
-                <Link to="/artists" className="hover:text-brand-red transition-colors">Artists</Link>
+                <Link to="/artists" className="hover:text-brand-gold transition-colors">Artists</Link>
               </li>
               <li>
-                <Link to="/collections" className="hover:text-brand-red transition-colors">Collections</Link>
+                <Link to="/collections" className="hover:text-brand-gold transition-colors">Collections</Link>
               </li>
               <li>
-                <Link to="/blog" className="hover:text-brand-red transition-colors">Blog</Link>
+                <Link to="/blog" className="hover:text-brand-gold transition-colors">Blog</Link>
               </li>
             </ul>
           </div>
@@ -87,16 +87,16 @@ const Footer = () => {
             <h3 className="font-heading font-semibold text-lg">About</h3>
             <ul className="space-y-3 text-sm text-gray-300">
               <li>
-                <Link to="/blog/our-story" className="hover:text-brand-red transition-colors">Our Story</Link>
+                <Link to="/blog/our-story" className="hover:text-brand-gold transition-colors">Our Story</Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-brand-red transition-colors">Contact Us</Link>
+                <Link to="/contact" className="hover:text-brand-gold transition-colors">Contact Us</Link>
               </li>
               <li>
-                <Link to="/cancellations-and-refunds" className="hover:text-brand-red transition-colors">Cancellations & Refunds</Link>
+                <Link to="/cancellations-and-refunds" className="hover:text-brand-gold transition-colors">Cancellations & Refunds</Link>
               </li>
               <li>
-                <Link to="/faq" className="hover:text-brand-red transition-colors">FAQ</Link>
+                <Link to="/faq" className="hover:text-brand-gold transition-colors">FAQ</Link>
               </li>
             </ul>
           </div>
@@ -112,7 +112,7 @@ const Footer = () => {
                 placeholder="Your email" 
                 className="bg-white/10 border-white/20 placeholder:text-white/50"
               />
-              <Button type="submit" size="icon" className="bg-brand-red hover:bg-brand-red/90 group">
+              <Button type="submit" size="icon" className="bg-brand-gold hover:bg-brand-gold/90 group">
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </div>
@@ -123,9 +123,9 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p>&copy; {new Date().getFullYear()} Fameuxarte. All rights reserved.</p>
             <div className="flex gap-4 mt-4 md:mt-0">
-              <Link to="/privacy-policy" className="hover:text-brand-red transition-colors">Privacy Policy</Link>
+              <Link to="/privacy-policy" className="hover:text-brand-gold transition-colors">Privacy Policy</Link>
               <span className="hidden md:inline">|</span>
-              <Link to="/terms-of-service" className="hover:text-brand-red transition-colors">Terms of Service</Link>
+              <Link to="/terms-of-service" className="hover:text-brand-gold transition-colors">Terms of Service</Link>
             </div>
           </div>
         </div>

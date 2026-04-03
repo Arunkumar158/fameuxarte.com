@@ -137,7 +137,7 @@ const Blog = () => {
                   to={`/blog/${post.Slug || post.id}`}
                   className="group"
                 >
-                  <article className="h-full bg-card border rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-brand-red/20">
+                  <article className="h-full bg-card border rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-brand-gold/20">
                     <div className="h-48 overflow-hidden">
                       {post.image_url ? (
                         <img
@@ -159,7 +159,7 @@ const Blog = () => {
                           {new Date(post.published_at).toLocaleDateString()}
                         </time>
                       </div>
-                      <h2 className="text-xl font-semibold mb-2 group-hover:text-brand-red transition-colors line-clamp-2">
+                      <h2 className="text-xl font-semibold mb-2 group-hover:text-brand-gold transition-colors line-clamp-2">
                         {post.title}
                       </h2>
                       <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
@@ -169,7 +169,7 @@ const Blog = () => {
                         <span className="text-sm text-muted-foreground">
                           {post.profiles?.full_name || "Anonymous"}
                         </span>
-                        <span className="text-brand-blue group-hover:translate-x-1 transition-transform flex items-center gap-1 text-sm">
+                        <span className="text-brand-gold group-hover:translate-x-1 transition-transform flex items-center gap-1 text-sm">
                           Read More <ArrowRight className="h-3 w-3" />
                         </span>
                       </div>

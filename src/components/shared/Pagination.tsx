@@ -64,7 +64,7 @@ const Pagination = ({
         </>
       )}
 
-      {/* Page numbers: active page uses brand-red (Fameuxarte dark theme). */}
+      {/* Page numbers: active page uses brand-gold (Fameuxarte dark theme). */}
       {visiblePages.map((p) => (
         <Button
           key={p}
@@ -74,7 +74,7 @@ const Pagination = ({
           className={cn(
             "h-8 w-8",
             currentPage === p &&
-              "bg-brand-red border-brand-red text-white hover:bg-brand-red/90 hover:text-white"
+              "bg-brand-gold border-brand-gold text-white hover:bg-brand-gold/90 hover:text-white"
           )}
           aria-label={currentPage === p ? `Page ${p} (current)` : `Page ${p}`}
           aria-current={currentPage === p ? "page" : undefined}

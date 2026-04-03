@@ -63,7 +63,7 @@ const BlogInsights = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-slide-up">
             Art <span className="text-gradient">Insights</span>
           </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-brand-red to-brand-blue mx-auto mb-6"></div>
+          <div className="w-20 h-1 bg-gradient-to-r from-brand-gold to-brand-gold mx-auto mb-6"></div>
           <p className="text-lg max-w-2xl mx-auto text-gray-300 animate-slide-up delay-100">
             Discover perspectives, analyses, and stories from the world of fine art
           </p>
@@ -94,7 +94,7 @@ const BlogInsights = () => {
                     <time dateTime={post.published_at}>{new Date(post.published_at).toLocaleDateString()}</time>
                   </div>
                 </div>
-                <h3 className="font-heading text-xl mb-2 group-hover:text-brand-red transition-colors line-clamp-2">
+                <h3 className="font-heading text-xl mb-2 group-hover:text-brand-gold transition-colors line-clamp-2">
                   {post.title}
                 </h3>
                 <p className="text-sm text-gray-400 line-clamp-3 mb-4">
@@ -102,7 +102,7 @@ const BlogInsights = () => {
                 </p>
                 <div className="flex justify-between items-center">
                   <span className="text-sm">{post.profiles?.full_name || 'Anonymous'}</span>
-                  <span className="text-brand-blue group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                  <span className="text-brand-gold group-hover:translate-x-1 transition-transform flex items-center gap-1">
                     Read More <ArrowRight className="h-3 w-3" />
                   </span>
                 </div>
@@ -112,7 +112,7 @@ const BlogInsights = () => {
         </div>
 
         <div className="mt-12 text-center">
-          <Button asChild className="bg-brand-blue hover:bg-brand-blue/90">
+          <Button asChild className="bg-brand-gold hover:bg-brand-gold/90">
             <Link to="/blog">View All Articles</Link>
           </Button>
         </div>

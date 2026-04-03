@@ -34,7 +34,7 @@ const Testimonials = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-slide-up">
             Client <span className="text-gradient">Testimonials</span>
           </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-brand-red to-brand-blue mx-auto mb-6"></div>
+          <div className="w-20 h-1 bg-gradient-to-r from-brand-gold to-brand-gold mx-auto mb-6"></div>
           <p className="text-lg max-w-2xl mx-auto text-gray-300 animate-slide-up delay-100">
             Hear from art collectors and enthusiasts who have experienced the Fameuxarte difference
           </p>
@@ -54,7 +54,7 @@ const Testimonials = () => {
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className="h-5 w-5 text-brand-red"
+                    className="h-5 w-5 text-brand-gold"
                   >
                     <path
                       fillRule="evenodd"
@@ -65,9 +65,9 @@ const Testimonials = () => {
                 ))}
               </div>
               <blockquote className="relative">
-                <span className="text-5xl absolute -top-3 -left-2 text-brand-red opacity-30">"</span>
+                <span className="text-5xl absolute -top-3 -left-2 text-brand-gold opacity-30">"</span>
                 <p className="text-gray-300 z-10 relative">{testimonial.quote}</p>
-                <span className="text-5xl absolute bottom-0 right-0 text-brand-red opacity-30">"</span>
+                <span className="text-5xl absolute bottom-0 right-0 text-brand-gold opacity-30">"</span>
               </blockquote>
               <Separator className="my-6 bg-white/20" />
               <div>

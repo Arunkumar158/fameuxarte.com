@@ -7,7 +7,7 @@ const CancellationsAndRefunds = () => (
     <section className="mb-6">
       <h2 className="text-2xl font-semibold mb-2">Order Cancellations</h2>
       <p>Orders can be cancelled within <strong>12 hours</strong> of placing the order, provided it hasn’t been shipped.</p>
-      <p className="mt-2">To cancel, please email us at <a href="mailto:fameuxarte@gmail.com" className="text-brand-red underline">fameuxarte@gmail.com</a> or use our <a href="/contact" className="text-brand-red underline">contact form</a>.</p>
+      <p className="mt-2">To cancel, please email us at <a href="mailto:fameuxarte@gmail.com" className="text-brand-gold underline">fameuxarte@gmail.com</a> or use our <a href="/contact" className="text-brand-gold underline">contact form</a>.</p>
     </section>
     <section className="mb-6">
       <h2 className="text-2xl font-semibold mb-2">Refunds</h2>
@@ -25,7 +25,7 @@ const CancellationsAndRefunds = () => (
     </section>
     <section className="mb-6">
       <h2 className="text-2xl font-semibold mb-2">Contact Us</h2>
-      <p>For any refund/cancellation queries, reach us at <a href="mailto:fameuxarte@gmail.com" className="text-brand-red underline">fameuxarte@gmail.com</a> or call <a href="tel:+918921487385" className="text-brand-red underline">+91-8921487385</a>.</p>
+      <p>For any refund/cancellation queries, reach us at <a href="mailto:fameuxarte@gmail.com" className="text-brand-gold underline">fameuxarte@gmail.com</a> or call <a href="tel:+918921487385" className="text-brand-gold underline">+91-8921487385</a>.</p>
     </section>
   </div>
 );

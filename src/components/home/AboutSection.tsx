@@ -9,7 +9,7 @@ const AboutSection = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
             About <span className="text-gradient">Fameuxarte</span>
           </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-brand-red to-brand-blue mx-auto mb-6"></div>
+          <div className="w-20 h-1 bg-gradient-to-r from-brand-gold to-brand-gold mx-auto mb-6"></div>
           
           <div className="space-y-4 text-gray-300">
             <p>
@@ -24,7 +24,7 @@ const AboutSection = () => {
           </div>
           
           <div className="mt-8 flex justify-center gap-4">
-            <Button asChild className="bg-brand-red hover:bg-brand-red/90 rounded-lg">
+            <Button asChild className="bg-brand-gold hover:bg-brand-gold/90 rounded-lg">
               <Link to="/about">Our Story</Link>
             </Button>
             <Button asChild variant="outline" className="border-white text-white hover:bg-white/10 rounded-lg">
