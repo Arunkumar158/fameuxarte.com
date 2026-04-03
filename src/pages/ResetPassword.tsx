@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,28 +13,48 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [sessionReady, setSessionReady] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  // Validate recovery session: Supabase exchanges hash for session on load
   useEffect(() => {
     let mounted = true;
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    
     const resolve = (ready: boolean) => {
       if (mounted) setSessionReady(ready);
     };
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session && mounted) {
+
+    const initializeSession = async () => {
+      // 1. Explicitly check for PKCE code in URL as requested
+      const code = searchParams.get("code");
+      if (code) {
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        if (exchangeError) {
+          console.error("Error exchanging code:", exchangeError);
+          resolve(false);
+          return;
+        }
+      }
+
+      // 2. Validate session (handles both implicit hash #access_token and established PKCE sessions)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
         resolve(true);
         return;
       }
-      // Hash may be processed asynchronously; give it a short window
-      timeoutId = setTimeout(() => {
-        supabase.auth.getSession().then(({ data: { session: s } }) => {
-          resolve(!!s);
-        });
+
+      // If hash processing takes a moment:
+      timeoutId = setTimeout(async () => {
+        const { data: { session: delayedSession } } = await supabase.auth.getSession();
+        resolve(!!delayedSession);
       }, 1500);
-    });
+    };
+
+    initializeSession();
+
+    // 3. Listen to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         if (mounted && session) {
@@ -43,12 +63,13 @@ const ResetPassword = () => {
         }
       }
     );
+
     return () => {
       mounted = false;
       if (timeoutId) clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
-  }, []);
+  }, [searchParams]);
 
   const isValid =
     password.length >= MIN_PASSWORD_LENGTH && password === confirmPassword;
@@ -58,10 +79,12 @@ const ResetPassword = () => {
     if (!isValid || loading) return;
     setError(null);
     setLoading(true);
+    
     try {
       const { error: updateError } = await supabase.auth.updateUser({
         password,
       });
+      
       if (updateError) {
         console.error("[ResetPassword] updateUser error:", updateError);
         if (updateError.message.toLowerCase().includes("password")) {
@@ -72,9 +95,16 @@ const ResetPassword = () => {
         setLoading(false);
         return;
       }
-      // Clear session after update so user must sign in with new password
+      
+      // Clear session after update so user must log in with the new password
       await supabase.auth.signOut();
-      navigate("/auth", { replace: true });
+      
+      // Show success flow
+      setSuccess(true);
+      setTimeout(() => {
+        navigate("/auth", { replace: true });
+      }, 3000); // Redirect after 3 seconds
+      
     } catch (err) {
       console.error("[ResetPassword] unexpected error:", err);
       setError("A network or unexpected error occurred. Please try again.");
@@ -82,7 +112,6 @@ const ResetPassword = () => {
     }
   };
 
-  // Still resolving session (e.g. hash not yet processed)
   if (sessionReady === null) {
     return (
       <MainLayout>
@@ -97,7 +126,6 @@ const ResetPassword = () => {
     );
   }
 
-  // Invalid or expired reset link
   if (sessionReady === false) {
     return (
       <MainLayout>
@@ -118,6 +146,29 @@ const ResetPassword = () => {
                 Back to sign in
               </Link>
             </p>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (success) {
+    return (
+      <MainLayout>
+        <div className="container max-w-md px-4 pt-24 pb-8 sm:pt-32 sm:pb-12">
+          <div className="rounded-lg border bg-card p-4 sm:p-8 text-card-foreground shadow-sm flex flex-col items-center">
+            <h1 className="mb-4 text-xl sm:text-2xl font-semibold text-center text-brand-gold">
+              Password Updated
+            </h1>
+            <p className="text-muted-foreground text-center mb-6">
+              Your password has been successfully reset.
+            </p>
+            <p className="text-sm text-muted-foreground mb-6">
+              Redirecting you to login...
+            </p>
+            <Button asChild className="w-full">
+              <Link to="/auth">Go to login now</Link>
+            </Button>
           </div>
         </div>
       </MainLayout>
@@ -179,11 +230,6 @@ const ResetPassword = () => {
               {loading ? "Updating…" : "Update password"}
             </Button>
           </form>
-          <p className="mt-4 text-center text-sm">
-            <Link to="/auth" className="text-primary hover:underline">
-              Back to sign in
-            </Link>
-          </p>
         </div>
       </div>
     </MainLayout>
