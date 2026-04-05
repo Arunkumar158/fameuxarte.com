@@ -12,6 +12,7 @@ import Navbar from "@/components/navigation/Navbar";
 import Footer from "@/components/navigation/Footer";
 import { generateOrganizationStructuredData } from "@/lib/seo";
 import { motion, AnimatePresence } from "framer-motion";
+import { PostHogProvider } from "@/providers/PostHogProvider";
 
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -102,21 +103,23 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <AuthProvider>
-            <CartProvider>
-              <CurrencyProvider>
-                <SEO
-                  title="Fameuxarte - Discover Authentic Artworks"
-                  description="Discover and purchase unique artworks from talented artists worldwide. Browse our curated collection of paintings, sculptures, and digital art."
-                  canonicalUrl="/"
-                  structuredData={organizationStructuredData}
-                />
-                <Layout>
-                  <AnimatedRoutes />
-                </Layout>
-              </CurrencyProvider>
-            </CartProvider>
-          </AuthProvider>
+          <PostHogProvider>
+            <AuthProvider>
+              <CartProvider>
+                <CurrencyProvider>
+                  <SEO
+                    title="Fameuxarte - Discover Authentic Artworks"
+                    description="Discover and purchase unique artworks from talented artists worldwide. Browse our curated collection of paintings, sculptures, and digital art."
+                    canonicalUrl="/"
+                    structuredData={organizationStructuredData}
+                  />
+                  <Layout>
+                    <AnimatedRoutes />
+                  </Layout>
+                </CurrencyProvider>
+              </CartProvider>
+            </AuthProvider>
+          </PostHogProvider>
         </BrowserRouter>
       </TooltipProvider>
     </HelmetProvider>

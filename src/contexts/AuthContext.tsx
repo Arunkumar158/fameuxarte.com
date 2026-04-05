@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { identifyUser, resetAnalytics, trackUserSignedUp } from "@/lib/analytics";
 
 interface AuthContextType {
   user: User | null;
@@ -24,12 +25,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+
+        // PostHog: identify user when a session is established
+        if (session?.user) {
+          identifyUser(session.user.id, {
+            email: session.user.email,
+            name:  session.user.user_metadata?.full_name,
+            role:  session.user.user_metadata?.role ?? 'buyer',
+          });
+        }
       }
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+
+      // PostHog: identify on initial page load if already logged in
+      if (session?.user) {
+        identifyUser(session.user.id, {
+          email: session.user.email,
+          name:  session.user.user_metadata?.full_name,
+          role:  session.user.user_metadata?.role ?? 'buyer',
+        });
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -52,11 +71,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
     });
     if (error) throw error;
+    // PostHog: fire sign-up event
+    trackUserSignedUp({ method: 'email' });
   };
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+    // PostHog: reset identity so next session is anonymous
+    resetAnalytics();
     navigate("/auth");
   };
 
