@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Price } from "@/components/shared/Price";
 import { useCart } from "@/contexts/CartContext";
 import { useLikedItems } from "@/hooks/useLikedItems";
-import { Heart, ShieldCheck, Sparkles } from "lucide-react";
+import { Heart, ShieldCheck, Sparkles, Images } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
@@ -18,6 +18,8 @@ type ArtworkCardProps = {
     price: number;
     image: string;
     category?: string;
+    /** Total number of images in the gallery (used for badge) */
+    imageCount?: number;
   };
 };
 
@@ -143,12 +145,20 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
             src={artwork.image}
             alt={artwork.title}
             className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            loading="lazy"
           />
         </div>
         <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 flex items-center gap-1.5 rounded-full border border-white/10 text-[10px] uppercase tracking-wider font-semibold text-brand-gold">
           <ShieldCheck className="w-3 h-3" />
           <span>AI Verified</span>
         </div>
+        {/* Multi-image gallery indicator */}
+        {artwork.imageCount && artwork.imageCount > 1 && (
+          <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-2 py-1 flex items-center gap-1 rounded-full border border-white/15 text-[10px] font-semibold text-white/90">
+            <Images className="w-3 h-3" />
+            <span>+{artwork.imageCount - 1}</span>
+          </div>
+        )}
       </Link>
       <div className="flex flex-col gap-1.5 p-5" style={{ transform: "translateZ(30px)" }}>
         <div className="flex items-start justify-between gap-2">

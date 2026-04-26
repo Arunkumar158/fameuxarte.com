@@ -1,28 +1,17 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import blogData from '@/components/Blog/blogData';
 
 export async function GET() {
   try {
-    // Fetch all artworks with slugs
+    // Fetch all artworks
     const { data: artworks, error: artworksError } = await supabase
       .from('artworks')
-      .select('slug, created_at, updated_at')
-      .not('slug', 'is', null);
+      .select('id, created_at, updated_at');
 
     if (artworksError) {
       console.error('Error fetching artworks:', artworksError);
       return NextResponse.json({ error: 'Failed to fetch artworks' }, { status: 500 });
-    }
-
-    // Fetch all blogs with slugs
-    const { data: blogs, error: blogsError } = await supabase
-      .from('blogs')
-      .select('Slug, created_at, updated_at')
-      .not('Slug', 'is', null);
-
-    if (blogsError) {
-      console.error('Error fetching blogs:', blogsError);
-      return NextResponse.json({ error: 'Failed to fetch blogs' }, { status: 500 });
     }
 
     // Base URL
@@ -43,7 +32,7 @@ export async function GET() {
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>${baseUrl}/blogs</loc>
+    <loc>${baseUrl}/blog</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -87,23 +76,23 @@ export async function GET() {
 ${artworks?.map(artwork => {
   const lastmod = artwork.updated_at || artwork.created_at;
   return `  <url>
-    <loc>${baseUrl}/artworks/${artwork.slug}</loc>
+    <loc>${baseUrl}/artworks/${artwork.id}</loc>
     <lastmod>${new Date(lastmod).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`;
 }).join('\n') || ''}
 
-  <!-- Dynamic blog pages -->
-${blogs?.map(blog => {
-  const lastmod = blog.updated_at || blog.created_at;
+  <!-- Static blog pages -->
+${blogData.map(post => {
+  const lastmod = `${post.publishDate}-01-01`;
   return `  <url>
-    <loc>${baseUrl}/blogs/${blog.Slug}</loc>
+    <loc>${baseUrl}/blog/${post.slug}</loc>
     <lastmod>${new Date(lastmod).toISOString()}</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.6</priority>
   </url>`;
-}).join('\n') || ''}
+}).join('\n')}
 </urlset>`;
 
     // Return XML response with appropriate headers

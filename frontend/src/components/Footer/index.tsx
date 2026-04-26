@@ -27,7 +27,8 @@ const Footer = () => {
                 />
               </Link>
               <div className="mb-9 text-base leading-relaxed text-body-color dark:text-body-color-dark">
-                <h1 className="font-semibold mb-2">Our Vision</h1>
+                <p className="font-bold text-black dark:text-white mb-2 text-xl">Our Vision</p>
+
                 <p>
                   We believe that every piece of art tells a story, and we are
                   dedicated to bringing those stories to life. Whether you are an

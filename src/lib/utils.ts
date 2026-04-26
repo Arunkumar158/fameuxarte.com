@@ -188,3 +188,31 @@ export const testStorageAccess = async (): Promise<boolean> => {
     return false;
   }
 };
+
+/**
+ * Get the full ordered list of gallery image paths for an artwork.
+ * Merges the new `images[]` array with the legacy `image_path` field.
+ * Always returns at least one entry if any image data is present.
+ *
+ * @param artwork - Object with optional images[] and image_path fields
+ * @returns string[] - Ordered list of unique storage paths
+ */
+export function getGalleryImages(artwork: {
+  images?: string[] | null;
+  image_path?: string | null;
+}): string[] {
+  // Start with the images array (filter out blank entries)
+  const arr = (artwork.images ?? []).filter((p): p is string => Boolean(p));
+
+  if (arr.length > 0) {
+    // Deduplicate while preserving order
+    return Array.from(new Set(arr));
+  }
+
+  // Fallback: single legacy image_path
+  if (artwork.image_path) {
+    return [artwork.image_path];
+  }
+
+  return [];
+}

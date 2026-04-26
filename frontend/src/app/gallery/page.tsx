@@ -58,7 +58,7 @@ function GalleryPage() {
       {/* Header */}
       <div className="flex items-center gap-2 mb-8">
         <Palette className="w-8 h-8 text-primary" />
-        <h1 className="text-4xl font-bold text-primary">Art Gallery</h1>
+        <h1 className="text-4xl font-bold text-primary">Contemporary Art Collection</h1>
       </div>
 
       {/* Category Filter */}
@@ -67,11 +67,10 @@ function GalleryPage() {
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`px-4 py-2 rounded-full transition-all ${
-              selectedCategory === category
+            className={`px-4 py-2 rounded-full transition-all ${selectedCategory === category
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-            }`}
+              }`}
           >
             {category}
           </button>

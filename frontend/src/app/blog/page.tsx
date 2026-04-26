@@ -5,16 +5,18 @@ import Breadcrumb from "@/components/Common/Breadcrumb";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Blog Page | Free Next.js Template for Startup and SaaS",
-  description: "This is Blog Page for Startup Nextjs Template",
-  // other metadata
+  title: "Fameuxarte Art Journal | Insights into Indian Contemporary Art",
+  description: "Explore the Fameuxarte Art Journal for stories behind the art, artist spotlights, and deep dives into the world of Indian contemporary art and investment.",
+  alternates: {
+    canonical: 'https://fameuxarte.com/blog',
+  },
 };
 
 const Blog = () => {
   return (
     <>
       <Breadcrumb
-        pageName="Blog Grid"
+        pageName="The Fameuxarte Art Journal"
         description="At Fameuxarte, we celebrate the beauty of artistic expression by showcasing stunning handmade paintings from talented artists worldwide. Discover unique masterpieces, connect with creativity, and bring timeless art into your space."
       />
 

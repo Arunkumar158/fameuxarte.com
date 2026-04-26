@@ -6,6 +6,7 @@ import SectionTitle from "@/components/shared/SectionTitle";
 import Pagination from "@/components/shared/Pagination";
 import { usePagination } from "@/hooks/usePagination";
 import { useArtworkImage } from "@/hooks/useArtworkImage";
+import { getGalleryImages } from "@/lib/utils";
 
 // Component to handle individual artwork with proper image loading
 const ArtworkCardWithImage = ({ artwork }: { artwork: {
@@ -15,10 +16,14 @@ const ArtworkCardWithImage = ({ artwork }: { artwork: {
   category: string | null;
   description: string | null;
   image_path: string | null;
+  images: string[] | null;
   slug: string | null;
   artist_id: string | null;
 } }) => {
-  const { imageUrl } = useArtworkImage(artwork.image_path);
+  // Resolve the first gallery image — falls back to image_path if images[] is empty
+  const galleryPaths = getGalleryImages(artwork);
+  const primaryPath = galleryPaths[0] ?? null;
+  const { imageUrl } = useArtworkImage(primaryPath);
   
   return (
     <ArtworkCard 
@@ -30,7 +35,8 @@ const ArtworkCardWithImage = ({ artwork }: { artwork: {
         artist: artwork.artist_id || "Unknown Artist",
         price: artwork.price,
         image: imageUrl,
-        category: artwork.category || "Uncategorized"
+        category: artwork.category || "Uncategorized",
+        imageCount: galleryPaths.length,
       }} 
     />
   );
@@ -58,7 +64,7 @@ const Collections = () => {
       try {
         const { data, error, count } = await supabase
           .from("artworks")
-          .select("id, title, price, category, description, image_path, slug, artist_id", { count: "exact" })
+          .select("id, title, price, category, description, image_path, images, slug, artist_id", { count: "exact" })
           .not("category", "eq", "Uncategorized")
           .range(from, to);
         

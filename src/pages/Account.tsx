@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect, useRef } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   Dialog,
   DialogContent,
@@ -31,12 +32,16 @@ import {
   Heart, 
   Edit, 
   Calendar, 
-  Plus 
+  Plus,
+  Upload,
+  X,
+  ImagePlus,
+  Loader2,
 } from "lucide-react";
 import MainLayout from "@/components/layouts/MainLayout";
 import ArtworkCard from "@/components/shared/ArtworkCard";
 import { useArtworkImage } from "@/hooks/useArtworkImage";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, generateSlug } from "@/lib/utils";
 
 interface Profile {
   id: string;
@@ -80,6 +85,225 @@ const LikedItemCard = ({ item }: { item: {
 
 
 
+// ─── Upload Artwork Section ─────────────────────────────────────────────────
+const UploadArtworkSection = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Generate previews whenever files change
+  useEffect(() => {
+    const urls = selectedFiles.map((f) => URL.createObjectURL(f));
+    setPreviews(urls);
+    return () => urls.forEach(URL.revokeObjectURL);
+  }, [selectedFiles]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    // Allow up to 10 images
+    setSelectedFiles((prev) => [...prev, ...files].slice(0, 10));
+    // Reset input so the same file can be re-added after removal
+    e.target.value = "";
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleUpload = async () => {
+    if (!user) return;
+    if (!title.trim()) {
+      toast({ variant: "destructive", title: "Title required", description: "Please enter a title for the artwork." });
+      return;
+    }
+    if (selectedFiles.length === 0) {
+      toast({ variant: "destructive", title: "Image required", description: "Please select at least one image." });
+      return;
+    }
+    if (!price || isNaN(Number(price)) || Number(price) <= 0) {
+      toast({ variant: "destructive", title: "Invalid price", description: "Please enter a valid price." });
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const imagePaths: string[] = [];
+      const total = selectedFiles.length;
+
+      for (let i = 0; i < total; i++) {
+        const file = selectedFiles[i];
+        const ext = file.name.split(".").pop();
+        const filePath = `${user.id}/${Date.now()}_${i}.${ext}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("artworks")
+          .upload(filePath, file, { upsert: false });
+
+        if (uploadError) throw uploadError;
+        imagePaths.push(filePath);
+        setUploadProgress(Math.round(((i + 1) / total) * 80));
+      }
+
+      // Insert artwork record
+      const slug = generateSlug(title);
+      const { error: insertError } = await supabase.from("artworks").insert({
+        title: title.trim(),
+        price: Number(price),
+        category: category.trim() || null,
+        description: description.trim() || null,
+        image_path: imagePaths[0],          // backward compat — first image
+        images: imagePaths,                  // full gallery array
+        artist_id: user.id,
+        slug,
+      });
+
+      if (insertError) throw insertError;
+
+      setUploadProgress(100);
+      toast({ title: "Artwork uploaded!", description: `"${title}" has been added with ${imagePaths.length} image${imagePaths.length > 1 ? "s" : ""}.` });
+
+      // Reset form
+      setTitle("");
+      setPrice("");
+      setCategory("");
+      setDescription("");
+      setSelectedFiles([]);
+      queryClient.invalidateQueries({ queryKey: ["collections"] });
+    } catch (err) {
+      console.error("Upload error:", err);
+      toast({ variant: "destructive", title: "Upload failed", description: err instanceof Error ? err.message : "An error occurred." });
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  return (
+    <div className="rounded-lg border bg-card shadow-sm">
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold flex items-center gap-2">
+            <ImagePlus size={20} />
+            Upload Artwork
+          </h3>
+          <span className="text-xs text-muted-foreground">Max 10 images per artwork</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left — form fields */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="artworkTitle">Title *</Label>
+              <Input id="artworkTitle" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Cosmic Reverie" disabled={isUploading} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="artworkPrice">Price (₹) *</Label>
+              <Input id="artworkPrice" type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="e.g. 45000" disabled={isUploading} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="artworkCategory">Category</Label>
+              <Input id="artworkCategory" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="e.g. Abstract, Landscape" disabled={isUploading} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="artworkDescription">Description</Label>
+              <Textarea id="artworkDescription" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your artwork..." rows={4} disabled={isUploading} />
+            </div>
+          </div>
+
+          {/* Right — image picker */}
+          <div className="space-y-4">
+            <Label>Images *</Label>
+            {/* Drop zone */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="w-full border-2 border-dashed border-white/20 hover:border-brand-gold/50 rounded-xl p-6 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-brand-gold transition-all duration-200 bg-white/2 hover:bg-brand-gold/5 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Upload className="w-8 h-8" />
+              <span className="text-sm font-medium">Click to add images</span>
+              <span className="text-xs">JPG, PNG, WebP — up to 10 files</span>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handleFileChange}
+              disabled={isUploading}
+            />
+
+            {/* Previews grid */}
+            {previews.length > 0 && (
+              <div className="grid grid-cols-4 gap-2">
+                {previews.map((src, i) => (
+                  <div key={i} className="relative group aspect-square rounded-lg overflow-hidden border border-white/10">
+                    <img src={src} alt={`Preview ${i + 1}`} className="w-full h-full object-cover" />
+                    {i === 0 && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-brand-gold/80 text-white text-[9px] text-center py-0.5 font-semibold">PRIMARY</div>
+                    )}
+                    <button
+                      onClick={() => removeFile(i)}
+                      disabled={isUploading}
+                      className="absolute top-1 right-1 bg-black/70 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-all"
+                      aria-label={`Remove image ${i + 1}`}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        {isUploading && (
+          <div className="mt-6 space-y-2">
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Uploading...</span>
+              <span>{uploadProgress}%</span>
+            </div>
+            <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-brand-gold rounded-full transition-all duration-300"
+                style={{ width: `${uploadProgress}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        <Button
+          onClick={handleUpload}
+          disabled={isUploading || selectedFiles.length === 0 || !title.trim()}
+          className="mt-6 btn-primary h-11 px-8"
+        >
+          {isUploading ? (
+            <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Uploading {uploadProgress}%</>
+          ) : (
+            <><Upload className="w-4 h-4 mr-2" /> Upload Artwork</>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// ─── Account Component ───────────────────────────────────────────────────────
 const Account = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -405,6 +629,9 @@ const Account = () => {
               )}
             </div>
           </div>
+
+          {/* Upload Artwork Section */}
+          <UploadArtworkSection />
         </div>
       </div>
     </MainLayout>

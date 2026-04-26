@@ -1,12 +1,18 @@
-import Head from 'next/head';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'B2B Art Solutions for Hotels, Offices & Businesses | Fameuxarte',
+  description: 'Explore Fameuxarte B2B art services — bulk purchases, custom commissions, art licensing, and subscriptions tailored for hotels, offices, and businesses in India.',
+  robots: { index: true, follow: true },
+  alternates: {
+    canonical: 'https://fameuxarte.com/b2b',
+  },
+};
 
 export default function B2B() {
   return (
     <>
-      <Head>
-        <title>B2B Art Solutions | FameuxArte</title>
-        <meta name="description" content="Explore B2B art services including bulk orders, custom art, subscriptions, and more tailored for your business needs." />
-      </Head>
+      {/* Head replaced by metadata export above */}
 
       {/* Add spacing to avoid overlapping the header */}
       <div className="max-w-6xl mx-auto px-4 pt-32 pb-10">

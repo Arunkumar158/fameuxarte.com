@@ -1,3 +1,11 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Order Confirmed | Thank You | Fameuxarte',
+  description: 'Your Fameuxarte order has been successfully placed. Thank you for investing in Indian contemporary art.',
+  robots: { index: false, follow: false },
+};
+
 export default function SuccessPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">

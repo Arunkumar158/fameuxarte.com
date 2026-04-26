@@ -3,9 +3,11 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sign Up Page | Free Next.js Template for Startup and SaaS",
-  description: "This is Sign Up Page for Startup Nextjs Template",
-  // other metadata
+  title: "Create Account | Join Fameuxarte Art Community",
+  description: "Sign up for a Fameuxarte account to start collecting museum-quality contemporary art, receive artist updates, and gain exclusive access to new collections.",
+  alternates: {
+    canonical: 'https://fameuxarte.com/signup',
+  },
 };
 
 const SignupPage = () => {
@@ -16,9 +18,9 @@ const SignupPage = () => {
           <div className="-mx-4 flex flex-wrap">
             <div className="w-full px-4">
               <div className="shadow-three mx-auto max-w-[500px] rounded bg-white px-6 py-10 dark:bg-dark sm:p-[60px]">
-                <h3 className="mb-3 text-center text-2xl font-bold text-black dark:text-white sm:text-3xl">
+                <h1 className="mb-3 text-center text-2xl font-bold text-black dark:text-white sm:text-3xl">
                   Create your account
-                </h3>
+                </h1>
                 <p className="mb-11 text-center text-base font-medium text-body-color">
                   Sign up for special offers, product updates, and news.
                 </p>

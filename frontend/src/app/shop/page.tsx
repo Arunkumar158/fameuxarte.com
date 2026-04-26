@@ -115,7 +115,7 @@ export default function ShopPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-primary">Art Shop</h1>
+          <h1 className="text-4xl font-bold text-primary">Contemporary Art Collection</h1>
           <button
             onClick={() => setIsCartOpen(true)}
             className="relative p-2 text-primary hover:bg-secondary rounded-full"
