@@ -11,7 +11,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,6 +35,18 @@ const Auth = () => {
         variant: "destructive",
         title: "Error",
         description: error instanceof Error ? error.message : "An error occurred",
+      });
+    }
+  };
+
+  const handleGoogleAuth = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "An error occurred during Google sign-in",
       });
     }
   };
@@ -127,7 +139,7 @@ const Auth = () => {
         </button>
       </form>
 
-      <SocialAuthButtons onGoogleAuth={() => undefined} />
+      <SocialAuthButtons onGoogleAuth={handleGoogleAuth} />
 
       <div className="mt-8 pt-6 border-t border-border-faint text-center">
         <p className="text-[13px] text-[#666]">
