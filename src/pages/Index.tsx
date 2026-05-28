@@ -1,21 +1,20 @@
-import MainLayout from "@/components/layouts/MainLayout";
 import HeroSection from "@/components/home/HeroSection";
-import AboutSection from "@/components/home/AboutSection";
-// import FeaturedArtists from "@/components/home/FeaturedArtists";
-import Testimonials from "@/components/home/Testimonials";
-import BlogInsights from "@/components/home/BlogInsights";
-import ContactSection from "@/components/home/ContactSection";
-import NewsletterSignup from "@/components/home/NewsletterSignup";
 import { SEO } from "@/components/SEO";
 import { generateOrganizationStructuredData } from "@/lib/seo";
-import ArtworkSlider from "@/components/home/ArtworkSlider";
-import SectionTitle from "@/components/shared/SectionTitle";
+import HomeNav from "@/components/home/HomeNav";
+import TrustBar from "@/components/home/TrustBar";
+import FeaturedArtworks from "@/components/home/FeaturedArtworks";
+import ArtGuardSection from "@/components/home/ArtGuardSection";
+import ArtistsSection from "@/components/home/ArtistsSection";
+import WhySection from "@/components/home/WhySection";
+import JournalSection from "@/components/home/JournalSection";
+import FooterCTA from "@/components/home/FooterCTA";
 
 const Index = () => {
   const structuredData = generateOrganizationStructuredData();
 
   return (
-    <MainLayout>
+    <div className="min-h-screen bg-obsidian">
       <SEO
         title="Fameuxarte | Curated Art for Collectors &amp; Investors"
         description="Premium marketplace for authentic, investment-grade artworks. Discover custom-curated paintings, sculptures, and digital art from established and emerging artists worldwide."
@@ -24,21 +23,16 @@ const Index = () => {
         type="website"
         structuredData={structuredData}
       />
+      <HomeNav />
       <HeroSection />
-      <AboutSection />
-      <div className="container py-12">
-        <SectionTitle
-          title="Featured Artworks"
-          subtitle="Custom-curated pieces from our collection of exceptional artworks"
-        />
-        <ArtworkSlider />
-      </div>
-      {/* <FeaturedArtists /> */}
-      <Testimonials />
-      <BlogInsights />
-      <ContactSection />
-      <NewsletterSignup />
-    </MainLayout>
+      <TrustBar />
+      <FeaturedArtworks />
+      <ArtGuardSection />
+      <ArtistsSection />
+      <WhySection />
+      <JournalSection />
+      <FooterCTA />
+    </div>
   );
 };
 

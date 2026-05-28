@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import MainLayout from "@/components/layouts/MainLayout";
+import AuthLayout from "@/components/auth/AuthLayout";
+import FormInput from "@/components/auth/FormInput";
+import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -41,78 +40,116 @@ const Auth = () => {
   };
 
   return (
-    <MainLayout>
-      <div className="container max-w-md px-4 pt-24 pb-8 sm:pt-32 sm:pb-12">
-        <div className="rounded-lg border bg-card p-4 sm:p-8 text-card-foreground shadow-sm">
-          <h1 className="mb-6 text-xl sm:text-2xl font-semibold">
-            {isLogin ? "Sign In" : "Create Account"}
-          </h1>
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required={!isLogin}
-                  className="w-full"
-                />
-              </div>
-            )}
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full"
+    <AuthLayout
+      title={isLogin ? "Welcome back" : "Create your account"}
+      subtitle={isLogin ? "Sign in to continue collecting original art" : "Start building your art collection today"}
+    >
+      <form onSubmit={handleSubmit}>
+        {!isLogin && (
+          <FormInput
+            label="Full name"
+            type="text"
+            name="fullName"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Your full name"
+            required={!isLogin}
+            autoComplete="name"
+          />
+        )}
+
+        <FormInput
+          label="Email address"
+          type="email"
+          name="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+          required
+          autoComplete="email"
+        />
+
+        <FormInput
+          label="Password"
+          type="password"
+          name="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder={isLogin ? "Enter your password" : "Create a strong password"}
+          required
+          autoComplete={isLogin ? "current-password" : "new-password"}
+        />
+
+        {isLogin ? (
+          <div className="flex items-center justify-between mb-6">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                className="w-4 h-4 rounded border-border-subtle bg-surface-2 text-gold focus:ring-gold/20"
               />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                {isLogin && (
-                  <Link
-                    to="/forgot-password"
-                    className="text-sm text-primary hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
-                )}
-              </div>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full"
-              />
-            </div>
-
-            <Button type="submit" className="w-full">
-              {isLogin ? "Sign In" : "Create Account"}
-            </Button>
-          </form>
-
-          <p className="mt-4 text-center text-sm">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-primary hover:underline"
+              <span className="text-[13px] text-[#888]">Remember me</span>
+            </label>
+            <Link
+              to="/forgot-password"
+              className="text-[13px] text-gold hover:text-linen transition-colors"
             >
-              {isLogin ? "Create one" : "Sign in"}
-            </button>
-          </p>
-        </div>
+              Forgot password?
+            </Link>
+          </div>
+        ) : (
+          <div className="mb-6">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-1 w-4 h-4 rounded border-border-subtle bg-surface-2 text-gold focus:ring-gold/20"
+              />
+              <span className="text-[13px] text-[#888] leading-[1.6]">
+                I agree to the{" "}
+                <a href="/terms" className="text-gold hover:text-linen">Terms of Service</a>
+                {" "}and{" "}
+                <a href="/privacy" className="text-gold hover:text-linen">Privacy Policy</a>
+              </span>
+            </label>
+          </div>
+        )}
+
+        <button
+          type="submit"
+          className="
+            w-full py-3 rounded-md
+            bg-linen text-obsidian
+            text-[14px] font-medium
+            hover:bg-gold
+            transition-colors
+          "
+        >
+          {isLogin ? "Sign in" : "Create account"}
+        </button>
+      </form>
+
+      <SocialAuthButtons onGoogleAuth={() => undefined} />
+
+      <div className="mt-8 pt-6 border-t border-border-faint text-center">
+        <p className="text-[13px] text-[#666]">
+          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+          <button
+            type="button"
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-gold hover:text-linen font-medium transition-colors"
+          >
+            {isLogin ? "Create account" : "Sign in"}
+          </button>
+        </p>
       </div>
-    </MainLayout>
+
+      <div className="mt-6 text-center">
+        <p className="text-[11px] text-[#555]">
+          {isLogin
+            ? "Secured by ArtGuard - Your data is encrypted"
+            : "ArtGuard verified platform - Trusted by 12,000+ collectors"}
+        </p>
+      </div>
+    </AuthLayout>
   );
 };
 

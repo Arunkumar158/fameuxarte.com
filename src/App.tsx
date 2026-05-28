@@ -8,7 +8,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { SEO } from "@/components/SEO";
-import Navbar from "@/components/navigation/Navbar";
 import Footer from "@/components/navigation/Footer";
 import { generateOrganizationStructuredData } from "@/lib/seo";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,6 +22,7 @@ import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 import Artworks from "./pages/Artworks";
 import Artists from "./pages/Artists";
+import ArtistDetails from "./pages/ArtistDetails";
 import Collections from "./pages/Collections";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
@@ -64,6 +64,7 @@ const AnimatedRoutes = () => {
           <Route path="/artworks" element={<Artworks />} />
           <Route path="/artworks/:slug" element={<ArtworkDetails />} />
           <Route path="/artists" element={<Artists />} />
+          <Route path="/artists/:artistId" element={<ArtistDetails />} />
           <Route path="/collections" element={<Collections />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
@@ -88,8 +89,7 @@ const AnimatedRoutes = () => {
 
 const Layout = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen flex flex-col">
-    <Navbar />
-    <main className="flex flex-col flex-grow pt-16 sm:pt-20">
+    <main className="flex flex-col flex-grow">
       {children}
     </main>
     <Footer />

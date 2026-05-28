@@ -1,22 +1,29 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowRight,
+  Calendar,
+  Edit,
+  Heart,
+  ImagePlus,
+  Loader2,
+  Mail,
+  Phone,
+  ShieldCheck,
+  ShoppingBag,
+  Upload,
+  User,
+  X,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Table, 
-  TableBody, 
-  TableCaption, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -26,19 +33,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  User, 
-  ShoppingBag, 
-  Heart, 
-  Edit, 
-  Calendar, 
-  Plus,
-  Upload,
-  X,
-  ImagePlus,
-  Loader2,
-} from "lucide-react";
 import MainLayout from "@/components/layouts/MainLayout";
+import HomeNav from "@/components/home/HomeNav";
 import ArtworkCard from "@/components/shared/ArtworkCard";
 import { useArtworkImage } from "@/hooks/useArtworkImage";
 import { formatCurrency, generateSlug } from "@/lib/utils";
@@ -52,7 +48,21 @@ interface Profile {
   updated_at: string;
 }
 
-// Component to handle individual liked item with proper image loading
+const getStatusClass = (status: string | null | undefined) => {
+  if (status === "completed") return "border-verified/30 bg-verified/10 text-verified";
+  if (status === "pending") return "border-gold/30 bg-gold/10 text-gold";
+  return "border-border-subtle bg-surface-3 text-stone";
+};
+
+const formatDate = (value?: string | null) => {
+  if (!value) return "Not available";
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+};
+
 const LikedItemCard = ({ item }: { item: {
   artwork_id: string;
   artworks?: {
@@ -62,30 +72,57 @@ const LikedItemCard = ({ item }: { item: {
     price: number | null;
     image_path: string | null;
     category: string | null;
-    slug: string | null;
+    slug?: string | null;
   } | null;
 } }) => {
   const { imageUrl } = useArtworkImage(item.artworks?.image_path);
-  
+
   return (
     <ArtworkCard
       key={item.artwork_id}
       artwork={{
-        id: item.artworks?.id,
+        id: item.artworks?.id || item.artwork_id,
         slug: item.artworks?.slug,
         title: item.artworks?.title || "Unknown Title",
         artist: item.artworks?.artist_id || "Unknown Artist",
         price: item.artworks?.price || 0,
         image: imageUrl,
-        category: item.artworks?.category || "Uncategorized"
+        category: item.artworks?.category || "Uncategorized",
       }}
     />
   );
 };
 
+const SectionShell = ({
+  icon,
+  title,
+  eyebrow,
+  children,
+  action,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  eyebrow: string;
+  children: React.ReactNode;
+  action?: React.ReactNode;
+}) => (
+  <section className="rounded-[10px] border border-border-subtle bg-surface-2">
+    <div className="flex flex-col gap-4 border-b border-b-[0.5px] border-border-faint p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-[8px] border border-gold/20 bg-gold/10 text-gold">
+          {icon}
+        </div>
+        <div>
+          <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.12em] text-gold">{eyebrow}</p>
+          <h2 className="text-[20px] font-medium tracking-[-0.02em] text-linen">{title}</h2>
+        </div>
+      </div>
+      {action}
+    </div>
+    <div className="p-5">{children}</div>
+  </section>
+);
 
-
-// ─── Upload Artwork Section ─────────────────────────────────────────────────
 const UploadArtworkSection = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -101,20 +138,17 @@ const UploadArtworkSection = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  // Generate previews whenever files change
   useEffect(() => {
-    const urls = selectedFiles.map((f) => URL.createObjectURL(f));
+    const urls = selectedFiles.map((file) => URL.createObjectURL(file));
     setPreviews(urls);
     return () => urls.forEach(URL.revokeObjectURL);
   }, [selectedFiles]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
     if (files.length === 0) return;
-    // Allow up to 10 images
     setSelectedFiles((prev) => [...prev, ...files].slice(0, 10));
-    // Reset input so the same file can be re-added after removal
-    e.target.value = "";
+    event.target.value = "";
   };
 
   const removeFile = (index: number) => {
@@ -141,12 +175,11 @@ const UploadArtworkSection = () => {
 
     try {
       const imagePaths: string[] = [];
-      const total = selectedFiles.length;
 
-      for (let i = 0; i < total; i++) {
-        const file = selectedFiles[i];
+      for (let index = 0; index < selectedFiles.length; index++) {
+        const file = selectedFiles[index];
         const ext = file.name.split(".").pop();
-        const filePath = `${user.id}/${Date.now()}_${i}.${ext}`;
+        const filePath = `${user.id}/${Date.now()}_${index}.${ext}`;
 
         const { error: uploadError } = await supabase.storage
           .from("artworks")
@@ -154,18 +187,17 @@ const UploadArtworkSection = () => {
 
         if (uploadError) throw uploadError;
         imagePaths.push(filePath);
-        setUploadProgress(Math.round(((i + 1) / total) * 80));
+        setUploadProgress(Math.round(((index + 1) / selectedFiles.length) * 80));
       }
 
-      // Insert artwork record
       const slug = generateSlug(title);
       const { error: insertError } = await supabase.from("artworks").insert({
         title: title.trim(),
         price: Number(price),
         category: category.trim() || null,
         description: description.trim() || null,
-        image_path: imagePaths[0],          // backward compat — first image
-        images: imagePaths,                  // full gallery array
+        image_path: imagePaths[0],
+        images: imagePaths,
         artist_id: user.id,
         slug,
       });
@@ -173,9 +205,11 @@ const UploadArtworkSection = () => {
       if (insertError) throw insertError;
 
       setUploadProgress(100);
-      toast({ title: "Artwork uploaded!", description: `"${title}" has been added with ${imagePaths.length} image${imagePaths.length > 1 ? "s" : ""}.` });
+      toast({
+        title: "Artwork uploaded",
+        description: `"${title}" has been added with ${imagePaths.length} image${imagePaths.length > 1 ? "s" : ""}.`,
+      });
 
-      // Reset form
       setTitle("");
       setPrice("");
       setCategory("");
@@ -184,7 +218,11 @@ const UploadArtworkSection = () => {
       queryClient.invalidateQueries({ queryKey: ["collections"] });
     } catch (err) {
       console.error("Upload error:", err);
-      toast({ variant: "destructive", title: "Upload failed", description: err instanceof Error ? err.message : "An error occurred." });
+      toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: err instanceof Error ? err.message : "An error occurred.",
+      });
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
@@ -192,118 +230,100 @@ const UploadArtworkSection = () => {
   };
 
   return (
-    <div className="rounded-lg border bg-card shadow-sm">
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold flex items-center gap-2">
-            <ImagePlus size={20} />
-            Upload Artwork
-          </h3>
-          <span className="text-xs text-muted-foreground">Max 10 images per artwork</span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left — form fields */}
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="artworkTitle">Title *</Label>
-              <Input id="artworkTitle" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Cosmic Reverie" disabled={isUploading} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="artworkPrice">Price (₹) *</Label>
-              <Input id="artworkPrice" type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="e.g. 45000" disabled={isUploading} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="artworkCategory">Category</Label>
-              <Input id="artworkCategory" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="e.g. Abstract, Landscape" disabled={isUploading} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="artworkDescription">Description</Label>
-              <Textarea id="artworkDescription" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your artwork..." rows={4} disabled={isUploading} />
-            </div>
+    <SectionShell
+      icon={<ImagePlus className="h-5 w-5" aria-hidden="true" />}
+      eyebrow="Artist tools"
+      title="Upload Artwork"
+      action={<span className="text-[11px] text-[#666]">Max 10 images per artwork</span>}
+    >
+      <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="artworkTitle" className="text-[12px] text-stone">Title</Label>
+            <Input id="artworkTitle" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Cosmic Reverie" disabled={isUploading} className="border-border-subtle bg-obsidian text-linen" />
           </div>
-
-          {/* Right — image picker */}
-          <div className="space-y-4">
-            <Label>Images *</Label>
-            {/* Drop zone */}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              className="w-full border-2 border-dashed border-white/20 hover:border-brand-gold/50 rounded-xl p-6 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-brand-gold transition-all duration-200 bg-white/2 hover:bg-brand-gold/5 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Upload className="w-8 h-8" />
-              <span className="text-sm font-medium">Click to add images</span>
-              <span className="text-xs">JPG, PNG, WebP — up to 10 files</span>
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={handleFileChange}
-              disabled={isUploading}
-            />
-
-            {/* Previews grid */}
-            {previews.length > 0 && (
-              <div className="grid grid-cols-4 gap-2">
-                {previews.map((src, i) => (
-                  <div key={i} className="relative group aspect-square rounded-lg overflow-hidden border border-white/10">
-                    <img src={src} alt={`Preview ${i + 1}`} className="w-full h-full object-cover" />
-                    {i === 0 && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-brand-gold/80 text-white text-[9px] text-center py-0.5 font-semibold">PRIMARY</div>
-                    )}
-                    <button
-                      onClick={() => removeFile(i)}
-                      disabled={isUploading}
-                      className="absolute top-1 right-1 bg-black/70 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-all"
-                      aria-label={`Remove image ${i + 1}`}
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className="space-y-2">
+            <Label htmlFor="artworkPrice" className="text-[12px] text-stone">Price (INR)</Label>
+            <Input id="artworkPrice" type="number" min="0" value={price} onChange={(event) => setPrice(event.target.value)} placeholder="45000" disabled={isUploading} className="border-border-subtle bg-obsidian text-linen" />
+          </div>
+          <div className="space-y-2 sm:col-span-2">
+            <Label htmlFor="artworkCategory" className="text-[12px] text-stone">Category</Label>
+            <Input id="artworkCategory" value={category} onChange={(event) => setCategory(event.target.value)} placeholder="Abstract, Landscape, Figurative" disabled={isUploading} className="border-border-subtle bg-obsidian text-linen" />
+          </div>
+          <div className="space-y-2 sm:col-span-2">
+            <Label htmlFor="artworkDescription" className="text-[12px] text-stone">Description</Label>
+            <Textarea id="artworkDescription" value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Describe the medium, story, and condition..." rows={5} disabled={isUploading} className="border-border-subtle bg-obsidian text-linen" />
           </div>
         </div>
 
-        {/* Progress bar */}
-        {isUploading && (
-          <div className="mt-6 space-y-2">
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Uploading...</span>
-              <span>{uploadProgress}%</span>
-            </div>
-            <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-brand-gold rounded-full transition-all duration-300"
-                style={{ width: `${uploadProgress}%` }}
-              />
-            </div>
-          </div>
-        )}
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            className="flex min-h-44 w-full flex-col items-center justify-center gap-3 rounded-[10px] border border-dashed border-gold/30 bg-gold/5 p-6 text-center text-stone transition-colors hover:border-gold hover:text-gold disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Upload className="h-8 w-8" aria-hidden="true" />
+            <span className="text-[13px] font-medium text-linen">Add artwork images</span>
+            <span className="text-[11px] text-[#666]">JPG, PNG, or WebP</span>
+          </button>
+          <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} disabled={isUploading} />
 
-        <Button
-          onClick={handleUpload}
-          disabled={isUploading || selectedFiles.length === 0 || !title.trim()}
-          className="mt-6 btn-primary h-11 px-8"
-        >
-          {isUploading ? (
-            <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Uploading {uploadProgress}%</>
-          ) : (
-            <><Upload className="w-4 h-4 mr-2" /> Upload Artwork</>
+          {previews.length > 0 && (
+            <div className="grid grid-cols-5 gap-2">
+              {previews.map((src, index) => (
+                <div key={src} className="group relative aspect-square overflow-hidden rounded-[6px] border border-border-subtle bg-surface-3">
+                  <img src={src} alt={`Preview ${index + 1}`} className="h-full w-full object-cover" />
+                  {index === 0 && (
+                    <div className="absolute inset-x-0 bottom-0 bg-gold px-1 py-0.5 text-center text-[8px] font-semibold uppercase tracking-[0.08em] text-obsidian">
+                      Primary
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeFile(index)}
+                    disabled={isUploading}
+                    className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white opacity-0 transition-opacity hover:bg-destructive group-hover:opacity-100"
+                    aria-label={`Remove image ${index + 1}`}
+                  >
+                    <X className="h-3 w-3" aria-hidden="true" />
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
-        </Button>
+
+          {isUploading && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-[11px] text-[#666]">
+                <span>Uploading</span>
+                <span>{uploadProgress}%</span>
+              </div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-obsidian">
+                <div className="h-full rounded-full bg-gold transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      <Button onClick={handleUpload} disabled={isUploading || selectedFiles.length === 0 || !title.trim()} className="mt-6 h-11 rounded-[6px] bg-gold px-6 text-[12px] font-medium text-obsidian hover:bg-linen">
+        {isUploading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+            Uploading {uploadProgress}%
+          </>
+        ) : (
+          <>
+            <Upload className="mr-2 h-4 w-4" aria-hidden="true" />
+            Upload Artwork
+          </>
+        )}
+      </Button>
+    </SectionShell>
   );
 };
 
-// ─── Account Component ───────────────────────────────────────────────────────
 const Account = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -311,35 +331,32 @@ const Account = () => {
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
-  // Fetch user profile data
   const { data: profile, isLoading: profileLoading, refetch: refetchProfile } = useQuery({
     queryKey: ["user-profile", user?.id],
     queryFn: async () => {
       if (!user) return null;
-      
+
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user.id)
         .single();
-      
+
       if (error) throw error;
-      
-      // Initialize form data with profile data
+
       setFullName(data.full_name || "");
       setPhoneNumber(data.phone_number || "");
-      
+
       return data as Profile;
     },
-    enabled: !!user
+    enabled: !!user,
   });
 
-  // Fetch order history data
   const { data: orders, isLoading: ordersLoading } = useQuery({
     queryKey: ["user-orders", user?.id],
     queryFn: async () => {
       if (!user) return [];
-      
+
       const { data, error } = await supabase
         .from("orders")
         .select(`
@@ -360,14 +377,40 @@ const Account = () => {
         `)
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
-      
+
       if (error) throw error;
       return data;
     },
-    enabled: !!user
+    enabled: !!user,
   });
 
-  // Handle profile update
+  const { data: likedItems, isLoading: likesLoading } = useQuery({
+    queryKey: ["liked-items", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from("liked_items")
+        .select(`
+          artwork_id,
+          artworks (
+            id,
+            title,
+            artist_id,
+            price,
+            category,
+            image_path,
+            slug
+          )
+        `)
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
   const handleUpdateProfile = async () => {
     try {
       const { error } = await supabase
@@ -375,17 +418,17 @@ const Account = () => {
         .update({
           full_name: fullName,
           phone_number: phoneNumber,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq("id", user?.id);
-      
+
       if (error) throw error;
-      
+
       toast({
         title: "Profile updated",
         description: "Your profile has been successfully updated.",
       });
-      
+
       setEditMode(false);
       refetchProfile();
     } catch (error) {
@@ -397,242 +440,243 @@ const Account = () => {
     }
   };
 
-  // Handle reorder
   const handleReorder = (orderId: string) => {
     toast({
       title: "Acquire again",
       description: `Adding items from acquisition #${orderId.slice(0, 8)} to your collection...`,
     });
-    // Implement actual reorder functionality here
   };
-
-  const { data: likedItems, isLoading: likesLoading } = useQuery({
-    queryKey: ["liked-items", user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      
-      const { data, error } = await supabase
-        .from("liked_items")
-        .select(`
-          artwork_id,
-          artworks (
-            id,
-            title,
-            artist_id,
-            price,
-            category,
-            image_path
-          )
-        `)
-        .eq("user_id", user.id);
-      
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user
-  });
 
   if (!user) {
     return (
       <MainLayout>
-        <div className="container py-12 text-center">
-          <p className="text-muted-foreground">Please sign in to view your account.</p>
+        <div className="min-h-screen bg-obsidian text-linen">
+          <HomeNav />
+          <div className="mx-auto flex max-w-2xl flex-col items-center px-6 py-20 text-center">
+            <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-gold/20 bg-gold/10 text-gold">
+              <User className="h-6 w-6" aria-hidden="true" />
+            </div>
+            <h1 className="mb-3 text-[34px] font-medium tracking-[-0.025em] text-linen">Sign in to view your profile</h1>
+            <p className="mb-7 max-w-md text-[14px] leading-[1.7] text-stone">
+              Your collector profile, acquisitions, saved artworks, and artist tools live behind your account.
+            </p>
+            <Button asChild className="h-10 rounded-[6px] bg-gold px-5 text-[12px] font-medium text-obsidian hover:bg-linen">
+              <Link to="/auth">Sign In</Link>
+            </Button>
+          </div>
         </div>
       </MainLayout>
     );
   }
 
-  const initials = profile?.full_name
-    ? profile.full_name.split(" ").map(n => n[0]).join("").toUpperCase()
-    : user.email?.substring(0, 2).toUpperCase() || "??";
+  const displayName = profile?.full_name || user.user_metadata?.full_name || "Art Enthusiast";
+  const initials = displayName
+    .split(" ")
+    .map((name) => name[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  const ordersCount = orders?.length || 0;
+  const likedCount = likedItems?.length || 0;
+  const totalCollected = orders?.reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0;
 
   return (
     <MainLayout>
-      <div className="container py-8 md:py-12">
-        <div className="grid grid-cols-1 gap-8">
-          {/* Profile Section */}
-          <div className="rounded-lg border bg-card shadow-sm">
-            <div className="p-6">
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={profile?.avatar_url || ""} alt={profile?.full_name || "User"} />
-                  <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
-                </Avatar>
-
-                <div className="flex-1">
-                  <h2 className="text-2xl font-semibold mb-2">{profile?.full_name || "Art Enthusiast"}</h2>
-                  <div className="text-muted-foreground mb-4">
-                    <p>{user.email}</p>
-                    <p>{profile?.phone_number || "No phone number added"}</p>
-                  </div>
-                  
-                  {!editMode ? (
-                    <Button onClick={() => setEditMode(true)} variant="outline" className="gap-2">
-                      <Edit size={16} />
-                      Edit Profile
-                    </Button>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="fullName">Full Name</Label>
-                          <Input
-                            id="fullName"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="phoneNumber">Phone Number</Label>
-                          <Input
-                            id="phoneNumber"
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button onClick={handleUpdateProfile}>Save Changes</Button>
-                        <Button onClick={() => setEditMode(false)} variant="outline">Cancel</Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Order History Section */}
-          <div className="rounded-lg border bg-card shadow-sm">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold flex items-center gap-2">
-                  <ShoppingBag size={20} />
-                  Acquisition History
-                </h3>
-              </div>
-              
-              {ordersLoading ? (
-                <p className="text-muted-foreground">Loading acquisition history...</p>
-              ) : orders && orders.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableCaption>Your recent acquisitions</TableCaption>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Order ID</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Items</TableHead>
-                        <TableHead className="text-right">Total Value</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {orders.map((order) => (
-                        <TableRow key={order.id}>
-                          <TableCell className="font-medium">
-                            {order.id.substring(0, 8)}...
-                          </TableCell>
-                          <TableCell>
-                            {new Date(order.created_at).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="link" className="p-0 h-auto">
-                                  {order.order_items?.length || 0} items
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>Acquisition Details</DialogTitle>
-                                  <DialogDescription>
-                                    Acquisition completed on {new Date(order.created_at).toLocaleDateString()}
-                                  </DialogDescription>
-                                </DialogHeader>
-                                <div className="space-y-3">
-                                  {order.order_items?.map((item) => (
-                                    <div key={item.id} className="flex justify-between items-center border-b pb-2">
-                                      <div>
-                                        <p className="font-medium">{item.artworks?.title || "Unknown Artwork"}</p>
-                                        <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
-                                      </div>
-                                      <p className="font-medium">{formatCurrency(Number(item.price_at_purchase))}</p>
-                                    </div>
-                                  ))}
-                                </div>
-                                <DialogFooter>
-                                  <Button variant="outline">View Invoice</Button>
-                                </DialogFooter>
-                              </DialogContent>
-                            </Dialog>
-                          </TableCell>
-                          <TableCell className="text-right">{formatCurrency(Number(order.total_amount))}</TableCell>
-                          <TableCell>
-                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold 
-                              ${order.status === 'completed' 
-                                ? 'bg-green-100 text-green-800'
-                                : order.status === 'pending' 
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-gray-100 text-gray-800'}`}>
-                              {order.status}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              onClick={() => handleReorder(order.id)}
-                              className="h-8"
-                            >
-                              Acquire Again
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">You have no acquisitions yet.</p>
-                  <Button variant="outline" className="mt-4">Browse Artworks</Button>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Liked Artworks Section */}
-          <div className="rounded-lg border bg-card shadow-sm">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold flex items-center gap-2">
-                  <Heart size={20} />
-                  Liked Artworks
-                </h3>
-              </div>
-              
-              {likesLoading ? (
-                <p className="text-muted-foreground">Loading liked artworks...</p>
-              ) : likedItems && likedItems.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {likedItems.map((item) => (
-                    <LikedItemCard key={item.artwork_id} item={item} />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">You haven't liked any artworks yet.</p>
-                  <Button variant="outline" className="mt-4">Discover Artworks</Button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Upload Artwork Section */}
-          <UploadArtworkSection />
+      <div className="min-h-screen bg-obsidian text-linen">
+        <div className="[&_nav_a[href='/profile']]:text-gold">
+          <HomeNav />
         </div>
+
+        <header className="border-b border-b-[0.5px] border-border-faint bg-obsidian px-6 py-12">
+          <div className="mx-auto max-w-6xl">
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+                <Avatar className="h-24 w-24 border border-gold/20 bg-surface-2">
+                  <AvatarImage src={profile?.avatar_url || ""} alt={displayName} />
+                  <AvatarFallback className="bg-gold/10 text-[28px] font-medium text-gold">{initials}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.12em] text-gold">
+                    <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                    Collector profile
+                  </div>
+                  <h1 className="mb-3 text-[34px] font-medium leading-[1.12] tracking-[-0.025em] text-linen md:text-[46px]">
+                    {profileLoading ? "Loading profile" : displayName}
+                  </h1>
+                  <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-stone">
+                    <span className="inline-flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-gold" aria-hidden="true" />
+                      {user.email}
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-gold" aria-hidden="true" />
+                      {profile?.phone_number || "Phone not added"}
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-gold" aria-hidden="true" />
+                      Joined {formatDate(profile?.created_at)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <Button onClick={() => setEditMode((value) => !value)} className="h-10 rounded-[6px] border border-gold/25 bg-gold/10 px-5 text-[12px] font-medium text-gold hover:bg-gold hover:text-obsidian">
+                <Edit className="mr-2 h-4 w-4" aria-hidden="true" />
+                {editMode ? "Close Editor" : "Edit Profile"}
+              </Button>
+            </div>
+
+            <div className="mt-8 grid gap-3 border-t border-t-[0.5px] border-border-faint pt-6 sm:grid-cols-3">
+              <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-4">
+                <div className="mb-1 text-[22px] font-medium tracking-[-0.02em] text-linen">{ordersCount}</div>
+                <div className="text-[11px] text-[#666]">Acquisitions</div>
+              </div>
+              <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-4">
+                <div className="mb-1 text-[22px] font-medium tracking-[-0.02em] text-gold">{likedCount}</div>
+                <div className="text-[11px] text-[#666]">Saved artworks</div>
+              </div>
+              <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-4">
+                <div className="mb-1 text-[22px] font-medium tracking-[-0.02em] text-linen">{formatCurrency(totalCollected)}</div>
+                <div className="text-[11px] text-[#666]">Lifetime value</div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="mx-auto max-w-6xl space-y-6 px-6 py-10">
+          {editMode && (
+            <SectionShell icon={<Edit className="h-5 w-5" aria-hidden="true" />} eyebrow="Account details" title="Profile Settings">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName" className="text-[12px] text-stone">Full name</Label>
+                  <Input id="fullName" value={fullName} onChange={(event) => setFullName(event.target.value)} className="border-border-subtle bg-obsidian text-linen" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phoneNumber" className="text-[12px] text-stone">Phone number</Label>
+                  <Input id="phoneNumber" value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} className="border-border-subtle bg-obsidian text-linen" />
+                </div>
+              </div>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <Button onClick={handleUpdateProfile} className="h-10 rounded-[6px] bg-gold px-5 text-[12px] font-medium text-obsidian hover:bg-linen">Save Changes</Button>
+                <Button onClick={() => setEditMode(false)} variant="outline" className="h-10 rounded-[6px] border-border-subtle bg-transparent px-5 text-[12px] text-stone hover:bg-surface-3 hover:text-linen">Cancel</Button>
+              </div>
+            </SectionShell>
+          )}
+
+          <SectionShell
+            icon={<ShoppingBag className="h-5 w-5" aria-hidden="true" />}
+            eyebrow="Ownership"
+            title="Acquisition History"
+            action={
+              <Button asChild variant="outline" className="h-9 rounded-[6px] border-border-subtle bg-transparent text-[12px] text-stone hover:bg-surface-3 hover:text-linen">
+                <Link to="/artworks">
+                  Browse Artworks
+                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                </Link>
+              </Button>
+            }
+          >
+            {ordersLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="h-20 animate-pulse rounded-[8px] bg-surface-3" />
+                ))}
+              </div>
+            ) : orders && orders.length > 0 ? (
+              <div className="space-y-3">
+                {orders.map((order) => (
+                  <article key={order.id} className="grid gap-4 rounded-[8px] border border-border-subtle bg-obsidian p-4 md:grid-cols-[1fr_auto_auto] md:items-center">
+                    <div>
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <span className="font-mono text-[12px] text-gold">#{String(order.id).slice(0, 8)}</span>
+                        <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.1em] ${getStatusClass(order.status)}`}>
+                          {order.status || "processing"}
+                        </span>
+                      </div>
+                      <p className="text-[13px] text-stone">{formatDate(order.created_at)} | {order.order_items?.length || 0} items</p>
+                    </div>
+                    <div className="text-left md:text-right">
+                      <p className="text-[11px] uppercase tracking-[0.1em] text-[#666]">Total value</p>
+                      <p className="text-[18px] font-medium text-linen">{formatCurrency(Number(order.total_amount))}</p>
+                    </div>
+                    <div className="flex gap-2 md:justify-end">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" className="h-9 rounded-[6px] border-border-subtle bg-transparent text-[12px] text-stone hover:bg-surface-3 hover:text-linen">
+                            Details
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="border-border-subtle bg-surface-2 text-linen">
+                          <DialogHeader>
+                            <DialogTitle>Acquisition Details</DialogTitle>
+                            <DialogDescription className="text-stone">
+                              Completed on {formatDate(order.created_at)}
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-3">
+                            {order.order_items?.map((item) => (
+                              <div key={item.id} className="flex justify-between gap-4 border-b border-b-border-faint pb-3">
+                                <div>
+                                  <p className="font-medium text-linen">{item.artworks?.title || "Unknown Artwork"}</p>
+                                  <p className="text-[12px] text-stone">Quantity: {item.quantity}</p>
+                                </div>
+                                <p className="font-medium text-gold">{formatCurrency(Number(item.price_at_purchase))}</p>
+                              </div>
+                            ))}
+                          </div>
+                          <DialogFooter>
+                            <Button variant="outline" className="border-border-subtle bg-transparent text-stone hover:bg-surface-3 hover:text-linen">View Invoice</Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                      <Button onClick={() => handleReorder(order.id)} className="h-9 rounded-[6px] bg-gold/10 px-4 text-[12px] font-medium text-gold hover:bg-gold hover:text-obsidian">
+                        Acquire Again
+                      </Button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-[8px] border border-border-subtle bg-obsidian px-5 py-10 text-center">
+                <p className="mb-4 text-[14px] text-stone">You have no acquisitions yet.</p>
+                <Button asChild className="h-10 rounded-[6px] bg-gold px-5 text-[12px] font-medium text-obsidian hover:bg-linen">
+                  <Link to="/artworks">Discover Artworks</Link>
+                </Button>
+              </div>
+            )}
+          </SectionShell>
+
+          <SectionShell icon={<Heart className="h-5 w-5" aria-hidden="true" />} eyebrow="Shortlist" title="Liked Artworks">
+            {likesLoading ? (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="overflow-hidden rounded-xl border border-white/5 bg-brand-dark/80">
+                    <div className="aspect-square animate-pulse bg-surface-3" />
+                    <div className="space-y-3 p-5">
+                      <div className="h-5 w-2/3 animate-pulse rounded bg-surface-3" />
+                      <div className="h-4 w-1/2 animate-pulse rounded bg-surface-3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : likedItems && likedItems.length > 0 ? (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {likedItems.slice(0, 6).map((item) => (
+                  <LikedItemCard key={item.artwork_id} item={item} />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-[8px] border border-border-subtle bg-obsidian px-5 py-10 text-center">
+                <p className="mb-4 text-[14px] text-stone">You have not liked any artworks yet.</p>
+                <Button asChild variant="outline" className="h-10 rounded-[6px] border-border-subtle bg-transparent px-5 text-[12px] text-stone hover:bg-surface-3 hover:text-linen">
+                  <Link to="/artworks">Start Discovering</Link>
+                </Button>
+              </div>
+            )}
+          </SectionShell>
+
+          <UploadArtworkSection />
+        </main>
       </div>
     </MainLayout>
   );

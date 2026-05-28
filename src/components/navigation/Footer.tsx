@@ -1,132 +1,127 @@
-import React from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ArrowRight, Instagram, Facebook, Twitter, Youtube, Linkedin } from "lucide-react";
-const DiscordIcon = ({ className }: { className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    viewBox="0 0 127.14 96.36" 
-    className={className} 
-    fill="currentColor"
-  >
-    <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.31,60,73.31,53s5-12.74,11.43-12.74S96.18,46,96.06,53,91,65.69,84.69,65.69Z"/>
-  </svg>
-);
+import { ArrowRight, Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
+
+const footerSections = [
+  {
+    title: "Discover",
+    links: [
+      { label: "Original artworks", to: "/artworks" },
+      { label: "Verified artists", to: "/artists" },
+      { label: "Collections", to: "/collections" },
+      { label: "Journal", to: "/blog" },
+    ],
+  },
+  {
+    title: "Fameuxarte",
+    links: [
+      { label: "Our story", to: "/our-story" },
+      { label: "Contact", to: "/contact" },
+      { label: "FAQ", to: "/faq" },
+      { label: "Cancellations & refunds", to: "/cancellations-and-refunds" },
+    ],
+  },
+];
+
+const socialLinks = [
+  { label: "Instagram", href: "https://www.instagram.com/fameuxarte", icon: Instagram },
+  { label: "Facebook", href: "https://www.facebook.com/fameuxarte", icon: Facebook },
+  { label: "Twitter", href: "https://twitter.com/fameuxarte", icon: Twitter },
+  { label: "YouTube", href: "https://www.youtube.com/@fameuxarte", icon: Youtube },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/fameuxarte", icon: Linkedin },
+];
 
 const Footer = () => {
   return (
-    <footer className="bg-brand-black/80 backdrop-blur-md border-t border-white/10">
-      <div className="container py-16">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-3 lg:grid-cols-4">
-          <div className="space-y-6">
-            <Link to="/" className="font-heading text-2xl md:text-3xl font-bold flex items-center gap-2">
-              <img 
-                src="/lovable-uploads/2918892f-9b80-4b21-a9fe-1f2d9b05f208.png" 
-                alt="Fameuxarte Logo" 
-                className="w-8 h-8"
-              />
-              FAMEUXARTE
+    <footer className="border-t border-border-faint bg-obsidian px-6">
+      <div className="mx-auto max-w-6xl py-14">
+        <div className="grid gap-10 lg:grid-cols-[1.35fr_1fr_1fr_1.2fr]">
+          <div>
+            <Link to="/" className="mb-4 inline-flex text-[18px] font-medium tracking-[-0.02em] text-linen">
+              Fameuxarte
             </Link>
-            <p className="text-sm text-gray-300">
-              Discover and acquire exceptional, investment-grade artwork from emerging and established artists worldwide.
+            <p className="max-w-[330px] text-[13px] leading-[1.8] text-[#666]">
+              ArtGuard verified originals from personally vetted contemporary artists, curated for collectors building with taste and conviction.
             </p>
-            <div className="flex gap-3">
-              <a href="https://www.instagram.com/fameuxarte" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                <Button variant="outline" size="icon" className="rounded-full border-white/20 hover:bg-white/10">
-                  <Instagram className="h-5 w-5" />
-                </Button>
-              </a>
-              <a href="https://www.facebook.com/fameuxarte" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                <Button variant="outline" size="icon" className="rounded-full border-white/20 hover:bg-white/10">
-                  <Facebook className="h-5 w-5" />
-                </Button>
-              </a>
-              <a href="https://twitter.com/fameuxarte" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                <Button variant="outline" size="icon" className="rounded-full border-white/20 hover:bg-white/10">
-                  <Twitter className="h-5 w-5" />
-                </Button>
-              </a>
-              <a href="https://www.youtube.com/@fameuxarte" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
-                <Button variant="outline" size="icon" className="rounded-full border-white/20 hover:bg-white/10">
-                  <Youtube className="h-5 w-5" />
-                </Button>
-              </a>
-              <a href="https://www.linkedin.com/company/fameuxarte" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                <Button variant="outline" size="icon" className="rounded-full border-white/20 hover:bg-white/10">
-                  <Linkedin className="h-5 w-5" />
-                </Button>
-              </a>
-              <a href="https://discord.gg/76nSqrAc" target="_blank" rel="noopener noreferrer" aria-label="Discord">
-                <Button variant="outline" size="icon" className="rounded-full border-white/20 hover:bg-white/10">
-                  <DiscordIcon className="h-5 w-5" />
-                </Button>
-              </a>
+
+            <div className="mt-6 grid max-w-[330px] grid-cols-2 gap-x-6 gap-y-4 border-t border-border-faint pt-5">
+              <div>
+                <div className="mb-[2px] text-[18px] font-medium tracking-[-0.02em] text-linen">1,200+</div>
+                <div className="text-[11px] text-[#555]">Verified works</div>
+              </div>
+              <div>
+                <div className="mb-[2px] text-[18px] font-medium tracking-[-0.02em] text-verified">98%</div>
+                <div className="text-[11px] text-[#555]">Authenticity rate</div>
+              </div>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="font-heading font-semibold text-lg">Shop</h3>
-            <ul className="space-y-3 text-sm text-gray-300">
-              <li>
-                <Link to="/artworks" className="hover:text-brand-gold transition-colors">Artworks</Link>
-              </li>
-              <li>
-                <Link to="/artists" className="hover:text-brand-gold transition-colors">Artists</Link>
-              </li>
-              <li>
-                <Link to="/collections" className="hover:text-brand-gold transition-colors">Collections</Link>
-              </li>
-              <li>
-                <Link to="/blog" className="hover:text-brand-gold transition-colors">Blog</Link>
-              </li>
-            </ul>
-          </div>
+          {footerSections.map((section) => (
+            <div key={section.title}>
+              <h2 className="mb-4 text-[11px] font-normal uppercase tracking-[0.14em] text-[#555]">
+                {section.title}
+              </h2>
+              <ul className="space-y-3">
+                {section.links.map((link) => (
+                  <li key={link.to}>
+                    <Link to={link.to} className="text-[13px] text-[#777] transition-colors hover:text-gold">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
 
-          <div className="space-y-4">
-            <h3 className="font-heading font-semibold text-lg">About</h3>
-            <ul className="space-y-3 text-sm text-gray-300">
-              <li>
-                <Link to="/blog/our-story" className="hover:text-brand-gold transition-colors">Our Story</Link>
-              </li>
-              <li>
-                <Link to="/contact" className="hover:text-brand-gold transition-colors">Contact Us</Link>
-              </li>
-              <li>
-                <Link to="/cancellations-and-refunds" className="hover:text-brand-gold transition-colors">Cancellations & Refunds</Link>
-              </li>
-              <li>
-                <Link to="/faq" className="hover:text-brand-gold transition-colors">FAQ</Link>
-              </li>
-            </ul>
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="font-heading font-semibold text-lg">Stay Updated</h3>
-            <p className="text-sm text-gray-300">
-              Subscribe for collection updates and exclusive access to new acquisitions.
+          <div>
+            <h2 className="mb-4 text-[11px] font-normal uppercase tracking-[0.14em] text-[#555]">
+              Collector notes
+            </h2>
+            <p className="mb-4 text-[13px] leading-[1.8] text-[#666]">
+              Receive new collection drops, ArtGuard updates, and artist stories.
             </p>
-            <div className="flex gap-2">
-              <Input 
-                type="email" 
-                placeholder="Your email" 
-                className="bg-white/10 border-white/20 placeholder:text-white/50"
+            <form className="flex gap-2" onSubmit={(event) => event.preventDefault()}>
+              <input
+                type="email"
+                aria-label="Email address"
+                placeholder="Email address"
+                className="min-w-0 flex-1 rounded-[6px] border border-border-subtle bg-surface-2 px-3 py-[10px] text-[13px] text-linen outline-none transition-colors placeholder:text-[#555] focus:border-gold/40"
               />
-              <Button type="submit" size="icon" className="bg-brand-gold hover:bg-brand-gold/90 group">
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              <button
+                type="submit"
+                aria-label="Subscribe"
+                className="inline-flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-[6px] bg-linen text-obsidian transition-colors hover:bg-gold"
+              >
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </form>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+              {socialLinks.map(({ label, href, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  title={label}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
+                >
+                  <Icon className="h-4 w-4" aria-hidden="true" />
+                </a>
+              ))}
             </div>
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-white/10 text-center text-sm text-gray-400">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p>&copy; {new Date().getFullYear()} Fameuxarte. All rights reserved.</p>
-            <div className="flex gap-4 mt-4 md:mt-0">
-              <Link to="/privacy-policy" className="hover:text-brand-gold transition-colors">Privacy Policy</Link>
-              <span className="hidden md:inline">|</span>
-              <Link to="/terms-of-service" className="hover:text-brand-gold transition-colors">Terms of Service</Link>
-            </div>
+        <div className="mt-12 flex flex-col gap-4 border-t border-border-faint pt-6 text-[12px] text-[#555] md:flex-row md:items-center md:justify-between">
+          <p>&copy; {new Date().getFullYear()} Fameuxarte. All rights reserved.</p>
+          <div className="flex gap-4">
+            <Link to="/privacy-policy" className="transition-colors hover:text-gold">
+              Privacy policy
+            </Link>
+            <Link to="/terms-of-service" className="transition-colors hover:text-gold">
+              Terms of service
+            </Link>
           </div>
         </div>
       </div>

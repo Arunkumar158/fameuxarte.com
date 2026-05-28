@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import MainLayout from "@/components/layouts/MainLayout";
+import AuthLayout from "@/components/auth/AuthLayout";
+import FormInput from "@/components/auth/FormInput";
 
 const SUCCESS_MESSAGE =
   "If an account exists, a password reset link has been sent.";
@@ -41,60 +39,76 @@ const ForgotPassword = () => {
 
   if (success) {
     return (
-      <MainLayout>
-        <div className="container max-w-md px-4 pt-24 pb-8 sm:pt-32 sm:pb-12">
-          <div className="rounded-lg border bg-card p-4 sm:p-8 text-card-foreground shadow-sm">
-            <p className="text-muted-foreground text-center">{SUCCESS_MESSAGE}</p>
-            <Button asChild className="mt-6 w-full" variant="outline">
-              <Link to="/auth">Back to sign in</Link>
-            </Button>
-          </div>
+      <AuthLayout
+        title="Check your inbox"
+        subtitle="If an account exists for that email, your reset link is on the way."
+      >
+        <div className="mb-4 p-3 rounded-md bg-verified/10 border border-verified/20">
+          <p className="text-[13px] text-verified">{SUCCESS_MESSAGE}</p>
         </div>
-      </MainLayout>
+        <Link
+          to="/auth"
+          className="
+            block w-full py-3 rounded-md
+            bg-linen text-obsidian
+            text-[14px] font-medium text-center
+            hover:bg-gold
+            transition-colors
+          "
+        >
+          Back to sign in
+        </Link>
+      </AuthLayout>
     );
   }
 
   return (
-    <MainLayout>
-      <div className="container max-w-md px-4 pt-24 pb-8 sm:pt-32 sm:pb-12">
-        <div className="rounded-lg border bg-card p-4 sm:p-8 text-card-foreground shadow-sm">
-          <h1 className="mb-6 text-xl sm:text-2xl font-semibold">
-            Forgot password
-          </h1>
-          <p className="mb-4 text-sm text-muted-foreground">
-            Enter your email and we&apos;ll send you a link to reset your password.
-          </p>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full"
-                disabled={loading}
-                autoComplete="email"
-              />
-            </div>
-            {error && (
-              <p className="text-sm text-destructive" role="alert">
-                {error}
-              </p>
-            )}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Sending…" : "Send reset link"}
-            </Button>
-          </form>
-          <p className="mt-4 text-center text-sm">
-            <Link to="/auth" className="text-primary hover:underline">
-              Back to sign in
-            </Link>
-          </p>
-        </div>
+    <AuthLayout
+      title="Reset your password"
+      subtitle="Enter your email and we'll send you a reset link"
+    >
+      <form onSubmit={handleSubmit}>
+        <FormInput
+          label="Email address"
+          type="email"
+          name="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          error={error || undefined}
+          placeholder="you@example.com"
+          required
+          autoComplete="email"
+          disabled={loading}
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="
+            w-full py-3 rounded-md
+            bg-linen text-obsidian
+            text-[14px] font-medium
+            hover:bg-gold
+            transition-colors
+            disabled:opacity-50 disabled:cursor-not-allowed
+          "
+        >
+          {loading ? "Sending reset link..." : "Send reset link"}
+        </button>
+      </form>
+
+      <div className="mt-8 pt-6 border-t border-border-faint text-center">
+        <Link to="/auth" className="text-[13px] text-gold hover:text-linen transition-colors">
+          Back to sign in
+        </Link>
       </div>
-    </MainLayout>
+
+      <div className="mt-6 text-center">
+        <p className="text-[11px] text-[#555]">
+          Secured by ArtGuard - Your data is encrypted
+        </p>
+      </div>
+    </AuthLayout>
   );
 };
 

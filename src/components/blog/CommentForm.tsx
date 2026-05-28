@@ -53,7 +53,7 @@ const CommentForm = ({ blogId, onCommentAdded }: CommentFormProps) => {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to post comment",
+        description: "Failed to publish comment",
         variant: "destructive",
       });
     } finally {
@@ -95,7 +95,7 @@ const CommentForm = ({ blogId, onCommentAdded }: CommentFormProps) => {
         </div>
       </div>
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Posting..." : "Post Comment"}
+        {isSubmitting ? "Publishing..." : "Publish comment"}
       </Button>
     </form>
   );

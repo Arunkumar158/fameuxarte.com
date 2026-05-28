@@ -6,6 +6,55 @@ import ArtistCard from "@/components/ArtistCard";
 import SectionTitle from "@/components/shared/SectionTitle";
 import LoadMoreButton from "@/components/shared/LoadMoreButton";
 import { usePagination } from "@/hooks/usePagination";
+import HomeNav from "@/components/home/HomeNav";
+import ArtistsHeader from "@/components/artists/ArtistsHeader";
+import ArtistsFilterBar from "@/components/artists/ArtistsFilterBar";
+import ArtistsGrid from "@/components/artists/ArtistsGrid";
+import ArtistsLoadMoreButton from "@/components/artists/LoadMoreButton";
+import { Artist as DisplayArtist } from "@/components/artists/ArtistCard";
+
+const PLACEHOLDER_ARTISTS: DisplayArtist[] = [
+  {
+    id: "1",
+    name: "Riya Menon",
+    location: "Thiruvananthapuram, Kerala",
+    medium: "Oil painting, Abstract",
+    bio: "Contemporary artist exploring the intersection of traditional Kerala temple art and modern abstraction.",
+    artworkCount: 14,
+    collectedCount: 9,
+    verified: true,
+  },
+  {
+    id: "2",
+    name: "Arjun Pillai",
+    location: "Mumbai, Maharashtra",
+    medium: "Mixed media, Sculpture",
+    bio: "Creates large-scale installations inspired by urban decay and renewal.",
+    artworkCount: 22,
+    collectedCount: 18,
+    verified: true,
+  },
+  {
+    id: "3",
+    name: "Priya Nair",
+    location: "Bangalore, Karnataka",
+    medium: "Acrylic painting, Landscape",
+    bio: "Known for vivid landscape works capturing the natural beauty of South India.",
+    artworkCount: 8,
+    collectedCount: 8,
+    verified: true,
+  },
+  {
+    id: "4",
+    name: "Suresh Kumar",
+    location: "Chennai, Tamil Nadu",
+    medium: "Watercolor, Portrait",
+    bio: "Traditional portrait artist with a contemporary twist, specializing in cultural subjects.",
+    artworkCount: 31,
+    collectedCount: 24,
+    verified: true,
+  },
+];
 
 const Artists = () => {
   const {
@@ -14,7 +63,8 @@ const Artists = () => {
     setHasMore,
     isLoading,
     setIsLoading,
-    loadMore,
+    setTotalItems,
+    goToPage,
     calculateRange,
     limit
   } = usePagination({ initialLimit: 6 });
@@ -28,13 +78,24 @@ const Artists = () => {
       try {
         const { data, error, count } = await supabase
           .from("artists")
-          .select("*", { count: "exact" })
+          .select(
+            `
+            *,
+            profile:profiles!artists_profile_id_fkey (
+              id,
+              full_name,
+              avatar_url
+            )
+          `,
+            { count: "exact" }
+          )
           .range(from, to);
 
         if (error) throw error;
         
         // Update hasMore based on count
         if (count) {
+          setTotalItems(count);
           setHasMore((from + limit) < count);
         }
         
@@ -45,33 +106,41 @@ const Artists = () => {
     }
   });
 
+  const displayArtists: DisplayArtist[] = artists?.length
+    ? artists.map((artist, index) => {
+        const row = artist as Record<string, unknown>;
+        const profile = row.profile as Record<string, unknown> | null | undefined;
+
+        return {
+          id: String(row.id),
+          name: String(profile?.full_name || row.name || row.full_name || row.artist_name || `Verified Artist ${index + 1}`),
+          location: typeof row.location === "string" ? row.location : "India",
+          bio: typeof row.bio === "string" ? row.bio : undefined,
+          medium: typeof row.medium === "string" ? row.medium : typeof row.specialty === "string" ? row.specialty : undefined,
+          avatar: typeof row.avatar === "string" ? row.avatar : typeof row.image === "string" ? row.image : typeof profile?.avatar_url === "string" ? profile.avatar_url : typeof row.avatar_url === "string" ? row.avatar_url : undefined,
+          artworkCount: typeof row.artworkCount === "number" ? row.artworkCount : typeof row.artwork_count === "number" ? row.artwork_count : typeof row.works_count === "number" ? row.works_count : 0,
+          collectedCount: typeof row.collectedCount === "number" ? row.collectedCount : typeof row.collected_count === "number" ? row.collected_count : typeof row.sold_count === "number" ? row.sold_count : 0,
+          verified: typeof row.verified === "boolean" ? row.verified : true,
+        };
+      })
+    : PLACEHOLDER_ARTISTS;
+
+  const verifiedCount = displayArtists.filter((artist) => artist.verified).length;
+
   return (
-    <MainLayout>
-      <div className="container py-12">
-        <SectionTitle
-          title="Our Artists"
-          subtitle="Meet the talented creators behind our exceptional artworks"
-        />
-        {initialLoading ? (
-          <div>Loading artists...</div>
-        ) : !artists?.length ? (
-          <div className="text-center text-gray-500">No artists available</div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {artists.map((artist) => (
-                <ArtistCard key={artist.id} artist={artist} />
-              ))}
-            </div>
-            <LoadMoreButton
-              onClick={loadMore}
-              isLoading={isLoading}
-              hasMore={hasMore}
-            />
-          </>
-        )}
-      </div>
-    </MainLayout>
+    <div className="min-h-screen bg-obsidian">
+      <HomeNav />
+      <ArtistsHeader totalArtists={displayArtists.length} verifiedCount={verifiedCount} />
+      <ArtistsFilterBar />
+      {initialLoading ? (
+        <div className="bg-surface-1 px-6 py-20 text-center text-[14px] text-[#666]">Loading artists...</div>
+      ) : (
+        <>
+          <ArtistsGrid artists={displayArtists} />
+          <ArtistsLoadMoreButton onLoadMore={() => goToPage(page + 1)} loading={isLoading} hasMore={hasMore} />
+        </>
+      )}
+    </div>
   );
 };
 

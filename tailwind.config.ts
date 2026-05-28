@@ -30,6 +30,16 @@ export default {
     },
     extend: {
       colors: {
+        obsidian: '#0a0a0a',
+        'surface-1': '#0d0d0d',
+        'surface-2': '#111111',
+        'surface-3': '#141414',
+        linen: '#f0ece4',
+        gold: '#c9a96e',
+        stone: '#888780',
+        verified: '#4a9d6f',
+        'border-subtle': '#1e1e1e',
+        'border-faint': '#151515',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

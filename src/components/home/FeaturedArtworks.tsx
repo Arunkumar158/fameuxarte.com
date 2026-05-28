@@ -1,194 +1,164 @@
-import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Price } from "@/components/shared/Price";
-import { useArtworkImage } from "@/hooks/useArtworkImage";
+import { getArtworkImageUrl, getGalleryImages } from "@/lib/utils";
 
-const ArtworkCard = ({ artwork, index }) => {
-  const { imageUrl } = useArtworkImage(artwork.image_path);
-  
-  return (
-    <Link 
-      to={`/artworks/${artwork.slug || artwork.id}`} 
-      className="artwork-card card-hover" 
-      style={{ animationDelay: `${index * 100}ms` }}
-    >
-      <div className="artwork-image">
-        <img 
-          src={imageUrl}
-          alt={`${artwork.title} - ${artwork.category || 'Artwork'} by ${artwork.artist_name}`}
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity flex items-end p-4">
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="text-white border-white hover:bg-white/20 w-full"
-          >
-            View Artwork Details
-          </Button>
-        </div>
-      </div>
-      <div className="artwork-details">
-        <h3 className="font-heading font-semibold text-lg">{artwork.title}</h3>
-        <p className="text-sm text-muted-foreground">{artwork.artist_name}</p>
-        <div className="font-medium mt-1">
-          <Price amount={artwork.price} />
-        </div>
-        {artwork.category && (
-          <div className="mt-2">
-            <span className="inline-block px-2 py-1 text-xs bg-brand-gold/20 text-brand-gold rounded">
-              {artwork.category}
-            </span>
-          </div>
-        )}
-      </div>
-    </Link>
+export interface Artwork {
+  id: string;
+  title: string;
+  artist?: string;
+  artistName?: string;
+  location?: string;
+  price: number;
+  image?: string | null;
+  image_url?: string | null;
+  is_verified?: boolean;
+  is_acquired?: boolean;
+  slug?: string | null;
+}
+
+interface FeaturedArtworksProps {
+  artworks?: Artwork[];
+  onCollectArtwork?: (artwork: Artwork) => void;
+}
+
+type ArtworkRow = {
+  id: string;
+  title: string;
+  price: number;
+  image_path: string | null;
+  images: string[] | null;
+  slug: string | null;
+  artist: {
+    full_name: string | null;
+  } | null;
+};
+
+const fetchFeaturedArtworks = async (): Promise<Artwork[]> => {
+  const { data, error } = await supabase
+    .from("artworks")
+    .select(`
+      id,
+      title,
+      price,
+      image_path,
+      images,
+      slug,
+      artist:profiles!artworks_artist_id_fkey (
+        full_name
+      )
+    `)
+    .not("category", "eq", "Uncategorized")
+    .order("created_at", { ascending: false })
+    .limit(3);
+
+  if (error) throw error;
+
+  return Promise.all(
+    ((data || []) as ArtworkRow[]).map(async (artwork) => {
+      const [primaryImagePath] = getGalleryImages(artwork);
+      const image = primaryImagePath ? await getArtworkImageUrl(primaryImagePath) : null;
+
+      return {
+        id: artwork.id,
+        title: artwork.title,
+        artist: artwork.artist?.full_name || "Verified artist",
+        location: "India",
+        price: artwork.price,
+        image: image || "/placeholder.svg",
+        is_verified: true,
+        slug: artwork.slug,
+      };
+    })
   );
 };
 
-const FeaturedArtworks = () => {
-  const { data: artworks, isLoading, error } = useQuery({
-    queryKey: ["featured-artworks"],
-    queryFn: async () => {
-      console.log("🔍 Fetching featured artworks...");
-      
-      // First, let's check how many total artworks exist
-      const { count: totalCount, error: countError } = await supabase
-        .from("artworks")
-        .select("*", { count: "exact", head: true });
-      
-      if (countError) {
-        console.error("❌ Error counting total artworks:", countError);
-      } else {
-        console.log(`📊 Total artworks in database: ${totalCount}`);
-      }
-
-      // Check for artworks with missing required fields
-      const { data: missingFields, error: missingError } = await supabase
-        .from("artworks")
-        .select("id, title, image_path, slug, artist_id")
-        .or("image_path.is.null,slug.is.null,artist_id.is.null");
-      
-      if (missingError) {
-        console.error("❌ Error checking missing fields:", missingError);
-      } else if (missingFields?.length) {
-        console.log(`⚠️  Found ${missingFields.length} artworks with missing fields:`, missingFields);
-      }
-
-      // Now fetch the featured artworks with correct relationship
-      const { data, error } = await supabase
-        .from("artworks")
-        .select(`
-          id,
-          title,
-          price,
-          category,
-          description,
-          image_path,
-          slug,
-          artist:profiles!artworks_artist_id_fkey (
-            id,
-            full_name
-          )
-        `)
-        .limit(6);
-      
-      if (error) {
-        console.error("❌ Error fetching featured artworks:", error);
-        throw error;
-      }
-      
-      console.log(`✅ Successfully fetched ${data?.length || 0} featured artworks:`, data);
-      
-      // Log any artworks with missing artist information
-      if (data) {
-        const artworksWithoutArtist = data.filter(artwork => !artwork.artist);
-        if (artworksWithoutArtist.length > 0) {
-          console.log(`⚠️  ${artworksWithoutArtist.length} artworks without artist info:`, artworksWithoutArtist);
-        }
-      }
-      
-      return data;
-    }
+const FeaturedArtworks = ({ artworks, onCollectArtwork }: FeaturedArtworksProps) => {
+  const shouldFetchArtworks = !artworks?.length;
+  const { data: fetchedArtworks = [], isLoading } = useQuery({
+    queryKey: ["home-featured-artworks"],
+    queryFn: fetchFeaturedArtworks,
+    enabled: shouldFetchArtworks,
   });
 
-  // Log any query errors
-  if (error) {
-    console.error("❌ Featured artworks query error:", error);
-  }
-
-  if (isLoading) {
-    return (
-      <section id="featured-section" className="section-padding bg-black/80">
-        <div className="container">
-          <div className="mb-12 text-center">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-slide-up">
-              Featured <span className="text-gradient">Artworks</span>
-            </h2>
-            <p className="text-lg text-gray-300">Loading featured artworks...</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (!artworks?.length) {
-    return (
-      <section id="featured-section" className="section-padding bg-black/80">
-        <div className="container">
-          <div className="mb-12 text-center">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-slide-up">
-              Featured <span className="text-gradient">Artworks</span>
-            </h2>
-            <p className="text-lg text-gray-300">No artworks available at the moment.</p>
-            {error && (
-              <p className="text-sm text-red-400 mt-2">
-                Error: {error.message}
-              </p>
-            )}
-          </div>
-        </div>
-      </section>
-    );
-  }
+  const displayArtworks = artworks?.length ? artworks : fetchedArtworks;
 
   return (
-    <section id="featured-section" className="section-padding bg-black/80">
-      <div className="container">
-        <div className="mb-12 text-center">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-slide-up">
-            Featured <span className="text-gradient">Artworks</span>
-          </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-brand-gold to-brand-gold mx-auto mb-6"></div>
-          <p className="text-lg max-w-2xl mx-auto text-gray-300 animate-slide-up delay-100">
-            Discover our curated selection of exceptional pieces that represent the pinnacle of contemporary artistic expression
-          </p>
+    <section className="bg-surface-1 px-6 py-10">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-6 flex items-end justify-between gap-4">
+          <div>
+            <div className="mb-2 text-[11px] font-normal uppercase tracking-[0.14em] text-[#555]">Featured collection</div>
+            <h2 className="text-[22px] font-medium tracking-[-0.02em] text-linen">Works worth collecting</h2>
+          </div>
+          <Link to="/artworks" className="shrink-0 text-[12px] text-[#555] transition-colors hover:text-gold">
+            View all artworks -&gt;
+          </Link>
         </div>
 
-        <div className="gallery-grid mt-12 animate-slide-up delay-200">
-          {artworks?.map((artwork, index) => (
-            <ArtworkCard 
-              key={artwork.id} 
-              artwork={{
-                ...artwork,
-                artist_name: artwork.artist?.full_name || 'Unknown Artist'
-              }} 
-              index={index} 
-            />
-          ))}
-        </div>
+        <div className="grid grid-cols-1 gap-[10px] sm:grid-cols-2 lg:grid-cols-3">
+          {isLoading
+            ? Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="aspect-[3/4] animate-pulse rounded-[10px] border border-border-subtle bg-surface-3" />
+              ))
+            : displayArtworks.map((artwork) => {
+                const image = artwork.image || artwork.image_url;
+                const isAcquired = Boolean(artwork.is_acquired);
+                const artist = artwork.artist || artwork.artistName || "Verified artist";
+                const location = artwork.location || "India";
 
-        <div className="mt-12 text-center">
-          <Button asChild className="bg-brand-gold hover:bg-brand-gold/90 group rounded-lg">
-            <Link to="/artworks" className="flex items-center gap-2">
-              View All Artworks
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
+                return (
+                  <article key={artwork.id} className="overflow-hidden rounded-[10px] border border-border-subtle bg-surface-3">
+                    <Link to={`/artworks/${artwork.slug || artwork.id}`} className="relative block aspect-square overflow-hidden bg-surface-2">
+                      {image ? (
+                        <img src={image} alt={artwork.title} className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.03]" />
+                      ) : (
+                        <div className="h-full w-full bg-surface-2" />
+                      )}
+                      <div className="absolute left-3 top-3 flex gap-2">
+                        {(artwork.is_verified ?? true) && (
+                          <span className="rounded-full border border-[rgba(74,157,111,0.3)] bg-[rgba(74,157,111,0.15)] px-2 py-[3px] text-[9px] uppercase tracking-[0.08em] text-verified">
+                            Verified
+                          </span>
+                        )}
+                        {isAcquired && (
+                          <span className="rounded-full border border-[#2a2a2a] bg-[rgba(255,255,255,0.05)] px-2 py-[3px] text-[9px] uppercase tracking-[0.08em] text-[#555]">
+                            Acquired
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+
+                    <div className="p-3 pb-[14px]">
+                      <h3 className="mb-[2px] text-[13px] font-medium text-[#e0dcd4]">{artwork.title}</h3>
+                      <p className="mb-[10px] text-[11px] text-[#555]">
+                        {artist} - {location}
+                      </p>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[12px] font-medium text-[#aaa]">Rs. {artwork.price.toLocaleString("en-IN")}</span>
+                        {isAcquired ? (
+                          <span className="text-[11px] text-[#444]">No longer available</span>
+                        ) : onCollectArtwork ? (
+                          <button
+                            type="button"
+                            onClick={() => onCollectArtwork(artwork)}
+                            className="rounded-[4px] border border-[rgba(201,169,110,0.25)] bg-[rgba(201,169,110,0.1)] px-[10px] py-1 text-[11px] text-gold"
+                          >
+                            Collect
+                          </button>
+                        ) : (
+                          <Link
+                            to={`/artworks/${artwork.slug || artwork.id}`}
+                            className="rounded-[4px] border border-[rgba(201,169,110,0.25)] bg-[rgba(201,169,110,0.1)] px-[10px] py-1 text-[11px] text-gold"
+                          >
+                            Collect
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
         </div>
       </div>
     </section>
