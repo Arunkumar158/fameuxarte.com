@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Heart, LogOut, ShoppingCart, User, Menu } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -22,6 +22,7 @@ const HomeNav = () => {
   const { user, signOut } = useAuth();
   const { cartCount } = useCart();
   const { likedCount } = useLikedItems();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -99,7 +100,7 @@ const HomeNav = () => {
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <Link to="/auth" className="hidden cursor-pointer border-none bg-transparent text-[12px] text-[#666] transition-colors hover:text-stone sm:inline-flex">
+              <Link to="/auth" state={{ from: location.pathname }} className="hidden cursor-pointer border-none bg-transparent text-[12px] text-[#666] transition-colors hover:text-stone sm:inline-flex">
                 Sign in
               </Link>
               <Link to="/artworks" className="hidden sm:inline-flex rounded-[6px] bg-linen px-[14px] py-[7px] text-[12px] font-medium text-obsidian transition-opacity hover:opacity-90">

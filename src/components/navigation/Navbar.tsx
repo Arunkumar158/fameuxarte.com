@@ -125,7 +125,7 @@ const Navbar = () => {
                 </Button>
               </div>
             ) : (
-              <Link to="/auth">
+              <Link to="/auth" state={{ from: pathname }}>
                 <Button 
                   size="sm" 
                   variant="outline" 

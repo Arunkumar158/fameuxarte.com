@@ -109,10 +109,10 @@ const MobileMenu = ({ onClose }: MobileMenuProps) => {
         {!user && !isAuthPage && (
           <div className="mt-4 sm:mt-6 space-y-2">
             <Button asChild variant="default" className="w-full h-9 sm:h-10 text-sm">
-              <Link to="/auth" onClick={onClose}>Sign In</Link>
+              <Link to="/auth" state={{ from: pathname }} onClick={onClose}>Sign In</Link>
             </Button>
             <Button asChild variant="outline" className="w-full h-9 sm:h-10 text-sm">
-              <Link to="/auth" onClick={onClose}>Create Account</Link>
+              <Link to="/auth" state={{ from: pathname }} onClick={onClose}>Create Account</Link>
             </Button>
           </div>
         )}

@@ -27,6 +27,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
 
+        if (event === "SIGNED_IN") {
+          const redirectPath = localStorage.getItem("authRedirect");
+          if (redirectPath) {
+            localStorage.removeItem("authRedirect");
+            navigate(redirectPath);
+          }
+        }
+
         // PostHog: identify user when a session is established
         if (session?.user) {
           identifyUser(session.user.id, {
@@ -58,7 +66,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
-    navigate("/");
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {

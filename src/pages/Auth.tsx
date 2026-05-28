@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import AuthLayout from "@/components/auth/AuthLayout";
@@ -13,6 +13,9 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const { signIn, signUp, signInWithGoogle } = useAuth();
   const { toast } = useToast();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const from = location.state?.from || "/";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,6 +26,7 @@ const Auth = () => {
           title: "Welcome back!",
           description: "You have successfully signed in.",
         });
+        navigate(from, { replace: true });
       } else {
         await signUp(email, password, fullName);
         toast({
@@ -41,6 +45,7 @@ const Auth = () => {
 
   const handleGoogleAuth = async () => {
     try {
+      localStorage.setItem("authRedirect", from);
       await signInWithGoogle();
     } catch (error) {
       toast({
