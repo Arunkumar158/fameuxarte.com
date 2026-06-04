@@ -132,10 +132,14 @@ const Blog = () => {
       <BlogHeader />
       <CategoryFilters />
       {isLoading ? (
-        <section className="bg-obsidian px-6 py-8">
-          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 sm:grid-cols-2">
+        <section className="bg-obsidian px-4 sm:px-6 py-8">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2">
             {[...Array(BLOGS_PER_PAGE)].map((_, i) => (
-              <div key={i} className="h-[290px] animate-pulse rounded-lg border border-border-subtle bg-surface-2" />
+              <div key={i} className="flex flex-col gap-4 rounded-lg border border-border-subtle bg-surface-2 p-4">
+                <div className="h-48 w-full animate-pulse rounded bg-surface-3" />
+                <div className="h-6 w-3/4 animate-pulse rounded bg-surface-3" />
+                <div className="h-4 w-full animate-pulse rounded bg-surface-3" />
+              </div>
             ))}
           </div>
         </section>

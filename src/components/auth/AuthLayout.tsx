@@ -10,7 +10,7 @@ interface AuthLayoutProps {
 const AuthLayout = ({ children, title, subtitle, visualContent }: AuthLayoutProps) => {
   return (
     <div className="min-h-screen flex bg-obsidian">
-      <div className="w-full lg:w-2/5 flex flex-col justify-center px-8 py-12 bg-obsidian">
+      <div className="w-full lg:w-2/5 flex flex-col justify-center overflow-y-auto px-4 sm:px-8 py-8 sm:py-12 bg-obsidian">
         <div className="w-full max-w-md mx-auto">
           <div className="mb-10">
             <a href="/" className="text-[18px] font-medium text-linen tracking-[-0.01em]">

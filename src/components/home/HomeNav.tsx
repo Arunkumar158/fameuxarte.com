@@ -5,6 +5,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useLikedItems } from "@/hooks/useLikedItems";
 import { useState } from "react";
 import MobileMenu from "@/components/navigation/MobileMenu";
+import { useToast } from "@/hooks/use-toast";
 
 const navItems = [
   { label: "Discover", to: "/artworks" },
@@ -13,7 +14,8 @@ const navItems = [
   {
     label: "ArtGuard",
     to: "#artguard",
-    comingSoon: "ArtGuard verification is coming soon. We are building an authenticity layer for every listed artwork.",
+    comingSoon: true,
+    comingSoonMessage: "ArtGuard AI verification is coming soon. We're building an authenticity layer for every listed artwork.",
   },
   { label: "Journal", to: "/blog" },
 ];
@@ -24,22 +26,35 @@ const HomeNav = () => {
   const { likedCount } = useLikedItems();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleArtGuardClick = (message: string) => {
+    toast({
+      title: "Coming Soon",
+      description: message,
+    });
+  };
 
   return (
     <>
-      <nav className="flex w-full items-center justify-between bg-obsidian px-6 py-[14px]">
-        <Link to="/" className="text-[14px] font-medium tracking-[-0.01em] text-linen">
+      {/* Sticky nav with safe-area top padding for notched devices */}
+      <nav
+        className="sticky top-0 z-50 flex w-full items-center justify-between bg-obsidian/95 backdrop-blur-md border-b border-border-faint px-4 sm:px-6 py-[14px]"
+        style={{ paddingTop: `calc(env(safe-area-inset-top) + 14px)` }}
+      >
+        <Link to="/" className="text-[14px] font-medium tracking-[-0.01em] text-linen shrink-0">
           Fameuxarte
         </Link>
 
-        <div className="hidden items-center gap-5 sm:flex">
+        {/* Desktop nav links — hidden below md (768px) */}
+        <div className="hidden md:flex items-center gap-5">
           {navItems.map((item) =>
             item.comingSoon ? (
               <button
                 key={item.label}
                 type="button"
-                onClick={() => window.alert(item.comingSoon)}
-                className="border-none bg-transparent p-0 text-[12px] text-[#666] transition-colors hover:text-stone"
+                onClick={() => handleArtGuardClick(item.comingSoonMessage!)}
+                className="border-none bg-transparent p-0 text-[12px] text-[#666] transition-colors hover:text-stone cursor-pointer"
               >
                 {item.label}
               </button>
@@ -55,13 +70,14 @@ const HomeNav = () => {
           )}
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Right actions */}
+        <div className="flex items-center gap-2">
           {user ? (
             <div className="flex items-center gap-2">
               <Link
                 to="/liked-items"
-                aria-label="Liked artworks"
-                className="relative inline-flex h-8 w-8 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
+                aria-label={`Liked artworks${likedCount > 0 ? `, ${likedCount} items` : ""}`}
+                className="relative inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
               >
                 <Heart className="h-4 w-4" aria-hidden="true" />
                 {likedCount > 0 && (
@@ -72,8 +88,8 @@ const HomeNav = () => {
               </Link>
               <Link
                 to="/cart"
-                aria-label="Cart"
-                className="relative inline-flex h-8 w-8 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
+                aria-label={`Cart${cartCount > 0 ? `, ${cartCount} items` : ""}`}
+                className="relative inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
               >
                 <ShoppingCart className="h-4 w-4" aria-hidden="true" />
                 {cartCount > 0 && (
@@ -82,10 +98,11 @@ const HomeNav = () => {
                   </span>
                 )}
               </Link>
+              {/* Profile & logout only visible on desktop */}
               <Link
                 to="/profile"
                 aria-label="Profile"
-                className="hidden sm:inline-flex h-8 w-8 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
+                className="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
               >
                 <User className="h-4 w-4" aria-hidden="true" />
               </Link>
@@ -93,27 +110,36 @@ const HomeNav = () => {
                 type="button"
                 onClick={() => signOut()}
                 aria-label="Sign out"
-                className="hidden sm:inline-flex h-8 w-8 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
+                className="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
               >
                 <LogOut className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <Link to="/auth" state={{ from: location.pathname }} className="hidden cursor-pointer border-none bg-transparent text-[12px] text-[#666] transition-colors hover:text-stone sm:inline-flex">
+            <div className="hidden md:flex items-center gap-3">
+              <Link
+                to="/auth"
+                state={{ from: location.pathname }}
+                className="cursor-pointer border-none bg-transparent text-[12px] text-[#666] transition-colors hover:text-stone"
+              >
                 Sign in
               </Link>
-              <Link to="/artworks" className="hidden sm:inline-flex rounded-[6px] bg-linen px-[14px] py-[7px] text-[12px] font-medium text-obsidian transition-opacity hover:opacity-90">
+              <Link
+                to="/artworks"
+                className="inline-flex rounded-[6px] bg-linen px-[14px] py-[7px] text-[12px] font-medium text-obsidian transition-opacity hover:opacity-90"
+              >
                 Collect art
               </Link>
             </div>
           )}
 
+          {/* Mobile menu button — visible below md */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(true)}
-            aria-label="Open mobile menu"
-            className="inline-flex sm:hidden h-8 w-8 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
+            aria-label="Open navigation menu"
+            aria-expanded={mobileMenuOpen}
+            className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
           >
             <Menu className="h-4 w-4" aria-hidden="true" />
           </button>

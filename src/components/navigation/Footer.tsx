@@ -32,9 +32,9 @@ const socialLinks = [
 
 const Footer = () => {
   return (
-    <footer className="border-t border-border-faint bg-obsidian px-6">
-      <div className="mx-auto max-w-6xl py-14">
-        <div className="grid gap-10 lg:grid-cols-[1.35fr_1fr_1fr_1.2fr]">
+    <footer className="border-t border-border-faint bg-obsidian px-4 sm:px-6">
+      <div className="mx-auto max-w-6xl py-12 sm:py-14">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.35fr_1fr_1fr_1.2fr]">
           <div>
             <Link to="/" className="mb-4 inline-flex text-[18px] font-medium tracking-[-0.02em] text-linen">
               Fameuxarte
@@ -89,7 +89,7 @@ const Footer = () => {
               <button
                 type="submit"
                 aria-label="Subscribe"
-                className="inline-flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-[6px] bg-linen text-obsidian transition-colors hover:bg-gold"
+                className="inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[6px] bg-linen text-obsidian transition-colors hover:bg-gold"
               >
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -104,7 +104,7 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   aria-label={label}
                   title={label}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
                 >
                   <Icon className="h-4 w-4" aria-hidden="true" />
                 </a>

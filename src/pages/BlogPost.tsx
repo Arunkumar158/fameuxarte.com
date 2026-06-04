@@ -8,6 +8,7 @@ import ArticleHeader from "@/components/blog/ArticleHeader";
 import ArticleHero from "@/components/blog/ArticleHero";
 import ArticleBody from "@/components/blog/ArticleBody";
 import RelatedPosts from "@/components/blog/RelatedPosts";
+import CommentBox from "@/components/blog/CommentBox";
 import JournalShellStyles from "@/components/blog/JournalShellStyles";
 import type { BlogPost as JournalPost } from "@/components/blog/types";
 import { PLACEHOLDER_POSTS } from "@/components/blog/types";
@@ -21,7 +22,7 @@ const getExcerpt = (content: string, title: string) => {
 
 const getReadTime = (content: string) => Math.max(4, Math.ceil(stripHtml(content).split(/\s+/).filter(Boolean).length / 180));
 
-const toJournalPost = (post: any): JournalPost => ({
+const toJournalPost = (post: Record<string, any>): JournalPost => ({
   id: post.id,
   title: post.title,
   slug: post.Slug || post.id,
@@ -91,6 +92,30 @@ const BlogPost = () => {
     enabled: !!post?.id,
   });
 
+  const { data: relatedPosts = [] } = useQuery({
+    queryKey: ["blog-related", post?.id],
+    queryFn: async () => {
+      if (!post?.id) return [];
+
+      const { data, error } = await supabase
+        .from("blogs")
+        .select(`
+          *,
+          profiles:author_id (
+            full_name,
+            avatar_url
+          )
+        `)
+        .neq("id", post.id)
+        .order("published_at", { ascending: false })
+        .limit(2);
+
+      if (error) throw error;
+      return data.map(toJournalPost);
+    },
+    enabled: !!post?.id,
+  });
+
   if (isLoadingPost) return <div className="min-h-screen bg-obsidian px-6 py-12 text-linen">Loading...</div>;
   if (!post) return <div className="min-h-screen bg-obsidian px-6 py-12 text-linen">Article not found</div>;
 
@@ -99,7 +124,6 @@ const BlogPost = () => {
   void refetchComments;
 
   const journalPost = toJournalPost(post);
-  const relatedPosts = PLACEHOLDER_POSTS.filter((relatedPost) => relatedPost.slug !== journalPost.slug);
 
   const structuredData = generateBlogPostStructuredData({
     title: post.title,
@@ -135,6 +159,7 @@ const BlogPost = () => {
         <ArticleHero post={journalPost} />
         <ArticleBody content={journalPost.content} />
         <RelatedPosts posts={relatedPosts} />
+        <CommentBox />
       </article>
     </div>
   );

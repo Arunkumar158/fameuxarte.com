@@ -7,7 +7,7 @@ import { Heart, ShieldCheck, Sparkles, Images } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 type ArtworkCardProps = {
   artwork: {
@@ -31,6 +31,11 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
   const navigate = useNavigate();
   const isLiked = isItemLiked(artwork.id);
 
+  // Only enable 3D tilt on non-touch (pointer: fine) devices
+  const isTouchDevice = typeof window !== "undefined"
+    ? window.matchMedia("(pointer: coarse)").matches
+    : false;
+
   // Motion values for 3D tilt
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -42,6 +47,7 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
   const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-7deg", "7deg"]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isTouchDevice) return; // Skip on touch devices
     const rect = e.currentTarget.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
@@ -130,7 +136,7 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
 
   return (
     <motion.div
-      style={{
+      style={isTouchDevice ? undefined : {
         rotateX,
         rotateY,
         transformStyle: "preserve-3d",

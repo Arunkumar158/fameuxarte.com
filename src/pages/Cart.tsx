@@ -29,8 +29,8 @@ const CartItemRow = ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
   const lineTotal = item.artwork.price * item.quantity;
 
   return (
-    <article className="grid gap-4 rounded-[10px] border border-border-subtle bg-surface-2 p-4 transition-colors hover:border-gold/30 md:grid-cols-[112px_1fr_auto] md:items-center">
-      <Link to={`/artworks/${item.artwork_id}`} className="group block h-28 w-full overflow-hidden rounded-[8px] bg-surface-3 md:h-28 md:w-28">
+    <article className="grid gap-4 rounded-[10px] border border-border-subtle bg-surface-2 p-4 transition-colors hover:border-gold/30 grid-cols-[80px_1fr] sm:grid-cols-[112px_1fr_auto] sm:items-center">
+      <Link to={`/artworks/${item.artwork_id}`} className="group block h-20 w-20 sm:h-28 sm:w-28 overflow-hidden rounded-[8px] bg-surface-3">
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -128,7 +128,7 @@ const Cart = () => {
           <HomeNav />
         </div>
 
-        <header className="border-b border-b-[0.5px] border-border-faint bg-obsidian px-6 py-12">
+        <header className="border-b border-b-[0.5px] border-border-faint bg-obsidian px-4 sm:px-6 py-8 sm:py-12">
           <div className="mx-auto max-w-6xl">
             <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
               <div>
@@ -172,7 +172,7 @@ const Cart = () => {
           </div>
         </header>
 
-        <main className="mx-auto max-w-6xl px-6 py-10">
+        <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-10">
           {isLoading ? (
             <CartSkeleton />
           ) : items.length === 0 ? (

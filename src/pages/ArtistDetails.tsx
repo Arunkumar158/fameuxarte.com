@@ -241,7 +241,7 @@ const ArtistDetails = () => {
       <div className="min-h-screen bg-obsidian text-linen">
         <HomeNav />
 
-        <section className="border-t border-border-faint px-6 py-6">
+        <section className="border-t border-border-faint px-4 sm:px-6 py-6">
           <div className="mx-auto max-w-6xl">
             <Link to="/artists" className="inline-flex items-center gap-2 text-[12px] text-[#666] transition-colors hover:text-gold">
               <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
@@ -250,7 +250,7 @@ const ArtistDetails = () => {
           </div>
         </section>
 
-        <section className="px-6 pb-12 pt-2">
+        <section className="px-4 sm:px-6 pb-12 pt-2">
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 lg:grid-cols-[320px_1fr] lg:gap-14">
             <aside className="lg:sticky lg:top-6 lg:self-start">
               <div className="overflow-hidden rounded-[10px] border border-border-subtle bg-surface-2">
@@ -307,7 +307,7 @@ const ArtistDetails = () => {
                     </span>
                   )}
                 </div>
-                <h1 className="mb-4 text-[44px] font-medium leading-[1.02] tracking-[-0.035em] text-linen sm:text-[58px]">
+                <h1 className="mb-4 text-[32px] font-medium leading-[1.02] tracking-[-0.035em] text-linen sm:text-[44px] lg:text-[58px]">
                   {artistName}
                 </h1>
                 <p className="max-w-3xl text-[16px] leading-[1.8] text-[#888]">

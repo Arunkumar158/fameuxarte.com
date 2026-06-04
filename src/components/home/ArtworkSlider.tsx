@@ -141,17 +141,17 @@ const ArtworkSlider = () => {
             <>
               <button
                 onClick={() => instanceRef.current?.prev()}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                className="absolute left-2 top-1/2 z-10 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white p-2.5 rounded-full transition-colors shadow-lg"
                 aria-label="Previous slide"
               >
-                <ArrowLeft className="w-6 h-6" />
+                <ArrowLeft className="w-5 h-5" />
               </button>
               <button
                 onClick={() => instanceRef.current?.next()}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                className="absolute right-2 top-1/2 z-10 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white p-2.5 rounded-full transition-colors shadow-lg"
                 aria-label="Next slide"
               >
-                <ArrowRight className="w-6 h-6" />
+                <ArrowRight className="w-5 h-5" />
               </button>
             </>
           )}

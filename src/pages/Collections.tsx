@@ -100,7 +100,7 @@ const Collections = () => {
           <HomeNav />
         </div>
 
-        <header className="border-b border-b-[0.5px] border-border-faint bg-obsidian px-6 py-12">
+        <header className="border-b border-b-[0.5px] border-border-faint bg-obsidian px-6 py-8 sm:py-12">
           <div className="mx-auto max-w-6xl">
             <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
               <div>
@@ -125,7 +125,7 @@ const Collections = () => {
               </Link>
             </div>
 
-            <div className="mt-8 grid gap-3 border-t border-t-[0.5px] border-border-faint pt-6 sm:grid-cols-3">
+            <div className="mt-8 grid gap-3 border-t border-t-[0.5px] border-border-faint pt-6 grid-cols-1 sm:grid-cols-3">
               <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-4">
                 <div className="mb-1 flex items-center gap-2 text-[22px] font-medium tracking-[-0.02em] text-linen">
                   <Layers3 className="h-5 w-5 text-gold" aria-hidden="true" />
@@ -189,7 +189,7 @@ const Collections = () => {
             <div className="space-y-14">
               {collectionEntries.map(([category, artworks]) => (
                 <section key={category} className="space-y-6">
-                  <div className="flex flex-col gap-2 border-b border-b-[0.5px] border-border-faint pb-4 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="flex flex-col gap-3 border-b border-b-[0.5px] border-border-faint pb-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                       <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.12em] text-gold">
                         {artworks.length} {artworks.length === 1 ? "work" : "works"}

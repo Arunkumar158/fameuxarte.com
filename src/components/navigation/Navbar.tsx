@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import MobileMenu from "./MobileMenu";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useLikedItems } from "@/hooks/useLikedItems";
 import CurrencySelector from "@/components/shared/CurrencySelector";
 
@@ -16,7 +15,6 @@ const Navbar = () => {
   const { pathname } = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,9 +49,8 @@ const Navbar = () => {
             <span className="absolute -inset-x-4 -inset-y-2 z-0 scale-75 bg-gradient-to-r from-brand-gold/0 via-white/5 to-brand-gold/0 opacity-0 blur-lg transition-all duration-300 group-hover:scale-100 group-hover:opacity-100"></span>
           </Link>
 
-          {/* Navigation Links - Center */}
-          {!isMobile && (
-            <div className={`flex-1 flex justify-center items-center space-x-4 sm:space-x-8 ${textColor} mx-4`}>
+          {/* Navigation Links - Center — hidden below md */}
+          <div className={`hidden md:flex flex-1 justify-center items-center space-x-8 ${textColor} mx-4`}>
               <Link to="/artworks" className="text-sm sm:text-base relative group">
                 <span className="relative">Artworks</span>
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
@@ -70,14 +67,14 @@ const Navbar = () => {
                 <span className="relative">Blog</span>
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
               </Link>
-            </div>
-          )}
+          </div>
 
-          {/* Right Section - Currency & Actions */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          {/* Right Section - Actions */}
+          <div className="flex items-center space-x-2">
             {user && (
               <>
-                <div className="hidden xs:block">
+                {/* Currency selector: hidden on mobile (available in mobile menu) */}
+                <div className="hidden md:block">
                   <CurrencySelector />
                 </div>
                 
@@ -137,16 +134,17 @@ const Navbar = () => {
               </Link>
             )}
 
-            {isMobile && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setMobileMenuOpen(true)}
-                className={`${textColor} h-8 w-8 sm:h-10 sm:w-10`}
-              >
-                <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
-              </Button>
-            )}
+            {/* Mobile hamburger — shown below md */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setMobileMenuOpen(true)}
+              className={`md:hidden ${textColor} h-9 w-9`}
+              aria-label="Open navigation menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
           </div>
         </div>
       </div>

@@ -19,7 +19,7 @@ const HeroSection = ({ artworkCount, artistCount }: HeroSectionProps) => {
   ];
 
   return (
-    <section className="bg-obsidian px-6 pb-12 pt-14 text-center">
+    <section className="bg-obsidian px-4 sm:px-6 pb-10 sm:pb-12 pt-10 sm:pt-14 text-center">
       <div className="mx-auto max-w-[680px]">
         <div className="mb-5 flex items-center justify-center gap-2">
           <span className="h-[6px] w-[6px] rounded-full bg-verified" />
@@ -47,10 +47,10 @@ const HeroSection = ({ artworkCount, artistCount }: HeroSectionProps) => {
           </a>
         </div>
 
-        <div className="grid grid-cols-2 gap-6 border-t border-[#1a1a1a] pt-6 sm:flex sm:justify-center sm:gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 border-t border-[#1a1a1a] pt-6">
           {stats.map((stat) => (
             <div key={stat.label}>
-              <div className="mb-[2px] text-[22px] font-medium tracking-[-0.02em] text-linen">{stat.value}</div>
+              <div className="mb-[2px] text-[20px] sm:text-[22px] font-medium tracking-[-0.02em] text-linen">{stat.value}</div>
               <div className="text-[11px] text-[#444]">{stat.label}</div>
             </div>
           ))}

@@ -133,7 +133,23 @@ const Artists = () => {
       <ArtistsHeader totalArtists={displayArtists.length} verifiedCount={verifiedCount} />
       <ArtistsFilterBar />
       {initialLoading ? (
-        <div className="bg-surface-1 px-6 py-20 text-center text-[14px] text-[#666]">Loading artists...</div>
+        <div className="mx-auto max-w-6xl px-6 py-20">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="overflow-hidden rounded-xl border border-white/5 bg-brand-dark/80">
+                <div className="flex flex-col items-center justify-center space-y-4 p-8">
+                  <div className="h-24 w-24 animate-pulse rounded-full bg-surface-3" />
+                  <div className="h-6 w-3/4 animate-pulse rounded bg-surface-3" />
+                  <div className="h-4 w-1/2 animate-pulse rounded bg-surface-3" />
+                  <div className="mt-4 flex w-full justify-between gap-4">
+                    <div className="h-8 w-1/2 animate-pulse rounded bg-surface-3" />
+                    <div className="h-8 w-1/2 animate-pulse rounded bg-surface-3" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       ) : (
         <>
           <ArtistsGrid artists={displayArtists} />

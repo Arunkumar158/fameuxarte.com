@@ -99,7 +99,7 @@ const FeaturedArtworks = ({ artworks, onCollectArtwork }: FeaturedArtworksProps)
         <div className="grid grid-cols-1 gap-[10px] sm:grid-cols-2 lg:grid-cols-3">
           {isLoading
             ? Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="aspect-[3/4] animate-pulse rounded-[10px] border border-border-subtle bg-surface-3" />
+                <div key={index} className="aspect-[4/5] animate-pulse rounded-[10px] border border-border-subtle bg-surface-3" />
               ))
             : displayArtworks.map((artwork) => {
                 const image = artwork.image || artwork.image_url;
@@ -109,7 +109,7 @@ const FeaturedArtworks = ({ artworks, onCollectArtwork }: FeaturedArtworksProps)
 
                 return (
                   <article key={artwork.id} className="overflow-hidden rounded-[10px] border border-border-subtle bg-surface-3">
-                    <Link to={`/artworks/${artwork.slug || artwork.id}`} className="relative block aspect-square overflow-hidden bg-surface-2">
+                    <Link to={`/artworks/${artwork.slug || artwork.id}`} className="relative block aspect-[4/5] overflow-hidden bg-surface-2">
                       {image ? (
                         <img src={image} alt={artwork.title} className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.03]" />
                       ) : (

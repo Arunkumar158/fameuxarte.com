@@ -58,11 +58,11 @@ const Lightbox = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 px-6 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 px-4 sm:px-6 backdrop-blur-sm"
       onClick={onClose}
     >
       <button
-        className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/70 transition-colors hover:text-white"
+        className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/70 transition-colors hover:text-white"
         onClick={onClose}
         aria-label="Close lightbox"
       >
@@ -71,7 +71,7 @@ const Lightbox = ({
 
       {imageUrls.length > 1 && (
         <button
-          className="absolute left-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/70 transition-colors hover:text-white"
+          className="absolute left-3 sm:left-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/70 transition-colors hover:text-white"
           onClick={(event) => {
             event.stopPropagation();
             onPrev();
@@ -100,7 +100,7 @@ const Lightbox = ({
 
       {imageUrls.length > 1 && (
         <button
-          className="absolute right-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/70 transition-colors hover:text-white"
+          className="absolute right-3 sm:right-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/70 transition-colors hover:text-white"
           onClick={(event) => {
             event.stopPropagation();
             onNext();
@@ -220,9 +220,9 @@ const ArtworkDetails = () => {
       <MainLayout>
         <div className="min-h-screen bg-obsidian">
           <HomeNav />
-          <div className="mx-auto max-w-6xl px-6 py-10">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-10">
             <div className="grid animate-pulse grid-cols-1 gap-8 lg:grid-cols-[1.06fr_0.94fr] lg:gap-14">
-              <div className="min-h-[520px] rounded-[10px] border border-border-subtle bg-surface-2 lg:min-h-[680px]" />
+              <div className="min-h-[300px] sm:min-h-[420px] rounded-[10px] border border-border-subtle bg-surface-2 lg:min-h-[680px]" />
               <div className="space-y-5 pt-4">
                 <div className="h-7 w-48 rounded bg-surface-2" />
                 <div className="h-16 w-4/5 rounded bg-surface-2" />
@@ -241,8 +241,8 @@ const ArtworkDetails = () => {
       <MainLayout>
         <div className="min-h-screen bg-obsidian">
           <HomeNav />
-          <div className="mx-auto max-w-xl px-6 py-24 text-center">
-            <h1 className="mb-3 text-[32px] font-medium tracking-[-0.025em] text-linen">Artwork not found</h1>
+          <div className="mx-auto max-w-xl px-4 sm:px-6 py-16 sm:py-24 text-center">
+            <h1 className="mb-3 text-[28px] sm:text-[32px] font-medium tracking-[-0.025em] text-linen">Artwork not found</h1>
             <p className="mb-7 text-[14px] leading-[1.75] text-[#666]">
               The artwork you're looking for doesn't exist or has been removed.
             </p>
@@ -306,7 +306,8 @@ const ArtworkDetails = () => {
       <div className="min-h-screen bg-obsidian text-linen">
         <HomeNav />
 
-        <section className="border-t border-border-faint px-6 py-6">
+        {/* Breadcrumb */}
+        <section className="border-t border-border-faint px-4 sm:px-6 py-4 sm:py-6">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
             <Link to="/artworks" className="inline-flex items-center gap-2 text-[12px] text-[#666] transition-colors hover:text-gold">
               <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
@@ -318,11 +319,14 @@ const ArtworkDetails = () => {
           </div>
         </section>
 
-        <section className="px-6 pb-16 pt-2">
+        {/* Main content */}
+        <section className="px-4 sm:px-6 pb-24 sm:pb-16 pt-2">
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 lg:grid-cols-[1.06fr_0.94fr] lg:gap-14">
+
+            {/* Image column */}
             <div className="space-y-4">
               <div
-                className="group relative flex min-h-[520px] cursor-zoom-in items-center justify-center overflow-hidden rounded-[10px] border border-border-subtle bg-surface-2 p-5 sm:p-8 lg:min-h-[680px]"
+                className="group relative flex min-h-[300px] sm:min-h-[420px] lg:min-h-[680px] cursor-zoom-in items-center justify-center overflow-hidden rounded-[10px] border border-border-subtle bg-surface-2 p-3 sm:p-5 lg:p-8"
                 onClick={() => setLightboxOpen(true)}
               >
                 <AnimatePresence mode="wait">
@@ -343,19 +347,23 @@ const ArtworkDetails = () => {
                 </AnimatePresence>
 
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_45%,rgba(0,0,0,0.35))] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <div className="pointer-events-none absolute left-4 top-4 rounded-full border border-border-subtle bg-obsidian/80 px-3 py-[6px] text-[11px] text-[#777] backdrop-blur-sm">
-                  Click to inspect
+
+                {/* Tap to inspect label — always visible */}
+                <div className="pointer-events-none absolute left-3 top-3 rounded-full border border-border-subtle bg-obsidian/80 px-3 py-[6px] text-[11px] text-[#777] backdrop-blur-sm">
+                  Tap to inspect
                 </div>
+
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-black/55 text-linen backdrop-blur-sm">
                     <ZoomIn className="h-5 w-5" aria-hidden="true" />
                   </div>
                 </div>
 
+                {/* Gallery navigation — always visible on touch, hover-only on desktop */}
                 {hasMultiple && (
                   <>
                     <button
-                      className="absolute left-4 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/55 text-linen opacity-0 backdrop-blur-sm transition-all hover:border-gold/40 hover:text-gold group-hover:opacity-100"
+                      className="absolute left-3 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/55 text-linen backdrop-blur-sm transition-all hover:border-gold/40 hover:text-gold lg:opacity-0 lg:group-hover:opacity-100"
                       onClick={(event) => {
                         event.stopPropagation();
                         goPrev();
@@ -365,7 +373,7 @@ const ArtworkDetails = () => {
                       <ChevronLeft className="h-5 w-5" aria-hidden="true" />
                     </button>
                     <button
-                      className="absolute right-4 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/55 text-linen opacity-0 backdrop-blur-sm transition-all hover:border-gold/40 hover:text-gold group-hover:opacity-100"
+                      className="absolute right-3 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/55 text-linen backdrop-blur-sm transition-all hover:border-gold/40 hover:text-gold lg:opacity-0 lg:group-hover:opacity-100"
                       onClick={(event) => {
                         event.stopPropagation();
                         goNext();
@@ -374,20 +382,21 @@ const ArtworkDetails = () => {
                     >
                       <ChevronRight className="h-5 w-5" aria-hidden="true" />
                     </button>
-                    <div className="pointer-events-none absolute bottom-4 right-4 rounded-full border border-white/10 bg-black/60 px-3 py-[6px] text-[11px] text-[#bbb] backdrop-blur-sm">
+                    <div className="pointer-events-none absolute bottom-3 right-3 rounded-full border border-white/10 bg-black/60 px-3 py-[6px] text-[11px] text-[#bbb] backdrop-blur-sm">
                       {selectedIndex + 1} / {imageUrls.length}
                     </div>
                   </>
                 )}
               </div>
 
+              {/* Thumbnail strip */}
               {hasMultiple && (
-                <div className="flex gap-3 overflow-x-auto pb-1">
+                <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-1">
                   {imageUrls.map((url, index) => (
                     <button
                       key={`${url}-${index}`}
                       onClick={() => setSelectedIndex(index)}
-                      className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-[8px] border transition-all ${
+                      className={`relative h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden rounded-[8px] border transition-all ${
                         index === selectedIndex
                           ? "border-gold shadow-[0_0_0_1px_rgba(201,169,110,0.25)]"
                           : "border-border-subtle hover:border-gold/30"
@@ -401,9 +410,10 @@ const ArtworkDetails = () => {
               )}
             </div>
 
+            {/* Details sidebar */}
             <aside className="lg:sticky lg:top-6 lg:self-start">
-              <div className="border-b border-border-faint pb-7">
-                <div className="mb-6 flex flex-wrap gap-2">
+              <div className="border-b border-border-faint pb-6 sm:pb-7">
+                <div className="mb-4 sm:mb-6 flex flex-wrap gap-2">
                   <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(201,169,110,0.25)] bg-[rgba(201,169,110,0.1)] px-3 py-[6px] text-[11px] font-medium uppercase tracking-[0.12em] text-gold">
                     <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
                     AI verified
@@ -414,37 +424,38 @@ const ArtworkDetails = () => {
                   </div>
                 </div>
 
-                <h1 className="mb-3 text-[42px] font-medium leading-[1.02] tracking-[-0.035em] text-linen sm:text-[56px] lg:text-[64px]">
+                {/* Responsive title — scaled down on mobile to prevent overflow */}
+                <h1 className="mb-3 text-[28px] sm:text-[38px] lg:text-[48px] xl:text-[56px] font-medium leading-[1.05] tracking-[-0.03em] text-linen">
                   {artwork.title}
                 </h1>
-                <p className="text-[16px] text-[#777]">
+                <p className="text-[15px] sm:text-[16px] text-[#777]">
                   by <span className="text-linen">{artistName}</span>
                 </p>
               </div>
 
-              <div className="border-b border-border-faint py-7">
+              <div className="border-b border-border-faint py-5 sm:py-7">
                 <div className="mb-2 text-[11px] uppercase tracking-[0.14em] text-[#555]">Investment value</div>
-                <div className="text-[36px] font-medium tracking-[-0.03em] text-gold">
+                <div className="text-[30px] sm:text-[36px] font-medium tracking-[-0.03em] text-gold">
                   <Price amount={artwork.price} />
                 </div>
               </div>
 
-              <div className="border-b border-border-faint py-7">
+              <div className="border-b border-border-faint py-5 sm:py-7">
                 {artwork.description ? (
-                  <p className="text-[15px] leading-[1.8] text-[#b8b8b8]">{artwork.description}</p>
+                  <p className="text-[14px] sm:text-[15px] leading-[1.8] text-[#b8b8b8]">{artwork.description}</p>
                 ) : (
-                  <p className="text-[15px] leading-[1.8] text-[#777]">
+                  <p className="text-[14px] sm:text-[15px] leading-[1.8] text-[#777]">
                     A verified original artwork by {artistName}, available for collectors through Fameuxarte.
                   </p>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 gap-3 border-b border-border-faint py-7 sm:grid-cols-2">
-                <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-4">
+              <div className="grid grid-cols-2 gap-3 border-b border-border-faint py-5 sm:py-7">
+                <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-3 sm:p-4">
                   <div className="mb-1 text-[11px] text-[#555]">Medium</div>
                   <div className="text-[13px] text-linen">{categoryLabel}</div>
                 </div>
-                <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-4">
+                <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-3 sm:p-4">
                   <div className="mb-1 text-[11px] text-[#555]">Verification</div>
                   <div className="inline-flex items-center gap-1.5 text-[13px] text-verified">
                     <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
@@ -453,7 +464,8 @@ const ArtworkDetails = () => {
                 </div>
               </div>
 
-              <div className="space-y-3 pt-7">
+              {/* Desktop CTAs */}
+              <div className="hidden lg:block space-y-3 pt-7">
                 <div className="flex gap-3">
                   <Button
                     size="lg"
@@ -489,6 +501,34 @@ const ArtworkDetails = () => {
             </aside>
           </div>
         </section>
+
+        {/* Mobile sticky CTA bar — fixed at bottom, below lg breakpoint */}
+        <div
+          className="fixed bottom-0 left-0 right-0 z-40 flex gap-3 border-t border-border-faint bg-obsidian/95 backdrop-blur-md px-4 py-3 lg:hidden"
+          style={{ paddingBottom: `calc(env(safe-area-inset-bottom) + 12px)` }}
+        >
+          <Button
+            size="lg"
+            className="h-12 flex-1 rounded-[6px] bg-linen text-[13px] font-medium text-obsidian hover:bg-gold"
+            onClick={() => {
+              handleAddToCart();
+              navigate("/checkout");
+            }}
+          >
+            Collect this work
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className={`h-12 w-12 shrink-0 rounded-[6px] border-border-subtle bg-surface-2 transition-colors hover:border-gold/40 hover:text-gold ${
+              isLiked ? "border-gold/40 text-gold" : "text-[#888]"
+            }`}
+            onClick={handleToggleLike}
+            aria-label={isLiked ? "Remove from liked artworks" : "Like artwork"}
+          >
+            <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} aria-hidden="true" />
+          </Button>
+        </div>
       </div>
     </MainLayout>
   );

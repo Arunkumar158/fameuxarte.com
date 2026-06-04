@@ -45,6 +45,8 @@
 
   html {
     @apply scroll-smooth;
+    /* Prevent horizontal overflow globally */
+    overflow-x: hidden;
   }
 
   body {
@@ -53,30 +55,16 @@
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Prevent horizontal scroll on all devices */
+    overflow-x: hidden;
+    /* Allow touch scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-bold tracking-tight;
-  }
-
-  h1 {
-    @apply text-4xl md:text-5xl lg:text-6xl;
-  }
-
-  h2 {
-    @apply text-3xl md:text-4xl lg:text-5xl;
-  }
-
-  h3 {
-    @apply text-2xl md:text-3xl lg:text-4xl;
-  }
-
-  h4 {
-    @apply text-xl md:text-2xl lg:text-3xl;
-  }
-
+  /* Remove conflicting global heading overrides — let components control their own typography */
+  /* h1–h6 base styles kept minimal to avoid overriding component-level responsive sizes */
   p {
-    @apply text-base leading-relaxed;
+    @apply leading-relaxed;
   }
 
   .prose {
@@ -117,8 +105,9 @@
     @apply bg-transparent text-white border border-white/20 hover:border-brand-gold hover:text-brand-gold transition-all duration-300;
   }
 
+  /* Responsive section padding — reduced for mobile */
   .section-padding {
-    @apply py-24 md:py-32;
+    @apply py-12 md:py-20 lg:py-28;
   }
 
   .text-gradient {
@@ -139,5 +128,31 @@
 
   .card-hover-gold {
     @apply transition-all duration-500 hover:scale-[1.01] hover:shadow-[0_0_25px_rgba(194,163,107,0.15)] hover:border-brand-gold/30;
+  }
+
+  /* Minimum touch target — 44px per WCAG */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Safe area padding for notched / dynamic island devices */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Scroll margin so sticky nav doesn't cover section anchors */
+  .scroll-anchor {
+    scroll-margin-top: 60px;
+  }
+
+  /* Body scroll lock utility (applied via JS on mobile menu open) */
+  .scroll-locked {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
   }
 }

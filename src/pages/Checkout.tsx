@@ -569,44 +569,88 @@ title: "Acquisition Cancelled",
 
   return (
     <MainLayout>
-      <div className="container max-w-4xl py-8">
-        <h1 className="text-2xl font-semibold mb-6">Secure Acquisition</h1>
-        
-        <div className="space-y-6">
-          <div className="bg-card rounded-lg p-6">
-            <h2 className="text-lg font-medium mb-4">Acquisition Summary</h2>
-            {items.length === 0 ? (
-              <p className="text-muted-foreground">Your collection is empty.</p>
-            ) : (
-              <>
-                {items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center py-2">
-                    <div>
-                      <p className="font-medium">{item.artwork.title}</p>
-                      <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
-                    </div>
-                    <p className="font-medium">{formatCurrency(item.artwork.price * item.quantity)}</p>
-                  </div>
-                ))}
-                <div className="border-t mt-4 pt-4">
-                  <div className="flex justify-between items-center">
-                    <p className="font-medium">Total Investment</p>
-                    <p className="text-xl font-semibold">{formatCurrency(totalAmount)}</p>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
+      <div className="min-h-screen bg-obsidian text-linen">
+        {/* Import HomeNav for consistent navigation */}
+        {(() => {
+          const HomeNav = require("@/components/home/HomeNav").default;
+          return <HomeNav />;
+        })()}
 
-          <Button
-            className="w-full"
-            size="lg"
-            onClick={handlePayment}
-            disabled={isProcessing || items.length === 0}
-          >
-            {isProcessing ? "Confirming..." : `Confirm Ownership — ${formatCurrency(totalAmount)}`}
-          </Button>
-        </div>
+        {/* Page header */}
+        <header className="border-b border-b-[0.5px] border-border-faint bg-obsidian px-4 sm:px-6 py-8 sm:py-12">
+          <div className="mx-auto max-w-2xl">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.12em] text-gold">
+              Secure acquisition
+            </div>
+            <h1 className="text-[26px] sm:text-[34px] font-medium leading-[1.12] tracking-[-0.025em] text-linen">
+              Confirm your collection
+            </h1>
+            <p className="mt-2 text-[13px] text-stone">
+              Powered by Razorpay · End-to-end encrypted
+            </p>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="mx-auto max-w-2xl px-4 sm:px-6 py-6 sm:py-10">
+          <div className="space-y-4 sm:space-y-6">
+            {/* Order summary card */}
+            <div className="rounded-[10px] border border-border-subtle bg-surface-2 p-4 sm:p-6">
+              <h2 className="mb-4 text-[16px] sm:text-[18px] font-medium tracking-[-0.02em] text-linen">
+                Acquisition Summary
+              </h2>
+              {items.length === 0 ? (
+                <p className="text-[14px] text-stone">Your collection is empty.</p>
+              ) : (
+                <>
+                  <div className="space-y-3">
+                    {items.map((item) => (
+                      <div key={item.id} className="flex items-start justify-between gap-4 border-b border-border-faint pb-3 last:border-0 last:pb-0">
+                        <div className="min-w-0">
+                          <p className="text-[14px] font-medium text-linen line-clamp-1">{item.artwork.title}</p>
+                          <p className="text-[12px] text-[#666]">Qty: {item.quantity}</p>
+                        </div>
+                        <p className="shrink-0 text-[14px] font-medium text-linen">{formatCurrency(item.artwork.price * item.quantity)}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex items-center justify-between border-t border-border-faint pt-4">
+                    <span className="text-[13px] text-stone">Total investment</span>
+                    <span className="text-[22px] font-semibold tracking-[-0.02em] text-gold">{formatCurrency(totalAmount)}</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Trust signals */}
+            <div className="grid grid-cols-3 gap-2 text-center">
+              {[
+                { label: "ArtGuard verified" },
+                { label: "Secure payment" },
+                { label: "Ownership certificate" },
+              ].map((item) => (
+                <div key={item.label} className="rounded-[8px] border border-border-subtle bg-surface-2 px-2 py-3">
+                  <p className="text-[10px] leading-[1.5] text-[#666]">{item.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Pay button */}
+            <Button
+              className="h-12 sm:h-14 w-full rounded-[6px] bg-linen text-[13px] sm:text-[14px] font-medium text-obsidian hover:bg-gold transition-colors"
+              onClick={handlePayment}
+              disabled={isProcessing || items.length === 0}
+            >
+              {isProcessing
+                ? "Confirming ownership…"
+                : `Confirm Ownership — ${formatCurrency(totalAmount)}`}
+            </Button>
+
+            <p className="text-center text-[11px] leading-[1.6] text-[#555]">
+              By proceeding you agree to Fameuxarte's Terms of Service. Payments are processed securely via Razorpay.
+            </p>
+          </div>
+        </main>
       </div>
     </MainLayout>
   );

@@ -98,7 +98,7 @@ const ArtistsSection = ({ artists }: ArtistsSectionProps) => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-[10px] sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-[10px] sm:grid-cols-2 lg:grid-cols-4">
           {isLoading &&
             [...Array(4)].map((_, index) => (
               <div key={index} className="h-[146px] animate-pulse rounded-[10px] border border-border-subtle bg-surface-2" />

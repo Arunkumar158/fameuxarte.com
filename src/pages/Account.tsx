@@ -107,7 +107,7 @@ const SectionShell = ({
   action?: React.ReactNode;
 }) => (
   <section className="rounded-[10px] border border-border-subtle bg-surface-2">
-    <div className="flex flex-col gap-4 border-b border-b-[0.5px] border-border-faint p-5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-4 border-b border-b-[0.5px] border-border-faint p-5 sm:flex-row sm:items-start sm:justify-between md:items-center">
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-[8px] border border-gold/20 bg-gold/10 text-gold">
           {icon}
@@ -236,8 +236,8 @@ const UploadArtworkSection = () => {
       title="Upload Artwork"
       action={<span className="text-[11px] text-[#666]">Max 10 images per artwork</span>}
     >
-      <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
-        <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,420px)]">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="artworkTitle" className="text-[12px] text-stone">Title</Label>
             <Input id="artworkTitle" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Cosmic Reverie" disabled={isUploading} className="border-border-subtle bg-obsidian text-linen" />
@@ -270,7 +270,7 @@ const UploadArtworkSection = () => {
           <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} disabled={isUploading} />
 
           {previews.length > 0 && (
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
               {previews.map((src, index) => (
                 <div key={src} className="group relative aspect-square overflow-hidden rounded-[6px] border border-border-subtle bg-surface-3">
                   <img src={src} alt={`Preview ${index + 1}`} className="h-full w-full object-cover" />
@@ -487,11 +487,11 @@ const Account = () => {
           <HomeNav />
         </div>
 
-        <header className="border-b border-b-[0.5px] border-border-faint bg-obsidian px-6 py-12">
+        <header className="border-b border-b-[0.5px] border-border-faint bg-obsidian px-6 py-8 sm:py-12">
           <div className="mx-auto max-w-6xl">
             <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
               <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-                <Avatar className="h-24 w-24 border border-gold/20 bg-surface-2">
+                <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border border-gold/20 bg-surface-2">
                   <AvatarImage src={profile?.avatar_url || ""} alt={displayName} />
                   <AvatarFallback className="bg-gold/10 text-[28px] font-medium text-gold">{initials}</AvatarFallback>
                 </Avatar>
@@ -585,7 +585,7 @@ const Account = () => {
             ) : orders && orders.length > 0 ? (
               <div className="space-y-3">
                 {orders.map((order) => (
-                  <article key={order.id} className="grid gap-4 rounded-[8px] border border-border-subtle bg-obsidian p-4 md:grid-cols-[1fr_auto_auto] md:items-center">
+                  <article key={order.id} className="grid grid-cols-1 gap-4 rounded-[8px] border border-border-subtle bg-obsidian p-4 md:grid-cols-[1fr_auto_auto] md:items-center">
                     <div>
                       <div className="mb-2 flex flex-wrap items-center gap-2">
                         <span className="font-mono text-[12px] text-gold">#{String(order.id).slice(0, 8)}</span>
