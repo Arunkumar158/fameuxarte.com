@@ -11,6 +11,7 @@ const navItems = [
   { label: "Discover", to: "/artworks" },
   { label: "Collections", to: "/collections" },
   { label: "Artists", to: "/artists" },
+  { label: "For Artists", to: "/for-artists" },
   {
     label: "ArtGuard",
     to: "#artguard",

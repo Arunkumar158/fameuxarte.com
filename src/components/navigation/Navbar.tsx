@@ -52,19 +52,30 @@ const Navbar = () => {
           {/* Navigation Links - Center — hidden below md */}
           <div className={`hidden md:flex flex-1 justify-center items-center space-x-8 ${textColor} mx-4`}>
               <Link to="/artworks" className="text-sm sm:text-base relative group">
-                <span className="relative">Artworks</span>
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
-              </Link>
-              <Link to="/artists" className="text-sm sm:text-base relative group">
-                <span className="relative">Artists</span>
+                <span className="relative">Discover</span>
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
               </Link>
               <Link to="/collections" className="text-sm sm:text-base relative group">
                 <span className="relative">Collections</span>
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
               </Link>
+              <Link to="/artists" className="text-sm sm:text-base relative group">
+                <span className="relative">Artists</span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
+              </Link>
+              <Link to="/for-artists" className="text-sm sm:text-base relative group">
+                <span className="relative">For Artists</span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
+              </Link>
+              <button 
+                className="text-sm sm:text-base relative group cursor-pointer"
+                onClick={() => alert("ArtGuard AI verification is coming soon. We're building an authenticity layer for every listed artwork.")}
+              >
+                <span className="relative">ArtGuard</span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
+              </button>
               <Link to="/blog" className="text-sm sm:text-base relative group">
-                <span className="relative">Blog</span>
+                <span className="relative">Journal</span>
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
               </Link>
           </div>

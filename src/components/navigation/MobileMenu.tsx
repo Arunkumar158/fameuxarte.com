@@ -50,10 +50,12 @@ const MobileMenu = ({ onClose }: MobileMenuProps) => {
   }, [onClose]);
 
   const navLinks = [
-    { label: "Artworks", to: "/artworks" },
-    { label: "Artists", to: "/artists" },
+    { label: "Discover", to: "/artworks" },
     { label: "Collections", to: "/collections" },
-    { label: "Blog", to: "/blog" },
+    { label: "Artists", to: "/artists" },
+    { label: "For Artists", to: "/for-artists" },
+    { label: "ArtGuard", to: "#artguard", action: () => alert("ArtGuard AI verification is coming soon.") },
+    { label: "Journal", to: "/blog" },
   ];
 
   return (
@@ -96,16 +98,25 @@ const MobileMenu = ({ onClose }: MobileMenuProps) => {
         <nav className="flex-1 overflow-y-auto px-4 py-4" aria-label="Main navigation">
           <ul className="space-y-1">
             {navLinks.map((link) => (
-              <li key={link.to}>
-                <Link
-                  to={link.to}
-                  onClick={onClose}
-                  className={`flex h-12 w-full items-center rounded-[8px] px-4 text-[14px] font-medium transition-colors hover:bg-surface-2 hover:text-gold ${
-                    pathname === link.to ? "bg-surface-2 text-gold" : "text-[#aaa]"
-                  }`}
-                >
-                  {link.label}
-                </Link>
+              <li key={link.label}>
+                {link.action ? (
+                  <button
+                    onClick={() => { link.action(); onClose(); }}
+                    className="flex h-12 w-full text-left items-center rounded-[8px] px-4 text-[14px] font-medium transition-colors hover:bg-surface-2 hover:text-gold text-[#aaa]"
+                  >
+                    {link.label}
+                  </button>
+                ) : (
+                  <Link
+                    to={link.to}
+                    onClick={onClose}
+                    className={`flex h-12 w-full items-center rounded-[8px] px-4 text-[14px] font-medium transition-colors hover:bg-surface-2 hover:text-gold ${
+                      pathname === link.to ? "bg-surface-2 text-gold" : "text-[#aaa]"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>

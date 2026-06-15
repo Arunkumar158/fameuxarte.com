@@ -37,6 +37,7 @@ import OurStory from "./pages/OurStory";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CancellationsAndRefunds from "./pages/CancellationsAndRefunds";
+import ForArtists from "./pages/ForArtists";
 
 const queryClient = new QueryClient();
 const organizationStructuredData = generateOrganizationStructuredData();
@@ -63,6 +64,7 @@ const AnimatedRoutes = () => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/artworks" element={<Artworks />} />
           <Route path="/artworks/:slug" element={<ArtworkDetails />} />
+          <Route path="/for-artists" element={<ForArtists />} />
           <Route path="/artists" element={<Artists />} />
           <Route path="/artists/:artistId" element={<ArtistDetails />} />
           <Route path="/collections" element={<Collections />} />
