@@ -7,6 +7,7 @@ import MainLayout from "@/components/layouts/MainLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/utils";
+import HomeNav from "@/components/home/HomeNav";
 
 // Razorpay payment response interface
 interface RazorpayPaymentResponse {
@@ -570,11 +571,8 @@ title: "Acquisition Cancelled",
   return (
     <MainLayout>
       <div className="min-h-screen bg-obsidian text-linen">
-        {/* Import HomeNav for consistent navigation */}
-        {(() => {
-          const HomeNav = require("@/components/home/HomeNav").default;
-          return <HomeNav />;
-        })()}
+        {/* HomeNav for consistent navigation */}
+        <HomeNav />
 
         {/* Page header */}
         <header className="border-b border-b-[0.5px] border-border-faint bg-obsidian px-4 sm:px-6 py-8 sm:py-12">

@@ -17,6 +17,11 @@ import { useLocation } from 'react-router-dom';
 // ─── Config ────────────────────────────────────────────────────────────────
 const POSTHOG_KEY  = 'phc_avR5yTz17AURm69ADMuVRyOdcwwzoXOIWI75VDYZI4n';
 const POSTHOG_HOST = 'https://app.posthog.com';
+
+// Skip analytics entirely in local development to avoid ad-blocker noise.
+const isDev = typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' ||
+   window.location.hostname === '127.0.0.1');
 // ───────────────────────────────────────────────────────────────────────────
 
 interface PostHogProviderProps {
@@ -39,6 +44,9 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
     // Hard guard: skip if not a browser environment (SSR safety)
     if (typeof window === 'undefined') return;
 
+    // Skip in local development – avoids ad-blocker ERR_BLOCKED_BY_CLIENT spam
+    if (isDev) return;
+
     // Prevent re-initialisation across Strict Mode double mounts
     if (initialized.current) return;
     initialized.current = true;
@@ -59,6 +67,7 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
   // ── 2. Send $pageview on every route change ────────────────────────────
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    if (isDev) return;
     if (!posthog.__loaded) return;
 
     posthog.capture('$pageview', {
