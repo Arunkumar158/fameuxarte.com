@@ -159,7 +159,36 @@ serve(async (req: Request) => {
       payment_status: updatedOrder.payment_status,
     });
 
-    // 8️⃣ Success
+    // 8️⃣ Update Artworks to 'sold'
+    // Fetch all order_items for this order
+    const { data: orderItems, error: itemsError } = await supabase
+      .from("order_items")
+      .select("artwork_id")
+      .eq("order_id", updatedOrder.id);
+
+    if (itemsError) {
+      console.error("❌ Failed to fetch order items:", itemsError.message);
+      // We don't fail the verification since payment succeeded, but we log the error
+    } else if (orderItems && orderItems.length > 0) {
+      const artworkIds = orderItems.map((item: any) => item.artwork_id);
+      
+      const { error: artworksError } = await supabase
+        .from("artworks")
+        .update({
+          status: "sold",
+          sold_at: new Date().toISOString(),
+          sold_order_id: updatedOrder.id,
+        })
+        .in("id", artworkIds);
+        
+      if (artworksError) {
+        console.error("❌ Failed to update artworks status:", artworksError.message);
+      } else {
+        console.log(`✅ Marked ${artworkIds.length} artworks as sold.`);
+      }
+    }
+
+    // 9️⃣ Success
     return new Response(
       JSON.stringify({
         success: true,

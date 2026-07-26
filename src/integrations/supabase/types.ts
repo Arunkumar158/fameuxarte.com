@@ -63,6 +63,9 @@ export type Database = {
           title: string
           updated_at: string
           slug: string | null
+          status: "available" | "sold" | "reserved"
+          sold_at: string | null
+          sold_order_id: string | null
         }
         Insert: {
           artist_id?: string | null
@@ -76,6 +79,9 @@ export type Database = {
           title: string
           updated_at?: string
           slug?: string | null
+          status?: "available" | "sold" | "reserved"
+          sold_at?: string | null
+          sold_order_id?: string | null
         }
         Update: {
           artist_id?: string | null
@@ -89,6 +95,9 @@ export type Database = {
           title?: string
           updated_at?: string
           slug?: string | null
+          status?: "available" | "sold" | "reserved"
+          sold_at?: string | null
+          sold_order_id?: string | null
         }
         Relationships: [
           {
@@ -172,6 +181,80 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "blogs_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      insights: {
+        Row: {
+          author_id: string | null
+          category: string | null
+          canonical_url: string | null
+          content: string | null
+          created_at: string | null
+          excerpt: string | null
+          featured_image: string | null
+          id: string
+          keywords: string[] | null
+          meta_description: string | null
+          meta_title: string | null
+          og_image: string | null
+          published_at: string | null
+          schema_type: string | null
+          slug: string | null
+          status: string | null
+          tags: string[] | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          category?: string | null
+          canonical_url?: string | null
+          content?: string | null
+          created_at?: string | null
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image?: string | null
+          published_at?: string | null
+          schema_type?: string | null
+          slug?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          category?: string | null
+          canonical_url?: string | null
+          content?: string | null
+          created_at?: string | null
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image?: string | null
+          published_at?: string | null
+          schema_type?: string | null
+          slug?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insights_author_id_fkey"
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -346,6 +429,7 @@ export type Database = {
           full_name: string | null
           id: string
           phone_number: string | null
+          role: string | null
           updated_at: string
         }
         Insert: {
@@ -354,6 +438,7 @@ export type Database = {
           full_name?: string | null
           id: string
           phone_number?: string | null
+          role?: string | null
           updated_at?: string
         }
         Update: {
@@ -362,6 +447,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone_number?: string | null
+          role?: string | null
           updated_at?: string
         }
         Relationships: []

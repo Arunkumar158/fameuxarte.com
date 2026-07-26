@@ -24,6 +24,7 @@ interface ArtworkData {
   image_path: string | null;
   images: string[] | null;
   slug: string | null;
+  status?: "available" | "sold" | "reserved";
   artist: {
     full_name: string | null;
   } | null;
@@ -152,6 +153,7 @@ const ArtworkDetails = () => {
           image_path,
           images,
           slug,
+          status,
           artist:profiles!artworks_artist_id_fkey (
             full_name
           )
@@ -181,6 +183,7 @@ const ArtworkDetails = () => {
         image_path: data.image_path,
         images: (data as Record<string, unknown>).images as string[] | null,
         slug: data.slug,
+        status: data.status,
         artist: data.artist,
       };
 
@@ -353,6 +356,14 @@ const ArtworkDetails = () => {
                   Tap to inspect
                 </div>
 
+                {artwork?.status === 'sold' && (
+                  <div className="pointer-events-none absolute right-3 top-3">
+                    <span className="rounded-sm border border-gold/40 bg-obsidian/90 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-white shadow-md backdrop-blur-md">
+                      Collected
+                    </span>
+                  </div>
+                )}
+
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-black/55 text-linen backdrop-blur-sm">
                     <ZoomIn className="h-5 w-5" aria-hidden="true" />
@@ -466,37 +477,67 @@ const ArtworkDetails = () => {
 
               {/* Desktop CTAs */}
               <div className="hidden lg:block space-y-3 pt-7">
-                <div className="flex gap-3">
-                  <Button
-                    size="lg"
-                    className="h-12 flex-1 rounded-[6px] bg-linen text-[13px] font-medium text-obsidian hover:bg-gold"
-                    onClick={() => {
-                      handleAddToCart();
-                      navigate("/checkout");
-                    }}
-                  >
-                    Collect this work
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className={`h-12 w-12 rounded-[6px] border-border-subtle bg-surface-2 transition-colors hover:border-gold/40 hover:text-gold ${
-                      isLiked ? "border-gold/40 text-gold" : "text-[#888]"
-                    }`}
-                    onClick={handleToggleLike}
-                    aria-label={isLiked ? "Remove from liked artworks" : "Like artwork"}
-                  >
-                    <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} aria-hidden="true" />
-                  </Button>
-                </div>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-12 w-full rounded-[6px] border-border-subtle bg-transparent text-[13px] text-[#aaa] hover:border-gold/40 hover:bg-transparent hover:text-gold"
-                  onClick={handleAddToCart}
-                >
-                  Add to collection
-                </Button>
+                {artwork?.status === 'sold' ? (
+                  <div className="space-y-3">
+                    <div className="flex gap-3">
+                      <Button
+                        size="lg"
+                        disabled
+                        className="h-12 flex-1 rounded-[6px] bg-surface-2 border border-border-subtle text-[13px] font-medium text-[#888]"
+                      >
+                        Collected
+                      </Button>
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        className={`h-12 w-12 rounded-[6px] border-border-subtle bg-surface-2 transition-colors hover:border-gold/40 hover:text-gold ${
+                          isLiked ? "border-gold/40 text-gold" : "text-[#888]"
+                        }`}
+                        onClick={handleToggleLike}
+                        aria-label={isLiked ? "Remove from liked artworks" : "Like artwork"}
+                      >
+                        <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} aria-hidden="true" />
+                      </Button>
+                    </div>
+                    <div className="text-center text-[13px] text-[#777]">
+                      This original artwork has found its collector.
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex gap-3">
+                      <Button
+                        size="lg"
+                        className="h-12 flex-1 rounded-[6px] bg-linen text-[13px] font-medium text-obsidian hover:bg-gold"
+                        onClick={() => {
+                          handleAddToCart();
+                          navigate("/checkout");
+                        }}
+                      >
+                        Collect this work
+                      </Button>
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        className={`h-12 w-12 rounded-[6px] border-border-subtle bg-surface-2 transition-colors hover:border-gold/40 hover:text-gold ${
+                          isLiked ? "border-gold/40 text-gold" : "text-[#888]"
+                        }`}
+                        onClick={handleToggleLike}
+                        aria-label={isLiked ? "Remove from liked artworks" : "Like artwork"}
+                      >
+                        <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} aria-hidden="true" />
+                      </Button>
+                    </div>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="h-12 w-full rounded-[6px] border-border-subtle bg-transparent text-[13px] text-[#aaa] hover:border-gold/40 hover:bg-transparent hover:text-gold"
+                      onClick={handleAddToCart}
+                    >
+                      Add to collection
+                    </Button>
+                  </>
+                )}
               </div>
             </aside>
           </div>
@@ -504,30 +545,60 @@ const ArtworkDetails = () => {
 
         {/* Mobile sticky CTA bar — fixed at bottom, below lg breakpoint */}
         <div
-          className="fixed bottom-0 left-0 right-0 z-40 flex gap-3 border-t border-border-faint bg-obsidian/95 backdrop-blur-md px-4 py-3 lg:hidden"
+          className="fixed bottom-0 left-0 right-0 z-40 flex flex-col gap-2 border-t border-border-faint bg-obsidian/95 backdrop-blur-md px-4 py-3 lg:hidden"
           style={{ paddingBottom: `calc(env(safe-area-inset-bottom) + 12px)` }}
         >
-          <Button
-            size="lg"
-            className="h-12 flex-1 rounded-[6px] bg-linen text-[13px] font-medium text-obsidian hover:bg-gold"
-            onClick={() => {
-              handleAddToCart();
-              navigate("/checkout");
-            }}
-          >
-            Collect this work
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className={`h-12 w-12 shrink-0 rounded-[6px] border-border-subtle bg-surface-2 transition-colors hover:border-gold/40 hover:text-gold ${
-              isLiked ? "border-gold/40 text-gold" : "text-[#888]"
-            }`}
-            onClick={handleToggleLike}
-            aria-label={isLiked ? "Remove from liked artworks" : "Like artwork"}
-          >
-            <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} aria-hidden="true" />
-          </Button>
+          {artwork?.status === 'sold' ? (
+            <>
+              <div className="flex gap-3">
+                <Button
+                  size="lg"
+                  disabled
+                  className="h-12 flex-1 rounded-[6px] bg-surface-2 border border-border-subtle text-[13px] font-medium text-[#888]"
+                >
+                  Collected
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className={`h-12 w-12 shrink-0 rounded-[6px] border-border-subtle bg-surface-2 transition-colors hover:border-gold/40 hover:text-gold ${
+                    isLiked ? "border-gold/40 text-gold" : "text-[#888]"
+                  }`}
+                  onClick={handleToggleLike}
+                  aria-label={isLiked ? "Remove from liked artworks" : "Like artwork"}
+                >
+                  <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} aria-hidden="true" />
+                </Button>
+              </div>
+              <div className="text-center text-[12px] text-[#777] mt-1">
+                This original artwork has found its collector.
+              </div>
+            </>
+          ) : (
+            <div className="flex gap-3">
+              <Button
+                size="lg"
+                className="h-12 flex-1 rounded-[6px] bg-linen text-[13px] font-medium text-obsidian hover:bg-gold"
+                onClick={() => {
+                  handleAddToCart();
+                  navigate("/checkout");
+                }}
+              >
+                Collect this work
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className={`h-12 w-12 shrink-0 rounded-[6px] border-border-subtle bg-surface-2 transition-colors hover:border-gold/40 hover:text-gold ${
+                  isLiked ? "border-gold/40 text-gold" : "text-[#888]"
+                }`}
+                onClick={handleToggleLike}
+                aria-label={isLiked ? "Remove from liked artworks" : "Like artwork"}
+              >
+                <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} aria-hidden="true" />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </MainLayout>

@@ -18,6 +18,7 @@ type ArtworkCardProps = {
     price: number;
     image: string;
     category?: string;
+    status?: "available" | "sold" | "reserved";
     /** Total number of images in the gallery (used for badge) */
     imageCount?: number;
   };
@@ -30,6 +31,7 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const isLiked = isItemLiked(artwork.id);
+  const isSold = artwork.status === 'sold';
 
   // Only enable 3D tilt on non-touch (pointer: fine) devices
   const isTouchDevice = typeof window !== "undefined"
@@ -154,7 +156,14 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
             loading="lazy"
           />
         </div>
-        <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 flex items-center gap-1.5 rounded-full border border-white/10 text-[10px] uppercase tracking-wider font-semibold text-brand-gold">
+        
+        {isSold && (
+          <div className="absolute top-3 right-3 bg-obsidian/90 backdrop-blur-md px-3 py-1.5 flex items-center gap-1.5 rounded-sm border border-gold/40 shadow-md text-[10px] font-medium uppercase tracking-[0.1em] text-white">
+            <span>Collected</span>
+          </div>
+        )}
+        
+        <div className={`absolute ${isSold ? 'top-12 right-3' : 'top-3 right-3'} bg-black/60 backdrop-blur-md px-2.5 py-1 flex items-center gap-1.5 rounded-full border border-white/10 text-[10px] uppercase tracking-wider font-semibold text-brand-gold transition-all`}>
           <ShieldCheck className="w-3 h-3" />
           <span>AI Verified</span>
         </div>
@@ -201,13 +210,23 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
         </div>
 
         <div className="mt-4 flex items-center gap-2">
-          <Button
-            size="sm"
-            className="w-full btn-primary h-10 rounded-md"
-            onClick={handleAddToCart}
-          >
-            Own This Piece
-          </Button>
+          {isSold ? (
+            <Button
+              size="sm"
+              disabled
+              className="w-full h-10 rounded-md bg-surface-2 border border-border-subtle text-[#888]"
+            >
+              Collected
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              className="w-full btn-primary h-10 rounded-md"
+              onClick={handleAddToCart}
+            >
+              Own This Piece
+            </Button>
+          )}
         </div>
       </div>
       {/* Decorative glass reflection effect */}

@@ -36,6 +36,7 @@ type ArtworkRow = {
   images: string[] | null;
   slug: string | null;
   artist_id: string | null;
+  status?: "available" | "sold" | "reserved";
 };
 
 // ─── Helper: artwork card with image resolution ───────────────────────────────
@@ -55,6 +56,7 @@ const ArtworkCardWithImage = ({ artwork }: { artwork: ArtworkRow }) => {
         price: artwork.price,
         image: imageUrl,
         category: artwork.category || "Uncategorized",
+        status: artwork.status,
         imageCount: galleryPaths.length,
       }}
     />
@@ -172,7 +174,7 @@ const Collections = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("artworks")
-        .select("id, title, price, category, description, image_path, images, slug, artist_id")
+        .select("id, title, price, category, description, image_path, images, slug, artist_id, status")
         .eq("category", selectedCategory!);
 
       if (error) throw error;

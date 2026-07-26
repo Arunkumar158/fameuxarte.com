@@ -15,6 +15,7 @@ export interface Artwork {
   is_verified?: boolean;
   is_acquired?: boolean;
   slug?: string | null;
+  status?: "available" | "sold" | "reserved";
 }
 
 interface FeaturedArtworksProps {
@@ -32,6 +33,7 @@ type ArtworkRow = {
   artist: {
     full_name: string | null;
   } | null;
+  status?: "available" | "sold" | "reserved";
 };
 
 const fetchFeaturedArtworks = async (): Promise<Artwork[]> => {
@@ -44,6 +46,7 @@ const fetchFeaturedArtworks = async (): Promise<Artwork[]> => {
       image_path,
       images,
       slug,
+      status,
       artist:profiles!artworks_artist_id_fkey (
         full_name
       )
@@ -68,6 +71,7 @@ const fetchFeaturedArtworks = async (): Promise<Artwork[]> => {
         image: image || "/placeholder.svg",
         is_verified: true,
         slug: artwork.slug,
+        status: artwork.status,
       };
     })
   );
@@ -103,7 +107,7 @@ const FeaturedArtworks = ({ artworks, onCollectArtwork }: FeaturedArtworksProps)
               ))
             : displayArtworks.map((artwork) => {
                 const image = artwork.image || artwork.image_url;
-                const isAcquired = Boolean(artwork.is_acquired);
+                const isSold = artwork.status === 'sold' || Boolean(artwork.is_acquired);
                 const artist = artwork.artist || artwork.artistName || "Verified artist";
                 const location = artwork.location || "India";
 
@@ -121,12 +125,14 @@ const FeaturedArtworks = ({ artworks, onCollectArtwork }: FeaturedArtworksProps)
                             Verified
                           </span>
                         )}
-                        {isAcquired && (
-                          <span className="rounded-full border border-[#2a2a2a] bg-[rgba(255,255,255,0.05)] px-2 py-[3px] text-[9px] uppercase tracking-[0.08em] text-[#555]">
-                            Acquired
-                          </span>
-                        )}
                       </div>
+                      {isSold && (
+                        <div className="absolute right-3 top-3">
+                          <span className="rounded-sm border border-gold/40 bg-obsidian/90 px-3 py-1.5 text-[9px] font-medium uppercase tracking-[0.1em] text-white shadow-md backdrop-blur-md">
+                            Collected
+                          </span>
+                        </div>
+                      )}
                     </Link>
 
                     <div className="p-3 pb-[14px]">
@@ -135,24 +141,36 @@ const FeaturedArtworks = ({ artworks, onCollectArtwork }: FeaturedArtworksProps)
                         {artist} - {location}
                       </p>
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-[12px] font-medium text-[#aaa]">Rs. {artwork.price.toLocaleString("en-IN")}</span>
-                        {isAcquired ? (
-                          <span className="text-[11px] text-[#444]">No longer available</span>
+                        {isSold ? (
+                          <>
+                            <span className="text-[12px] font-medium text-[#777]">Rs. {artwork.price.toLocaleString("en-IN")}</span>
+                            <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#888]">
+                              <span className="text-gold">✓</span> Collected
+                            </div>
+                          </>
                         ) : onCollectArtwork ? (
-                          <button
-                            type="button"
-                            onClick={() => onCollectArtwork(artwork)}
-                            className="rounded-[4px] border border-[rgba(201,169,110,0.25)] bg-[rgba(201,169,110,0.1)] px-[10px] py-1 text-[11px] text-gold"
-                          >
-                            Collect
-                          </button>
+                          <>
+                            <span className="text-[12px] font-medium text-[#aaa]">Rs. {artwork.price.toLocaleString("en-IN")}</span>
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                onCollectArtwork(artwork);
+                              }}
+                              className="rounded-[4px] border border-gold/20 bg-gold/10 px-3 py-1.5 text-[10px] text-gold transition-colors hover:bg-gold hover:text-obsidian"
+                            >
+                              Collect
+                            </button>
+                          </>
                         ) : (
-                          <Link
-                            to={`/artworks/${artwork.slug || artwork.id}`}
-                            className="rounded-[4px] border border-[rgba(201,169,110,0.25)] bg-[rgba(201,169,110,0.1)] px-[10px] py-1 text-[11px] text-gold"
-                          >
-                            Collect
-                          </Link>
+                          <>
+                            <span className="text-[12px] font-medium text-[#aaa]">Rs. {artwork.price.toLocaleString("en-IN")}</span>
+                            <Link
+                              to={`/artworks/${artwork.slug || artwork.id}`}
+                              className="rounded-[4px] border border-gold/20 bg-gold/10 px-3 py-1.5 text-[10px] text-gold transition-colors hover:bg-gold hover:text-obsidian"
+                            >
+                              Collect
+                            </Link>
+                          </>
                         )}
                       </div>
                     </div>

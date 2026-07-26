@@ -91,38 +91,18 @@ export const getArtworkImageUrl = async (imagePath: string | null): Promise<stri
       return null;
     }
     
-    console.log('🔍 Generating signed URL for:', { 
-      originalPath: imagePath, 
-      relativePath,
-      bucket: 'artworks'
-    });
-    
-    // Try signed URL first
-    const { data, error } = await supabase.storage
+    // Use public URL directly - avoids 400 Bad Request errors for signed URLs
+    const { data: publicData } = supabase.storage
       .from("artworks")
-      .createSignedUrl(relativePath, 3600); // 1 hour expiry
-
-    if (error) {
-      console.error("❌ Error generating signed URL:", error);
-      
-      // Fallback: try public URL
-      console.log('🔄 Trying public URL as fallback...');
-      const { data: publicData } = supabase.storage
-        .from("artworks")
-        .getPublicUrl(relativePath);
-      
-      if (publicData?.publicUrl) {
-        console.log('✅ Using public URL as fallback:', publicData.publicUrl);
-        return publicData.publicUrl;
-      }
-      
-      return null;
+      .getPublicUrl(relativePath);
+    
+    if (publicData?.publicUrl) {
+      return publicData.publicUrl;
     }
     
-    console.log('✅ Generated signed URL:', data?.signedUrl);
-    return data?.signedUrl || null;
+    return null;
   } catch (err) {
-    console.error("❌ Error in signed URL generation:", err);
+    console.error("❌ Error generating image URL:", err);
     return null;
   }
 };

@@ -1,5 +1,6 @@
 // @ts-expect-error - Deno standard library import
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 // @ts-expect-error - Deno npm: specifier
 import Razorpay from "npm:razorpay@2.9.2";
 
@@ -280,6 +281,46 @@ serve(async (req: Request) => {
 
       return validatedItem;
     });
+
+    // 🛑 Duplicate Purchase Protection
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (supabaseUrl && supabaseKey) {
+      const supabase = createClient(supabaseUrl, supabaseKey, {
+        auth: { persistSession: false },
+      });
+
+      const artworkIds = validatedItems.map(item => item.artworkId);
+      const { data: artworks, error: artworksError } = await supabase
+        .from("artworks")
+        .select("id, status")
+        .in("id", artworkIds);
+
+      if (artworksError) {
+        console.error("❌ Failed to verify artwork status:", artworksError.message);
+        throw new Error("Failed to verify artwork availability");
+      }
+
+      if (artworks) {
+        const soldArtworks = artworks.filter(a => a.status === 'sold');
+        if (soldArtworks.length > 0) {
+          console.error("❌ Attempted to purchase already sold artwork(s):", soldArtworks.map(a => a.id));
+          return new Response(
+            JSON.stringify({
+              error: "This artwork has already been collected by another collector.",
+              timestamp: new Date().toISOString(),
+            }),
+            {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+              status: 409,
+            }
+          );
+        }
+      }
+    } else {
+      console.warn("⚠️ Supabase credentials not found, skipping duplicate purchase protection check");
+    }
 
     // Initialize Razorpay client with LIVE credentials
     const razorpay = new Razorpay({

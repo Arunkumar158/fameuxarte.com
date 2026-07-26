@@ -31,14 +31,7 @@ export const useArtworkImage = (imagePath: string | null) => {
 
         console.log('🔍 Extracted relative path:', relativePath);
 
-        // Test storage access first
-        const storageAccessible = await testStorageAccess();
-        if (!storageAccessible) {
-          console.error('❌ Storage not accessible');
-          setError('Storage not accessible');
-          setImageUrl(null);
-          return;
-        }
+
 
         const url = await getArtworkImageUrl(imagePath);
         if (url) {

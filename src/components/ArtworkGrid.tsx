@@ -20,6 +20,7 @@ const ArtworkCardWithImage = ({ artwork }: { artwork: {
   description: string | null;
   image_path: string | null;
   slug: string | null;
+  status?: "available" | "sold" | "reserved";
   artist: {
     full_name: string | null;
   } | null;
@@ -36,6 +37,7 @@ const ArtworkCardWithImage = ({ artwork }: { artwork: {
         artist: artwork.artist?.full_name || "Unknown Artist",
         price: artwork.price,
         image: imageUrl,
+        status: artwork.status,
         category: artwork.category || "Uncategorized"
       }} 
     />
@@ -72,6 +74,7 @@ export const useArtworks = (limit?: number) => {
             description,
             image_path,
             slug,
+            status,
             artist:profiles!artworks_artist_id_fkey (
               id,
               full_name

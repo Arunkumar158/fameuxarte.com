@@ -39,6 +39,20 @@ import TermsOfService from "./pages/TermsOfService";
 import CancellationsAndRefunds from "./pages/CancellationsAndRefunds";
 import ForArtists from "./pages/ForArtists";
 
+// Admin Imports
+import { AdminRoute } from "./components/admin/AdminRoute";
+import { AdminLayout } from "./components/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import OrdersAdmin from "./pages/admin/Orders";
+import ArtistsAdmin from "./pages/admin/Artists";
+import ArtworksAdmin from "./pages/admin/Artworks";
+import CollectionsAdmin from "./pages/admin/Collections";
+import SEOAdmin from "./pages/admin/SEO";
+import AnalyticsAdmin from "./pages/admin/Analytics";
+import SettingsAdmin from "./pages/admin/Settings";
+import InsightsList from "./pages/admin/insights/InsightsList";
+import InsightsEditor from "./pages/admin/insights/InsightsEditor";
+
 const queryClient = new QueryClient();
 const organizationStructuredData = generateOrganizationStructuredData();
 
@@ -68,8 +82,8 @@ const AnimatedRoutes = () => {
           <Route path="/artists" element={<Artists />} />
           <Route path="/artists/:artistId" element={<ArtistDetails />} />
           <Route path="/collections" element={<Collections />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/insights" element={<Blog />} />
+          <Route path="/insights/:slug" element={<BlogPost />} />
           <Route path="/liked-items" element={<LikedItems />} />
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
@@ -82,6 +96,21 @@ const AnimatedRoutes = () => {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/cancellations-and-refunds" element={<CancellationsAndRefunds />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="orders" element={<OrdersAdmin />} />
+            <Route path="artists" element={<ArtistsAdmin />} />
+            <Route path="artworks" element={<ArtworksAdmin />} />
+            <Route path="collections" element={<CollectionsAdmin />} />
+            <Route path="seo" element={<SEOAdmin />} />
+            <Route path="analytics" element={<AnalyticsAdmin />} />
+            <Route path="settings" element={<SettingsAdmin />} />
+            <Route path="insights" element={<InsightsList />} />
+            <Route path="insights/:id" element={<InsightsEditor />} />
+          </Route>
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </motion.div>

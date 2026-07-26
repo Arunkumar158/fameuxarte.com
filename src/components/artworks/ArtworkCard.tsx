@@ -15,6 +15,7 @@ export interface Artwork {
   verified?: boolean;
   available?: boolean;
   stock?: number;
+  status?: "available" | "sold" | "reserved";
 }
 
 interface ArtworkCardProps {
@@ -29,6 +30,7 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
   }).format(artwork.price);
 
   const available = artwork.available ?? true;
+  const isSold = artwork.status === 'sold';
 
   return (
     <article className="overflow-hidden rounded-[10px] border border-border-subtle bg-surface-2 transition-all hover:border-gold/30">
@@ -49,12 +51,20 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
                 Verified
               </span>
             )}
-            {!available && (
+            {!available && !isSold && (
               <span className="rounded-full border border-[#2a2a2a] bg-[rgba(0,0,0,0.8)] px-2 py-1 text-[9px] uppercase tracking-[0.08em] text-[#888] backdrop-blur-sm">
                 Acquired
               </span>
             )}
           </div>
+          
+          {isSold && (
+            <div className="absolute right-3 top-3">
+              <span className="rounded-sm border border-gold/40 bg-obsidian/90 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-white shadow-md backdrop-blur-md">
+                Collected
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="p-4">
@@ -74,7 +84,17 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
       </Link>
 
       <div className="mx-4 flex items-center justify-between border-t border-t-[0.5px] border-[#1a1a1a] pb-4 pt-3">
-        {available ? (
+        {isSold ? (
+          <>
+            <div>
+              <div className="mb-[2px] text-[11px] text-[#555]">Investment value</div>
+              <div className="text-[14px] font-medium text-[#888]">{formattedPrice}</div>
+            </div>
+            <div className="flex items-center gap-1.5 text-[12px] font-medium text-[#888]">
+              <span className="text-gold">✓</span> Collected
+            </div>
+          </>
+        ) : available ? (
           <>
             <div>
               <div className="mb-[2px] text-[11px] text-[#555]">Investment value</div>
