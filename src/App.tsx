@@ -53,6 +53,17 @@ import SettingsAdmin from "./pages/admin/Settings";
 import InsightsList from "./pages/admin/insights/InsightsList";
 import InsightsEditor from "./pages/admin/insights/InsightsEditor";
 
+// Artist Imports
+import { ArtistRoute } from "./components/artist/ArtistRoute";
+import { ArtistLayout } from "./components/artist/ArtistLayout";
+import ArtistDashboard from "./pages/artist/Dashboard";
+import ArtistArtworksList from "./pages/artist/ArtworksList";
+import ArtworkEditor from "./pages/artist/ArtworkEditor";
+import ArtistCollectionsList from "./pages/artist/CollectionsList";
+import CollectionEditor from "./pages/artist/CollectionEditor";
+import ArtistPortfolioPreview from "./pages/artist/PortfolioPreview";
+import ArtistSettings from "./pages/artist/Settings";
+
 const queryClient = new QueryClient();
 const organizationStructuredData = generateOrganizationStructuredData();
 
@@ -82,6 +93,8 @@ const AnimatedRoutes = () => {
           <Route path="/artists" element={<Artists />} />
           <Route path="/artists/:artistId" element={<ArtistDetails />} />
           <Route path="/collections" element={<Collections />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/insights" element={<Blog />} />
           <Route path="/insights/:slug" element={<BlogPost />} />
           <Route path="/liked-items" element={<LikedItems />} />
@@ -109,6 +122,19 @@ const AnimatedRoutes = () => {
             <Route path="settings" element={<SettingsAdmin />} />
             <Route path="insights" element={<InsightsList />} />
             <Route path="insights/:id" element={<InsightsEditor />} />
+          </Route>
+
+          {/* Artist Routes */}
+          <Route path="/artist" element={<ArtistRoute><ArtistLayout /></ArtistRoute>}>
+            <Route index element={<ArtistDashboard />} />
+            <Route path="artworks" element={<ArtistArtworksList />} />
+            <Route path="artworks/new" element={<ArtworkEditor />} />
+            <Route path="artworks/:id/edit" element={<ArtworkEditor />} />
+            <Route path="collections" element={<ArtistCollectionsList />} />
+            <Route path="collections/new" element={<CollectionEditor />} />
+            <Route path="collections/:id/edit" element={<CollectionEditor />} />
+            <Route path="portfolio" element={<ArtistPortfolioPreview />} />
+            <Route path="settings" element={<ArtistSettings />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
