@@ -66,6 +66,12 @@ export const DiscoveryHead = (props: DiscoveryHeadProps) => {
       {output.aiMetadata.relatedArtists && <meta name="ai-related-artists" content={output.aiMetadata.relatedArtists.join(', ')} />}
       {output.aiMetadata.relatedArtworks && <meta name="ai-related-artworks" content={output.aiMetadata.relatedArtworks.join(', ')} />}
       {output.aiMetadata.relatedCollections && <meta name="ai-related-collections" content={output.aiMetadata.relatedCollections.join(', ')} />}
+      {output.aiMetadata.pageType && <meta name="ai-page-type" content={output.aiMetadata.pageType} />}
+      {output.aiMetadata.discoveryTopic && <meta name="ai-discovery-topic" content={output.aiMetadata.discoveryTopic} />}
+      {output.aiMetadata.relatedMediums && <meta name="ai-related-mediums" content={output.aiMetadata.relatedMediums.join(', ')} />}
+      {output.aiMetadata.relatedStyles && <meta name="ai-related-styles" content={output.aiMetadata.relatedStyles.join(', ')} />}
+      {output.aiMetadata.relatedSubjects && <meta name="ai-related-subjects" content={output.aiMetadata.relatedSubjects.join(', ')} />}
+      {output.aiMetadata.relatedColors && <meta name="ai-related-colors" content={output.aiMetadata.relatedColors.join(', ')} />}
 
       {/* Structured Data JSON-LD */}
       {finalStructuredData.map((schema, index) => (

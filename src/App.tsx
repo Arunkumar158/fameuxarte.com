@@ -43,6 +43,15 @@ import { Navigate } from "react-router-dom";
 import React, { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
+// Discovery Pages
+import CollectionPage from "./pages/discovery/CollectionPage";
+import CategoryPage from "./pages/discovery/CategoryPage";
+import StylePage from "./pages/discovery/StylePage";
+import MediumPage from "./pages/discovery/MediumPage";
+import SubjectPage from "./pages/discovery/SubjectPage";
+import LocationPage from "./pages/discovery/LocationPage";
+import ColorPage from "./pages/discovery/ColorPage";
+
 // Collector Imports
 import { CollectorRoute } from "./components/collector/CollectorRoute";
 import { CollectorLayout } from "./components/collector/CollectorLayout";
@@ -116,6 +125,13 @@ const AnimatedRoutes = () => {
           <Route path="/artists" element={<Artists />} />
           <Route path="/artists/:artistId" element={<ArtistDetails />} />
           <Route path="/collections" element={<Collections />} />
+          <Route path="/collections/:slug" element={<CollectionPage />} />
+          <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/style/:slug" element={<StylePage />} />
+          <Route path="/medium/:slug" element={<MediumPage />} />
+          <Route path="/subject/:slug" element={<SubjectPage />} />
+          <Route path="/location/:slug" element={<LocationPage />} />
+          <Route path="/color/:slug" element={<ColorPage />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/insights" element={<Blog />} />

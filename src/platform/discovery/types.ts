@@ -174,6 +174,12 @@ export interface AISummaryMetadata {
   relatedArtists?: string[];
   relatedArtworks?: string[];
   relatedCollections?: string[];
+  pageType?: string;
+  discoveryTopic?: string;
+  relatedMediums?: string[];
+  relatedStyles?: string[];
+  relatedSubjects?: string[];
+  relatedColors?: string[];
 }
 
 export interface DiscoveryPipelineOutput {
