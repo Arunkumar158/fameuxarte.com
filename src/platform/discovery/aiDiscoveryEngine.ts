@@ -19,14 +19,26 @@ export class AIDiscoveryEngine {
     subject?: string;
     style?: string;
     artistSummary?: string;
+    trustStatus?: string;
+    verificationStatus?: string;
+    country?: string;
+    experience?: string;
+    techniques?: string[];
+    artisticPhilosophy?: string;
+    similarArtists?: string[];
   }): AISummaryMetadata {
     const keyEntities = [input.title];
     if (input.artistName) keyEntities.push(input.artistName);
     if (input.medium) keyEntities.push(input.medium);
     if (input.subject) keyEntities.push(input.subject);
     if (input.style) keyEntities.push(input.style);
+    if (input.country) keyEntities.push(input.country);
 
-    const summary = `${input.title} is a ${input.medium || 'visual artwork'} on Fameuxarte by ${input.artistName || 'a verified global artist'}. ${input.description}`;
+    let summary = `${input.title} is a ${input.medium || 'visual artwork'} on Fameuxarte by ${input.artistName || 'a verified global artist'}. ${input.description}`;
+    
+    if (input.entityType === 'artist') {
+      summary = `${input.title} is a ${input.verificationStatus === 'verified' ? 'verified ' : ''}Fameuxarte artist${input.country ? ` based in ${input.country}` : ''}, specializing in ${input.medium || 'contemporary art'}${input.style ? ` and ${input.style}` : ''}. ${input.description}`;
+    }
 
     return {
       summary,
@@ -38,7 +50,14 @@ export class AIDiscoveryEngine {
       subject: input.subject,
       style: input.style,
       artistSummary: input.artistSummary,
-      colorPalette: 'Pending Analysis' // Future placeholder
+      colorPalette: 'Pending Analysis', // Future placeholder
+      trustStatus: input.trustStatus,
+      verificationStatus: input.verificationStatus,
+      country: input.country,
+      experience: input.experience,
+      techniques: input.techniques,
+      artisticPhilosophy: input.artisticPhilosophy,
+      similarArtists: input.similarArtists
     };
   }
 

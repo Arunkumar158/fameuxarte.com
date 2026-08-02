@@ -42,7 +42,7 @@ export class MetadataPipeline {
       description,
       url: canonicalUrl,
       image: input.image,
-      type: input.entityType === 'blog' ? 'article' : input.entityType === 'artwork' ? 'product' : 'website'
+      type: input.entityType === 'blog' ? 'article' : input.entityType === 'artwork' ? 'product' : input.entityType === 'artist' ? 'profile' : 'website'
     });
 
     // Twitter Card generation
@@ -111,7 +111,19 @@ export class MetadataPipeline {
         structuredData.push(SchemaRegistry.buildPersonSchema({
           name: input.title || 'Artist',
           description,
-          image: input.image
+          image: input.image,
+          url: canonicalUrl,
+          sameAs: input.rawEntity?.socialLinks,
+          jobTitle: input.rawEntity?.verificationStatus === 'verified' ? 'Verified Artist' : 'Artist',
+          knowsAbout: input.rawEntity?.mediums || ['Visual Art']
+        }));
+        structuredData.push(SchemaRegistry.buildProfilePageSchema({
+          name: `${input.title || 'Artist'} | Artist Profile`,
+          description,
+          url: canonicalUrl,
+          image: input.image,
+          dateCreated: input.rawEntity?.joinedDate,
+          mainEntity: { '@id': canonicalUrl }
         }));
       } else if (input.entityType === 'blog') {
         structuredData.push(SchemaRegistry.buildArticleSchema({
@@ -131,10 +143,16 @@ export class MetadataPipeline {
       description,
       keywords: input.keywords,
       artistName: input.author,
-      medium: input.rawEntity?.medium,
-      subject: input.rawEntity?.subject,
-      style: input.rawEntity?.style,
-      artistSummary: input.rawEntity?.artistSummary
+      medium: input.rawEntity?.medium || (input.rawEntity?.mediums ? input.rawEntity.mediums[0] : undefined),
+      subject: input.rawEntity?.subject || (input.rawEntity?.subjects ? input.rawEntity.subjects[0] : undefined),
+      style: input.rawEntity?.style || (input.rawEntity?.styles ? input.rawEntity.styles[0] : undefined),
+      artistSummary: input.rawEntity?.artistSummary || input.rawEntity?.bio,
+      trustStatus: input.rawEntity?.trustScore ? `${input.rawEntity.trustScore}/100` : undefined,
+      verificationStatus: input.rawEntity?.verificationStatus,
+      country: input.rawEntity?.country,
+      experience: input.rawEntity?.yearsOfExperience ? `${input.rawEntity.yearsOfExperience} years` : undefined,
+      techniques: input.rawEntity?.mediums,
+      artisticPhilosophy: input.rawEntity?.artisticPhilosophy
     });
 
     const robots = input.robots || (config.indexable ? 'index, follow' : 'noindex, nofollow');

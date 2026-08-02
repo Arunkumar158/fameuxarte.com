@@ -63,11 +63,27 @@ export interface ArtistEntity extends BaseEntity {
   type: 'artist';
   avatar?: string;
   bio?: string;
+  artistStatement?: string;
+  artisticPhilosophy?: string;
+  inspiration?: string;
   country?: string;
   city?: string;
+  languages?: string[];
   mediums?: string[];
   styles?: string[];
+  subjects?: string[];
+  yearsOfExperience?: number;
+  verificationStatus?: string;
+  trustScore?: number;
   verified?: boolean;
+  featuredArtist?: boolean;
+  premiumArtist?: boolean;
+  totalArtworks?: number;
+  soldArtworks?: number;
+  collections?: string[];
+  joinedDate?: string;
+  socialLinks?: string[];
+  portfolio?: string[];
 }
 
 export interface CollectionEntity extends BaseEntity {
@@ -144,6 +160,14 @@ export interface AISummaryMetadata {
   style?: string;
   artistSummary?: string;
   colorPalette?: string;
+  trustStatus?: string;
+  verificationStatus?: string;
+  country?: string;
+  experience?: string;
+  techniques?: string[];
+  artisticPhilosophy?: string;
+  collectorRecommendations?: string;
+  similarArtists?: string[];
 }
 
 export interface DiscoveryPipelineOutput {

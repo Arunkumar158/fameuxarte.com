@@ -131,6 +131,8 @@ export class SchemaRegistry {
     image?: string;
     jobTitle?: string;
     knowsAbout?: string[];
+    url?: string;
+    sameAs?: string[];
   }) {
     return {
       '@context': 'https://schema.org',
@@ -139,7 +141,34 @@ export class SchemaRegistry {
       description: person.description,
       image: person.image ? (person.image.startsWith('http') ? person.image : `${this.SITE_URL}${person.image}`) : undefined,
       jobTitle: person.jobTitle || 'Artist',
-      knowsAbout: person.knowsAbout || ['Visual Art', 'Contemporary Painting']
+      knowsAbout: person.knowsAbout || ['Visual Art', 'Contemporary Painting'],
+      url: person.url ? (person.url.startsWith('http') ? person.url : `${this.SITE_URL}${person.url}`) : undefined,
+      sameAs: person.sameAs
+    };
+  }
+
+  /**
+   * Generates ProfilePage Schema
+   */
+  public static buildProfilePageSchema(profile: {
+    name: string;
+    description: string;
+    url: string;
+    dateCreated?: string;
+    dateModified?: string;
+    image?: string;
+    mainEntity?: any;
+  }) {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'ProfilePage',
+      name: profile.name,
+      description: profile.description,
+      url: profile.url.startsWith('http') ? profile.url : `${this.SITE_URL}${profile.url}`,
+      dateCreated: profile.dateCreated,
+      dateModified: profile.dateModified,
+      image: profile.image ? (profile.image.startsWith('http') ? profile.image : `${this.SITE_URL}${profile.image}`) : undefined,
+      mainEntity: profile.mainEntity
     };
   }
 

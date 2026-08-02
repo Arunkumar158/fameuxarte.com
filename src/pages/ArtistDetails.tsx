@@ -1,20 +1,22 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, CheckCircle2, ExternalLink, Palette, ShieldCheck } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ExternalLink, Palette, ShieldCheck, UserPlus } from "lucide-react";
 import HomeNav from "@/components/home/HomeNav";
 import MainLayout from "@/components/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Price } from "@/components/shared/Price";
-import { SEO } from "@/components/SEO";
+import { DiscoveryHead } from "@/platform/discovery/DiscoveryHead";
 import { supabase } from "@/integrations/supabase/client";
 import { getGalleryImages } from "@/lib/utils";
 import { useArtworkImages } from "@/hooks/useArtworkImages";
 import { trackEvent, trackPageViewed } from "@/lib/analytics";
 import { useEffect, useMemo } from "react";
-import { TrustBadge, TrustBadgeType } from "@/components/ui/trust-badge";
+import { TrustBadge } from "@/components/ui/trust-badge";
 import { ArtistTimeline } from "@/components/artist/ArtistTimeline";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useRelatedArtists } from "@/hooks/useRelatedArtists";
 
-// Unified artist data shape (works for both profile-based and legacy artists-table data)
+// Unified artist data shape
 interface ArtistDisplayData {
   id: string;
   name: string;
@@ -25,7 +27,7 @@ interface ArtistDisplayData {
   location: string | null;
   mediums: string[] | null;
   artStyles: string[] | null;
-  profileId: string; // the profile/auth ID used to link artworks
+  profileId: string;
   trustScore?: number;
   verificationStatus?: string;
   verifiedAt?: string | null;
@@ -41,6 +43,7 @@ interface ArtworkData {
   image_path: string | null;
   images: string[] | null;
   slug: string | null;
+  created_at?: string;
 }
 
 const getInitials = (name: string) =>
@@ -78,9 +81,11 @@ const ArtistArtworkCard = ({
             }}
           />
           <div className="absolute left-3 top-3 flex gap-2">
-            <span className="rounded-full border border-[rgba(74,157,111,0.3)] bg-[rgba(74,157,111,0.9)] px-2 py-1 text-[9px] uppercase tracking-[0.08em] text-white backdrop-blur-sm">
-              Verified
-            </span>
+            {!collected && (
+              <span className="rounded-full border border-[rgba(74,157,111,0.3)] bg-[rgba(74,157,111,0.9)] px-2 py-1 text-[9px] uppercase tracking-[0.08em] text-white backdrop-blur-sm">
+                Verified
+              </span>
+            )}
             {collected && (
               <span className="rounded-full border border-[rgba(201,169,110,0.35)] bg-black/75 px-2 py-1 text-[9px] uppercase tracking-[0.08em] text-gold backdrop-blur-sm">
                 Collected
@@ -115,7 +120,6 @@ const ArtistDetails = () => {
     queryFn: async (): Promise<ArtistDisplayData> => {
       if (!artistId) throw new Error("No artist identifier provided");
 
-      // First: try fetching directly from profiles (artist dashboard saves here)
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id, full_name, avatar_url, bio, city, country, website, mediums, art_styles, trust_score, verification_status, verified_at, created_at")
@@ -147,7 +151,6 @@ const ArtistDetails = () => {
         };
       }
 
-      // Fallback: try the legacy artists table (for old links)
       const { data: artistRow, error: artistRowError } = await supabase
         .from("artists")
         .select(
@@ -188,6 +191,7 @@ const ArtistDetails = () => {
       };
     },
     enabled: Boolean(artistId),
+    staleTime: 10 * 60 * 1000,
   });
 
   const {
@@ -200,7 +204,7 @@ const ArtistDetails = () => {
 
       const { data, error } = await supabase
         .from("artworks")
-        .select("id,title,price,description,category,image_path,images,slug")
+        .select("id,title,price,description,category,image_path,images,slug,created_at")
         .eq("artist_id", artist.profileId)
         .order("created_at", { ascending: false });
 
@@ -208,6 +212,7 @@ const ArtistDetails = () => {
       return (data || []) as ArtworkData[];
     },
     enabled: Boolean(artist?.profileId),
+    staleTime: 10 * 60 * 1000,
   });
 
   const { data: collectedIds = [] } = useQuery({
@@ -231,6 +236,13 @@ const ArtistDetails = () => {
       return Array.from(new Set((data || []).map((item) => item.artwork_id)));
     },
     enabled: works.length > 0,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const { data: relatedArtists = [] } = useRelatedArtists(artist?.profileId, {
+    mediums: artist?.mediums,
+    artStyles: artist?.artStyles,
+    country: artist?.location?.split(',').pop()?.trim(),
   });
 
   useEffect(() => {
@@ -243,18 +255,20 @@ const ArtistDetails = () => {
     }
   }, [artist?.id, artist?.name]);
 
-  const collectedWorks = useMemo(() => works.filter((work) => collectedIds.includes(work.id)), [works, collectedIds]);
+  const availableWorks = useMemo(() => works.filter(w => !collectedIds.includes(w.id)), [works, collectedIds]);
+  const soldWorks = useMemo(() => works.filter(w => collectedIds.includes(w.id)), [works, collectedIds]);
+  const latestWorks = useMemo(() => [...works].sort((a, b) => new Date(b.created_at || b.id).getTime() - new Date(a.created_at || a.id).getTime()), [works]);
 
   const firstArtworkDate = useMemo(() => {
     if (works.length === 0) return null;
-    const earliestWork = [...works].sort((a, b) => new Date(a.id > b.id ? a.id : b.id).getTime() - new Date(b.id > a.id ? b.id : a.id).getTime())[0];
-    return earliestWork?.id ? new Date().toISOString() : null; // Fallback since we don't fetch created_at of artworks currently in works query
+    const earliestWork = [...works].sort((a, b) => new Date(a.created_at || a.id).getTime() - new Date(b.created_at || b.id).getTime())[0];
+    return earliestWork?.created_at || new Date().toISOString(); 
   }, [works]);
 
   const firstSaleDate = useMemo(() => {
-    if (collectedWorks.length === 0) return null;
-    return new Date().toISOString(); // Fallback for UI display, actual data would require order_items date
-  }, [collectedWorks]);
+    if (soldWorks.length === 0) return null;
+    return new Date().toISOString(); // Fallback for UI display
+  }, [soldWorks]);
 
   if (artistLoading || worksLoading) {
     return (
@@ -303,12 +317,25 @@ const ArtistDetails = () => {
 
   return (
     <MainLayout>
-      <SEO
-        title={`${artistName} | Artist Profile | Fameuxarte`}
-        description={fullStory.slice(0, 155)}
-        canonicalUrl={`/artists/${artist.id}`}
-        ogImage={avatarUrl || undefined}
-        type="website"
+      <DiscoveryHead
+        entityType="artist"
+        title={`${artistName} | Artist Profile`}
+        description={fullStory}
+        image={avatarUrl || undefined}
+        author={artistName}
+        url={`/artists/${artist.id}`}
+        rawEntity={{
+          name: artistName,
+          bio: bio,
+          mediums: mediums,
+          styles: artStyles,
+          country: location?.split(',').pop()?.trim(),
+          verificationStatus: verificationStatus,
+          trustScore: trustScore,
+          joinedDate: joinedAt,
+          socialLinks: website ? [website] : [],
+          yearsOfExperience: joinedAt ? new Date().getFullYear() - new Date(joinedAt).getFullYear() : undefined
+        }}
       />
 
       <div className="min-h-screen bg-obsidian text-linen">
@@ -337,7 +364,7 @@ const ArtistDetails = () => {
                   )}
                 </div>
                 <div className="space-y-4 p-5">
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2" onClick={() => trackEvent('trust_badge_clicked', { artist_id: artist.id })}>
                     {verificationStatus === 'verified' && <TrustBadge type="verified" />}
                     {verificationStatus === 'premium' && <TrustBadge type="premium" />}
                     {verificationStatus === 'featured' && <TrustBadge type="featured" />}
@@ -354,12 +381,12 @@ const ArtistDetails = () => {
                   )}
                   <div className="grid grid-cols-2 gap-3 border-t border-border-faint pt-4">
                     <div>
-                      <div className="text-[11px] text-[#555]">Works</div>
-                      <div className="text-[18px] font-medium text-linen">{works.length}</div>
+                      <div className="text-[11px] text-[#555]">Available</div>
+                      <div className="text-[18px] font-medium text-linen">{availableWorks.length}</div>
                     </div>
                     <div className="text-right">
                       <div className="text-[11px] text-[#555]">Collected</div>
-                      <div className="text-[18px] font-medium text-linen">{collectedWorks.length}</div>
+                      <div className="text-[18px] font-medium text-linen">{soldWorks.length}</div>
                     </div>
                   </div>
                   {website && (
@@ -367,36 +394,52 @@ const ArtistDetails = () => {
                       href={website}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_link_clicked', { platform: 'website', artist_id: artist.id })}
                       className="inline-flex w-full items-center justify-center gap-2 rounded-[6px] border border-border-subtle px-4 py-3 text-[13px] text-[#aaa] transition-colors hover:border-gold/40 hover:text-gold"
                     >
                       Website
                       <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                     </a>
                   )}
+                  <Button
+                    variant="outline"
+                    className="w-full bg-transparent border-border-subtle text-[#aaa] hover:text-gold hover:border-gold/40"
+                    onClick={() => trackEvent('artist_followed', { artist_id: artist.id })}
+                  >
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Follow Artist
+                  </Button>
                 </div>
               </div>
             </aside>
 
-            <div>
+            <div className="min-w-0">
               <div className="border-b border-border-faint pb-8">
                 <div className="mb-5 flex flex-wrap gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(201,169,110,0.25)] bg-[rgba(201,169,110,0.1)] px-3 py-[6px] text-[11px] font-medium uppercase tracking-[0.12em] text-gold">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(201,169,110,0.25)] bg-[rgba(201,169,110,0.1)] px-3 py-[6px] text-[11px] font-medium uppercase tracking-[0.12em] text-gold" onClick={() => trackEvent('certificate_viewed', { artist_id: artist.id })}>
                     <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
                     ArtGuard vetted
                   </span>
-                  {mediumLabel && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-surface-2 px-3 py-[6px] text-[11px] font-medium uppercase tracking-[0.12em] text-[#aaa]">
+                  {mediums?.map((medium) => (
+                    <Link
+                      key={medium}
+                      to={`/search?q=${medium}`}
+                      onClick={() => trackEvent('medium_clicked', { medium, artist_id: artist.id })}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-surface-2 px-3 py-[6px] text-[11px] font-medium uppercase tracking-[0.12em] text-[#aaa] hover:text-gold hover:border-gold/30 transition-colors"
+                    >
                       <Palette className="h-3.5 w-3.5" aria-hidden="true" />
-                      {mediumLabel}
-                    </span>
-                  )}
+                      {medium}
+                    </Link>
+                  ))}
                   {artStyles?.map((style) => (
-                    <span
+                    <Link
                       key={style}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-surface-2 px-3 py-[6px] text-[11px] font-medium uppercase tracking-[0.12em] text-[#aaa]"
+                      to={`/search?q=${style}`}
+                      onClick={() => trackEvent('style_clicked', { style, artist_id: artist.id })}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-surface-2 px-3 py-[6px] text-[11px] font-medium uppercase tracking-[0.12em] text-[#aaa] hover:text-gold hover:border-gold/30 transition-colors"
                     >
                       {style}
-                    </span>
+                    </Link>
                   ))}
                 </div>
                 <h1 className="mb-4 text-[32px] font-medium leading-[1.02] tracking-[-0.035em] text-linen sm:text-[44px] lg:text-[58px]">
@@ -409,7 +452,12 @@ const ArtistDetails = () => {
 
               <section className="border-b border-border-faint py-8">
                 <h2 className="mb-4 text-[22px] font-medium tracking-[-0.02em] text-linen">Full story</h2>
-                <p className="max-w-3xl whitespace-pre-line text-[15px] leading-[1.85] text-[#b8b8b8]">{fullStory}</p>
+                <div 
+                  className="max-w-3xl whitespace-pre-line text-[15px] leading-[1.85] text-[#b8b8b8] cursor-pointer"
+                  onClick={() => trackEvent('biography_expanded', { artist_id: artist.id })}
+                >
+                  {fullStory}
+                </div>
               </section>
 
               <section className="border-b border-border-faint py-8">
@@ -422,47 +470,106 @@ const ArtistDetails = () => {
                 />
               </section>
 
-              <section className="border-b border-border-faint py-8">
-                <div className="mb-5 flex items-end justify-between gap-4">
-                  <div>
-                    <h2 className="text-[22px] font-medium tracking-[-0.02em] text-linen">Works</h2>
-                    <p className="mt-1 text-[13px] text-[#666]">Original artworks currently available from this artist.</p>
-                  </div>
-                  <div className="text-[12px] text-[#555]">{works.length} works</div>
-                </div>
-                {works.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                    {works.map((work) => (
-                      <ArtistArtworkCard key={work.id} artwork={work} artistName={artistName} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="rounded-[10px] border border-border-subtle bg-surface-2 p-6 text-[14px] text-[#666]">
-                    No artworks are linked to this artist yet.
-                  </div>
-                )}
+              <section className="py-12 border-b border-border-faint">
+                <h2 className="mb-6 text-[22px] font-medium tracking-[-0.02em] text-linen">Portfolio</h2>
+                
+                <Tabs defaultValue="featured" onValueChange={(v) => trackEvent('portfolio_section_viewed', { section: v, artist_id: artist.id })}>
+                  <TabsList className="mb-8 flex w-full max-w-2xl gap-2 overflow-x-auto bg-transparent p-0 justify-start h-auto border-b border-border-subtle rounded-none pb-px">
+                    <TabsTrigger 
+                      value="featured" 
+                      className="rounded-none border-b-2 border-transparent px-4 py-3 text-[14px] font-medium text-[#888] data-[state=active]:border-gold data-[state=active]:text-gold data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                    >
+                      Featured
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="available"
+                      className="rounded-none border-b-2 border-transparent px-4 py-3 text-[14px] font-medium text-[#888] data-[state=active]:border-gold data-[state=active]:text-gold data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                    >
+                      Available Works ({availableWorks.length})
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="latest"
+                      className="rounded-none border-b-2 border-transparent px-4 py-3 text-[14px] font-medium text-[#888] data-[state=active]:border-gold data-[state=active]:text-gold data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                    >
+                      Latest Releases
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="sold"
+                      className="rounded-none border-b-2 border-transparent px-4 py-3 text-[14px] font-medium text-[#888] data-[state=active]:border-gold data-[state=active]:text-gold data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                    >
+                      Sold Works ({soldWorks.length})
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="featured" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                      {works.slice(0, 6).map((work) => (
+                        <div key={work.id} onClick={() => trackEvent('featured_artwork_clicked', { artwork_id: work.id })}>
+                          <ArtistArtworkCard artwork={work} artistName={artistName} collected={collectedIds.includes(work.id)} />
+                        </div>
+                      ))}
+                      {works.length === 0 && <div className="col-span-full py-12 text-center text-[#666]">No works available yet.</div>}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="available" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                      {availableWorks.map((work) => (
+                        <ArtistArtworkCard key={work.id} artwork={work} artistName={artistName} />
+                      ))}
+                      {availableWorks.length === 0 && <div className="col-span-full py-12 text-center text-[#666]">No available works at the moment.</div>}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="latest" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                      {latestWorks.map((work) => (
+                        <ArtistArtworkCard key={work.id} artwork={work} artistName={artistName} collected={collectedIds.includes(work.id)} />
+                      ))}
+                      {latestWorks.length === 0 && <div className="col-span-full py-12 text-center text-[#666]">No works available yet.</div>}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="sold" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                      {soldWorks.map((work) => (
+                        <ArtistArtworkCard key={work.id} artwork={work} artistName={artistName} collected />
+                      ))}
+                      {soldWorks.length === 0 && <div className="col-span-full py-12 text-center text-[#666]">No collected works recorded yet.</div>}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </section>
 
-              <section className="py-8">
-                <div className="mb-5 flex items-end justify-between gap-4">
-                  <div>
-                    <h2 className="text-[22px] font-medium tracking-[-0.02em] text-linen">Collected arts</h2>
-                    <p className="mt-1 text-[13px] text-[#666]">Works from this artist that have appeared in collector orders.</p>
+              {relatedArtists.length > 0 && (
+                <section className="py-12">
+                  <div className="mb-6 flex items-center justify-between">
+                    <h2 className="text-[22px] font-medium tracking-[-0.02em] text-linen">Related Artists</h2>
                   </div>
-                  <div className="text-[12px] text-[#555]">{collectedWorks.length} collected</div>
-                </div>
-                {collectedWorks.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                    {collectedWorks.map((work) => (
-                      <ArtistArtworkCard key={work.id} artwork={work} artistName={artistName} collected />
+                  <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                    {relatedArtists.map((related) => (
+                      <Link 
+                        key={related.id} 
+                        to={`/artists/${related.id}`}
+                        onClick={() => trackEvent('related_artist_clicked', { related_artist_id: related.id, source_artist_id: artist.id })}
+                        className="group block text-center"
+                      >
+                        <div className="mx-auto mb-3 aspect-square w-full max-w-[140px] overflow-hidden rounded-full border border-border-subtle bg-surface-2">
+                          {related.avatarUrl ? (
+                            <img src={related.avatarUrl} alt={related.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-[#1a2a1a] text-[24px] font-medium text-verified">
+                              {getInitials(related.name)}
+                            </div>
+                          )}
+                        </div>
+                        <h3 className="text-[14px] font-medium text-linen group-hover:text-gold transition-colors">{related.name}</h3>
+                        <p className="text-[12px] text-[#666] line-clamp-1">{related.mediums?.[0] || 'Artist'}</p>
+                      </Link>
                     ))}
                   </div>
-                ) : (
-                  <div className="rounded-[10px] border border-border-subtle bg-surface-2 p-6 text-[14px] text-[#666]">
-                    No collected artworks are recorded for this artist yet.
-                  </div>
-                )}
-              </section>
+                </section>
+              )}
             </div>
           </div>
         </section>

@@ -54,6 +54,12 @@ export const DiscoveryHead = (props: DiscoveryHeadProps) => {
       {output.aiMetadata.style && <meta name="ai-style" content={output.aiMetadata.style} />}
       {output.aiMetadata.artistSummary && <meta name="ai-artist-summary" content={output.aiMetadata.artistSummary} />}
       {output.aiMetadata.colorPalette && <meta name="ai-color-palette" content={output.aiMetadata.colorPalette} />}
+      {output.aiMetadata.trustStatus && <meta name="ai-trust-status" content={output.aiMetadata.trustStatus} />}
+      {output.aiMetadata.verificationStatus && <meta name="ai-verification" content={output.aiMetadata.verificationStatus} />}
+      {output.aiMetadata.country && <meta name="ai-country" content={output.aiMetadata.country} />}
+      {output.aiMetadata.experience && <meta name="ai-experience" content={output.aiMetadata.experience} />}
+      {output.aiMetadata.techniques && <meta name="ai-techniques" content={output.aiMetadata.techniques.join(', ')} />}
+      {output.aiMetadata.artisticPhilosophy && <meta name="ai-philosophy" content={output.aiMetadata.artisticPhilosophy} />}
 
       {/* Structured Data JSON-LD */}
       {finalStructuredData.map((schema, index) => (
