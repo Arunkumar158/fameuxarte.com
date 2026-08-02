@@ -139,6 +139,11 @@ export interface AISummaryMetadata {
   keyEntities: string[];
   semanticTopics: string[];
   confidenceScore: number;
+  medium?: string;
+  subject?: string;
+  style?: string;
+  artistSummary?: string;
+  colorPalette?: string;
 }
 
 export interface DiscoveryPipelineOutput {

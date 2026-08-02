@@ -16,10 +16,15 @@ export class AIDiscoveryEngine {
     keywords?: string[];
     artistName?: string;
     medium?: string;
+    subject?: string;
+    style?: string;
+    artistSummary?: string;
   }): AISummaryMetadata {
     const keyEntities = [input.title];
     if (input.artistName) keyEntities.push(input.artistName);
     if (input.medium) keyEntities.push(input.medium);
+    if (input.subject) keyEntities.push(input.subject);
+    if (input.style) keyEntities.push(input.style);
 
     const summary = `${input.title} is a ${input.medium || 'visual artwork'} on Fameuxarte by ${input.artistName || 'a verified global artist'}. ${input.description}`;
 
@@ -28,7 +33,12 @@ export class AIDiscoveryEngine {
       entityType: input.entityType,
       keyEntities,
       semanticTopics: input.keywords || ['contemporary art', 'original artwork', 'fameuxarte gallery'],
-      confidenceScore: 0.95
+      confidenceScore: 0.95,
+      medium: input.medium,
+      subject: input.subject,
+      style: input.style,
+      artistSummary: input.artistSummary,
+      colorPalette: 'Pending Analysis' // Future placeholder
     };
   }
 

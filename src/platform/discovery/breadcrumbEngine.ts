@@ -12,12 +12,53 @@ export class BreadcrumbEngine {
   /**
    * Calculates breadcrumb lineage array for any entity or route path
    */
-  public static buildBreadcrumbs(type: EntityType, entityTitle?: string, customPath?: string): BreadcrumbItem[] {
+  public static buildBreadcrumbs(
+    type: EntityType, 
+    entityTitle?: string, 
+    customPath?: string,
+    options?: {
+      category?: string | null;
+      artistName?: string | null;
+      artistSlug?: string | null;
+    }
+  ): BreadcrumbItem[] {
     const items: BreadcrumbItem[] = [
       { name: 'Home', url: '/', position: 1 }
     ];
 
     const config = getEntityConfig(type);
+
+    if (type === 'artwork') {
+      items.push({ name: 'Collections', url: '/collections', position: 2 });
+      let currentPos = 3;
+
+      if (options?.category) {
+        items.push({
+          name: options.category,
+          url: `/artworks?category=${encodeURIComponent(options.category)}`,
+          position: currentPos++
+        });
+      }
+
+      if (options?.artistName) {
+        const url = options.artistSlug ? `/artists/${options.artistSlug}` : '/artists';
+        items.push({
+          name: options.artistName,
+          url,
+          position: currentPos++
+        });
+      }
+
+      if (entityTitle) {
+        items.push({
+          name: entityTitle,
+          url: customPath || `/artworks/${entityTitle.toLowerCase().replace(/\s+/g, '-')}`,
+          position: currentPos++
+        });
+      }
+
+      return items;
+    }
 
     if (config.parentPath && config.parentPath !== '/') {
       const parentName = this.formatPathName(config.parentPath);

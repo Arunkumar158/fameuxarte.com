@@ -10,11 +10,13 @@ import { Price } from "@/components/shared/Price";
 import { useCart } from "@/contexts/CartContext";
 import { useLikedItems } from "@/hooks/useLikedItems";
 import { useArtworkImages } from "@/hooks/useArtworkImages";
+import { useMoreFromArtist, useRelatedArtworks } from "@/hooks/useRelatedArtworks";
 import { supabase } from "@/integrations/supabase/client";
-import { SEO } from "@/components/SEO";
-import { generateProductStructuredData } from "@/lib/seo";
+import { DiscoveryHead } from "@/platform/discovery/DiscoveryHead";
+import { DiscoveryBreadcrumbs } from "@/components/discovery/DiscoveryBreadcrumbs";
 import { getGalleryImages } from "@/lib/utils";
 import { trackEvent, trackPageViewed } from "@/lib/analytics";
+import ArtworkGrid from "@/components/ArtworkGrid";
 
 interface ArtworkData {
   id: string;
@@ -26,7 +28,9 @@ interface ArtworkData {
   images: string[] | null;
   slug: string | null;
   status?: "available" | "sold" | "reserved";
+  artist_id?: string | null;
   artist: {
+    id?: string;
     full_name: string | null;
   } | null;
 }
@@ -155,7 +159,9 @@ const ArtworkDetails = () => {
           images,
           slug,
           status,
+          artist_id,
           artist:profiles!artworks_artist_id_fkey (
+            id,
             full_name
           )
         `);
@@ -185,6 +191,7 @@ const ArtworkDetails = () => {
         images: (data as Record<string, unknown>).images as string[] | null,
         slug: data.slug,
         status: data.status,
+        artist_id: data.artist_id,
         artist: data.artist,
       };
 
@@ -279,15 +286,8 @@ const ArtworkDetails = () => {
       : artwork.description
     : `${artwork.title} by ${artistName}. ${categoryLabel} available for acquisition.`;
 
-  const structuredData = generateProductStructuredData({
-    name: artwork.title,
-    description: artworkDescription,
-    image: activeImage,
-    price: artwork.price,
-    currency: "INR",
-    availability: "InStock",
-    sku: artwork.id,
-  });
+  const { data: moreFromArtist } = useMoreFromArtist(artwork.artist_id || artwork.artist?.id || null, artwork.id);
+  const { data: relatedArtworks } = useRelatedArtworks(artwork.id, artwork.category, artwork.artist_id || artwork.artist?.id || null);
 
   const handleAddToCart = () => {
     addToCart(artwork.id).catch(console.error);
@@ -302,13 +302,27 @@ const ArtworkDetails = () => {
 
   return (
     <MainLayout>
-      <SEO
-        title={`${artwork.title} | ${artistName} | Fameuxarte`}
+      <DiscoveryHead
+        entityType="artwork"
+        title={artwork.title}
         description={artworkDescription}
-        canonicalUrl={`/artworks/${artwork.slug || artwork.id}`}
-        ogImage={activeImage}
-        type="product"
-        structuredData={structuredData}
+        image={activeImage}
+        url={`/artworks/${artwork.slug || artwork.id}`}
+        author={artistName}
+        rawEntity={{
+          name: artwork.title,
+          price: artwork.price,
+          currency: "INR",
+          sku: artwork.id,
+          artist: artistName,
+          category: categoryLabel,
+          trustSignals: {
+            verifiedArtist: true,
+            certificateOfAuthenticity: true,
+            originalArtwork: true,
+            secureCheckout: true,
+          }
+        }}
       />
 
       <AnimatePresence>
@@ -329,10 +343,15 @@ const ArtworkDetails = () => {
         {/* Breadcrumb */}
         <section className="border-t border-border-faint px-4 sm:px-6 py-4 sm:py-6">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
-            <Link to="/artworks" className="inline-flex items-center gap-2 text-[12px] text-[#666] transition-colors hover:text-gold">
-              <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-              Back to discover
-            </Link>
+            <DiscoveryBreadcrumbs 
+              entityType="artwork" 
+              entityTitle={artwork.title}
+              customPath={`/artworks/${artwork.slug || artwork.id}`}
+              options={{
+                category: artwork.category,
+                artistName: artistName,
+              }}
+            />
             <div className="hidden text-[11px] uppercase tracking-[0.14em] text-[#444] sm:block">
               Verified artwork record
             </div>
@@ -353,7 +372,8 @@ const ArtworkDetails = () => {
                   <motion.img
                     key={activeImage}
                     src={activeImage}
-                    alt={`${artwork.title} image ${selectedIndex + 1}`}
+                    alt={`${artwork.title} by ${artistName} - ${categoryLabel} - Image ${selectedIndex + 1}`}
+                    title={`${artwork.title} by ${artistName}`}
                     className="max-h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.015]"
                     loading="lazy"
                     initial={{ opacity: 0 }}
@@ -617,6 +637,51 @@ const ArtworkDetails = () => {
             </div>
           )}
         </div>
+
+        {/* Discovery Recommendations */}
+        <section className="border-t border-border-faint px-4 sm:px-6 py-16 sm:py-24 bg-obsidian">
+          <div className="mx-auto max-w-6xl space-y-20">
+            {moreFromArtist && moreFromArtist.length > 0 && (
+              <div className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-[20px] sm:text-[24px] font-medium text-linen tracking-tight">
+                    More from {artistName}
+                  </h2>
+                  <Link to={`/artists`} className="text-[13px] text-gold hover:text-gold/80 transition-colors uppercase tracking-widest font-medium">
+                    View Profile
+                  </Link>
+                </div>
+                <ArtworkGrid
+                  artworks={moreFromArtist}
+                  isLoading={false}
+                  viewMode="grid"
+                  onLikeToggle={toggleLike}
+                  isLiked={isItemLiked}
+                />
+              </div>
+            )}
+
+            {relatedArtworks && relatedArtworks.length > 0 && (
+              <div className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-[20px] sm:text-[24px] font-medium text-linen tracking-tight">
+                    Related Artworks
+                  </h2>
+                  <Link to={`/artworks`} className="text-[13px] text-gold hover:text-gold/80 transition-colors uppercase tracking-widest font-medium">
+                    Explore Collection
+                  </Link>
+                </div>
+                <ArtworkGrid
+                  artworks={relatedArtworks}
+                  isLoading={false}
+                  viewMode="grid"
+                  onLikeToggle={toggleLike}
+                  isLiked={isItemLiked}
+                />
+              </div>
+            )}
+          </div>
+        </section>
       </div>
     </MainLayout>
   );

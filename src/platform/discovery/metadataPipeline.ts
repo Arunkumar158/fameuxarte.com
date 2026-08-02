@@ -54,16 +54,37 @@ export class MetadataPipeline {
     });
 
     // Breadcrumbs generation
-    const breadcrumbs = BreadcrumbEngine.buildBreadcrumbs(input.entityType, input.title, path);
+    const breadcrumbs = BreadcrumbEngine.buildBreadcrumbs(input.entityType, input.title, path, {
+      category: input.rawEntity?.category,
+      artistName: input.author,
+      artistSlug: input.rawEntity?.artistSlug
+    });
 
     // Structured Data generation
     const structuredData: Record<string, any>[] = [
       SchemaRegistry.buildOrganizationSchema(),
+      SchemaRegistry.buildWebSiteSchema(),
       SchemaRegistry.buildBreadcrumbSchema(breadcrumbs)
     ];
 
+    if (input.image) {
+      structuredData.push(SchemaRegistry.buildImageObjectSchema({
+        url: input.image,
+        name: input.title || 'Fameuxarte Image',
+        description: description,
+        author: input.author || 'Fameuxarte Artist'
+      }));
+    }
+
     if (input.rawEntity) {
       if (input.entityType === 'artwork') {
+        const trustSignals = input.rawEntity.trustSignals || {
+          verifiedArtist: true,
+          certificateOfAuthenticity: true,
+          originalArtwork: true,
+          secureCheckout: true
+        };
+
         structuredData.push(SchemaRegistry.buildProductSchema({
           name: input.rawEntity.name || input.title || 'Artwork',
           description,
@@ -72,7 +93,19 @@ export class MetadataPipeline {
           currency: input.rawEntity.currency || 'USD',
           sku: input.rawEntity.sku || input.id || 'ART-001',
           artist: input.rawEntity.artist,
-          medium: input.rawEntity.medium
+          medium: input.rawEntity.medium,
+          category: input.rawEntity.category,
+          trustSignals
+        }));
+
+        structuredData.push(SchemaRegistry.buildCreativeWorkSchema({
+          name: input.rawEntity.name || input.title || 'Artwork',
+          description,
+          image: input.image || '/og-image.jpg',
+          creator: input.rawEntity.artist || 'Unknown Artist',
+          medium: input.rawEntity.medium,
+          dateCreated: input.rawEntity.yearCreated,
+          trustSignals
         }));
       } else if (input.entityType === 'artist') {
         structuredData.push(SchemaRegistry.buildPersonSchema({
@@ -97,7 +130,11 @@ export class MetadataPipeline {
       title: input.title || 'Fameuxarte Page',
       description,
       keywords: input.keywords,
-      artistName: input.author
+      artistName: input.author,
+      medium: input.rawEntity?.medium,
+      subject: input.rawEntity?.subject,
+      style: input.rawEntity?.style,
+      artistSummary: input.rawEntity?.artistSummary
     });
 
     const robots = input.robots || (config.indexable ? 'index, follow' : 'noindex, nofollow');

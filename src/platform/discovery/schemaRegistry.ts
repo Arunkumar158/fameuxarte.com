@@ -47,7 +47,19 @@ export class SchemaRegistry {
     medium?: string;
     dimensions?: string;
     category?: string;
+    trustSignals?: {
+      verifiedArtist?: boolean;
+      certificateOfAuthenticity?: boolean;
+      originalArtwork?: boolean;
+      secureCheckout?: boolean;
+    };
   }) {
+    const additionalProperties = [];
+    if (item.trustSignals?.verifiedArtist) additionalProperties.push({ '@type': 'PropertyValue', name: 'Verified Artist', value: 'True' });
+    if (item.trustSignals?.certificateOfAuthenticity) additionalProperties.push({ '@type': 'PropertyValue', name: 'Certificate of Authenticity', value: 'Included' });
+    if (item.trustSignals?.originalArtwork) additionalProperties.push({ '@type': 'PropertyValue', name: 'Original Artwork', value: 'True' });
+    if (item.trustSignals?.secureCheckout) additionalProperties.push({ '@type': 'PropertyValue', name: 'Secure Checkout', value: 'True' });
+
     return {
       '@context': 'https://schema.org',
       '@type': 'Product',
@@ -75,7 +87,8 @@ export class SchemaRegistry {
       creator: item.artist ? {
         '@type': 'Person',
         name: item.artist
-      } : undefined
+      } : undefined,
+      additionalProperty: additionalProperties.length > 0 ? additionalProperties : undefined
     };
   }
 
@@ -89,6 +102,9 @@ export class SchemaRegistry {
     creator: string;
     dateCreated?: string;
     medium?: string;
+    trustSignals?: {
+      originalArtwork?: boolean;
+    }
   }) {
     return {
       '@context': 'https://schema.org',
@@ -101,7 +117,8 @@ export class SchemaRegistry {
         name: work.creator
       },
       artMedium: work.medium,
-      dateCreated: work.dateCreated
+      dateCreated: work.dateCreated,
+      artform: work.trustSignals?.originalArtwork ? 'Original Artwork' : undefined
     };
   }
 
@@ -215,6 +232,47 @@ export class SchemaRegistry {
           text: faq.answer
         }
       }))
+    };
+  }
+
+  /**
+   * Generates ImageObject Schema
+   */
+  public static buildImageObjectSchema(image: {
+    url: string;
+    caption?: string;
+    name?: string;
+    description?: string;
+    author?: string;
+  }) {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'ImageObject',
+      contentUrl: image.url.startsWith('http') ? image.url : `${this.SITE_URL}${image.url}`,
+      caption: image.caption,
+      name: image.name,
+      description: image.description,
+      creator: image.author ? {
+        '@type': 'Person',
+        name: image.author
+      } : undefined
+    };
+  }
+
+  /**
+   * Generates WebSite Schema
+   */
+  public static buildWebSiteSchema() {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Fameuxarte',
+      url: this.SITE_URL,
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: `${this.SITE_URL}/search?q={search_term_string}`,
+        'query-input': 'required name=search_term_string'
+      }
     };
   }
 }

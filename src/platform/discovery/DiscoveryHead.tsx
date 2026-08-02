@@ -49,6 +49,11 @@ export const DiscoveryHead = (props: DiscoveryHeadProps) => {
       <meta name="ai-summary" content={output.aiMetadata.summary} />
       <meta name="ai-entity-type" content={output.aiMetadata.entityType} />
       <meta name="ai-topics" content={output.aiMetadata.semanticTopics.join(', ')} />
+      {output.aiMetadata.medium && <meta name="ai-medium" content={output.aiMetadata.medium} />}
+      {output.aiMetadata.subject && <meta name="ai-subject" content={output.aiMetadata.subject} />}
+      {output.aiMetadata.style && <meta name="ai-style" content={output.aiMetadata.style} />}
+      {output.aiMetadata.artistSummary && <meta name="ai-artist-summary" content={output.aiMetadata.artistSummary} />}
+      {output.aiMetadata.colorPalette && <meta name="ai-color-palette" content={output.aiMetadata.colorPalette} />}
 
       {/* Structured Data JSON-LD */}
       {finalStructuredData.map((schema, index) => (
