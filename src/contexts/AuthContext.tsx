@@ -34,6 +34,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (redirectPath) {
             localStorage.removeItem("authRedirect");
             navigate(redirectPath);
+          } else {
+            // Default redirect after sign-in (covers Google OAuth callback)
+            navigate("/collector");
           }
         }
 
