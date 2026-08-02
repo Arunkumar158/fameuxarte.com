@@ -20,6 +20,26 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useFormDraft } from "@/hooks/useFormDraft";
+
+const DRAFT_KEY = "fameuxarte:artist-profile-draft";
+
+interface ProfileDraft {
+  fullName: string;
+  country: string;
+  city: string;
+  website: string;
+  yearsExperience: string;
+  bio: string;
+  artistStatement: string;
+  mediums: string;
+  styles: string;
+  instagram: string;
+  pinterest: string;
+  facebook: string;
+  linkedin: string;
+  youtube: string;
+}
 
 const Settings = () => {
   const { user } = useAuth();
@@ -61,6 +81,32 @@ const Settings = () => {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
+  // ─── Draft persistence (survives mobile app switches) ───────────────────────
+  const { draft, setDraft, clearDraft, hasDraft } = useFormDraft<ProfileDraft>(DRAFT_KEY);
+  const draftRestoredRef = useRef(false);
+
+  // Restore draft from localStorage on first mount (before profile loads)
+  useEffect(() => {
+    if (!draftRestoredRef.current && hasDraft && draft) {
+      draftRestoredRef.current = true;
+      if (draft.fullName !== undefined) setFullName(draft.fullName);
+      if (draft.country !== undefined) setCountry(draft.country);
+      if (draft.city !== undefined) setCity(draft.city);
+      if (draft.website !== undefined) setWebsite(draft.website);
+      if (draft.yearsExperience !== undefined) setYearsExperience(draft.yearsExperience);
+      if (draft.bio !== undefined) setBio(draft.bio);
+      if (draft.artistStatement !== undefined) setArtistStatement(draft.artistStatement);
+      if (draft.mediums !== undefined) setMediums(draft.mediums);
+      if (draft.styles !== undefined) setStyles(draft.styles);
+      if (draft.instagram !== undefined) setInstagram(draft.instagram);
+      if (draft.pinterest !== undefined) setPinterest(draft.pinterest);
+      if (draft.facebook !== undefined) setFacebook(draft.facebook);
+      if (draft.linkedin !== undefined) setLinkedin(draft.linkedin);
+      if (draft.youtube !== undefined) setYoutube(draft.youtube);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const { data: profile, isLoading, refetch } = useQuery({
     queryKey: ["artist-profile", user?.id],
     queryFn: async () => {
@@ -79,29 +125,54 @@ const Settings = () => {
 
   useEffect(() => {
     if (profile) {
-      setFullName(profile.full_name || "");
-      setCountry(profile.country || "");
-      setCity(profile.city || "");
-      setWebsite(profile.website || "");
-      setYearsExperience(profile.years_of_experience?.toString() || "");
-      
-      setBio(profile.bio || "");
-      setArtistStatement(profile.artist_statement || "");
-      
-      setMediums(profile.mediums?.join(", ") || "");
-      setStyles(profile.art_styles?.join(", ") || "");
-      
-      const socials = profile.social_links as Record<string, string> || {};
-      setInstagram(socials.instagram || "");
-      setPinterest(socials.pinterest || "");
-      setFacebook(socials.facebook || "");
-      setLinkedin(socials.linkedin || "");
-      setYoutube(socials.youtube || "");
+      // Only overwrite from server if the user has no unsaved local draft.
+      // This prevents server data from wiping out edits the user typed before
+      // the query returned (common on slow mobile connections).
+      if (!hasDraft) {
+        setFullName(profile.full_name || "");
+        setCountry(profile.country || "");
+        setCity(profile.city || "");
+        setWebsite(profile.website || "");
+        setYearsExperience(profile.years_of_experience?.toString() || "");
+        
+        setBio(profile.bio || "");
+        setArtistStatement(profile.artist_statement || "");
+        
+        setMediums(profile.mediums?.join(", ") || "");
+        setStyles(profile.art_styles?.join(", ") || "");
+        
+        const socials = profile.social_links as Record<string, string> || {};
+        setInstagram(socials.instagram || "");
+        setPinterest(socials.pinterest || "");
+        setFacebook(socials.facebook || "");
+        setLinkedin(socials.linkedin || "");
+        setYoutube(socials.youtube || "");
+      }
       
       setAvatarUrl(profile.avatar_url || null);
       setCoverImage(profile.cover_image || null);
     }
-  }, [profile]);
+  }, [profile]); // hasDraft intentionally omitted – we only want this to react to profile changes
+
+  // Auto-save all text fields to localStorage draft whenever they change
+  useEffect(() => {
+    setDraft({
+      fullName,
+      country,
+      city,
+      website,
+      yearsExperience,
+      bio,
+      artistStatement,
+      mediums,
+      styles,
+      instagram,
+      pinterest,
+      facebook,
+      linkedin,
+      youtube,
+    });
+  }, [fullName, country, city, website, yearsExperience, bio, artistStatement, mediums, styles, instagram, pinterest, facebook, linkedin, youtube, setDraft]);
 
   useEffect(() => {
     if (avatarFile) {
@@ -184,6 +255,9 @@ const Settings = () => {
       const { error } = await supabase.from("profiles").update(payload).eq("id", user.id);
       
       if (error) throw error;
+
+      // Clear the local draft now that the server has accepted the changes
+      clearDraft();
 
       toast({
         title: "Profile Updated",

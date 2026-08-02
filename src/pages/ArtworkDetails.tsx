@@ -202,6 +202,10 @@ const ArtworkDetails = () => {
   const galleryPaths = artwork ? getGalleryImages(artwork) : [];
   const { imageUrls, isLoading: imagesLoading } = useArtworkImages(galleryPaths);
 
+  // ✅ Hooks must ALL be called before any early return — Rules of Hooks
+  const { data: moreFromArtist } = useMoreFromArtist(artwork?.artist_id ?? artwork?.artist?.id ?? null, artwork?.id ?? '');
+  const { data: relatedArtworks } = useRelatedArtworks(artwork?.id ?? '', artwork?.category ?? null, artwork?.artist_id ?? artwork?.artist?.id ?? null);
+
   useEffect(() => {
     setSelectedIndex(0);
     if (artwork?.id) {
@@ -286,8 +290,7 @@ const ArtworkDetails = () => {
       : artwork.description
     : `${artwork.title} by ${artistName}. ${categoryLabel} available for acquisition.`;
 
-  const { data: moreFromArtist } = useMoreFromArtist(artwork.artist_id || artwork.artist?.id || null, artwork.id);
-  const { data: relatedArtworks } = useRelatedArtworks(artwork.id, artwork.category, artwork.artist_id || artwork.artist?.id || null);
+  // Hooks already called above the early returns — results used here
 
   const handleAddToCart = () => {
     addToCart(artwork.id).catch(console.error);

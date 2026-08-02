@@ -14,22 +14,30 @@ interface DiscoveryPageLayoutProps {
 }
 
 export const DiscoveryPageLayout: React.FC<DiscoveryPageLayoutProps> = ({ entity }) => {
+  // ⚠️ Early return MUST come before all hooks to satisfy Rules of Hooks.
+  // However, React requires hooks are always called — so we keep the guard
+  // here and let hooks run with a potentially-undefined entity, which is
+  // safe because useDiscoveryArtworks/Recommendations handle undefined gracefully.
   const posthog = usePostHog();
   const { data: artworks, isLoading } = useDiscoveryArtworks(entity);
   const recommendations = useDiscoveryRecommendations(entity);
 
   useEffect(() => {
-    // Analytics tracking
-    if (entity) {
-      posthog?.capture(`discovery_${entity.type}_viewed`, {
+    // Analytics tracking — guard against null entity and uninitialized PostHog
+    if (!entity || !posthog) return;
+
+    try {
+      posthog.capture(`discovery_${entity.type}_viewed`, {
         slug: entity.slug,
         title: entity.title
       });
-      posthog?.capture(`discovery_generated_page_viewed`, {
+      posthog.capture(`discovery_generated_page_viewed`, {
         slug: entity.slug,
         title: entity.title,
         type: entity.type
       });
+    } catch {
+      // PostHog may be blocked by an ad-blocker; fail silently
     }
   }, [entity, posthog]);
 
