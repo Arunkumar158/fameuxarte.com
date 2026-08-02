@@ -25,6 +25,11 @@ export const DiscoveryPageLayout: React.FC<DiscoveryPageLayoutProps> = ({ entity
         slug: entity.slug,
         title: entity.title
       });
+      posthog?.capture(`discovery_generated_page_viewed`, {
+        slug: entity.slug,
+        title: entity.title,
+        type: entity.type
+      });
     }
   }, [entity, posthog]);
 
@@ -47,6 +52,20 @@ export const DiscoveryPageLayout: React.FC<DiscoveryPageLayoutProps> = ({ entity
           'ai-summary': entity.aiSummary,
           'ai-page-type': 'discovery',
           'ai-discovery-topic': entity.title,
+          'ai-discovery-path': `/discover/${entity.slug}`,
+          'ai-taxonomy-level': entity.type,
+          'ai-related-taxonomies': [
+            ...recommendations.relatedCollections,
+            ...recommendations.relatedCategories,
+            ...recommendations.relatedStyles,
+            ...recommendations.relatedMediums,
+            ...recommendations.relatedSubjects,
+            ...recommendations.relatedColors,
+            ...recommendations.relatedLocations
+          ].join(','),
+          'ai-content-depth': 'comprehensive',
+          'ai-page-purpose': 'discovery_and_exploration',
+          'ai-intended-audience': 'art_collectors_and_enthusiasts',
           'ai-related-collections': recommendations.relatedCollections.join(','),
           'ai-related-categories': recommendations.relatedCategories.join(','),
           'ai-related-styles': recommendations.relatedStyles.join(','),

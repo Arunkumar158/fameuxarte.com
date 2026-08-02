@@ -51,6 +51,7 @@ import MediumPage from "./pages/discovery/MediumPage";
 import SubjectPage from "./pages/discovery/SubjectPage";
 import LocationPage from "./pages/discovery/LocationPage";
 import ColorPage from "./pages/discovery/ColorPage";
+import ProgrammaticDiscoveryPage from "./pages/discovery/ProgrammaticDiscoveryPage";
 
 // Collector Imports
 import { CollectorRoute } from "./components/collector/CollectorRoute";
@@ -132,6 +133,7 @@ const AnimatedRoutes = () => {
           <Route path="/subject/:slug" element={<SubjectPage />} />
           <Route path="/location/:slug" element={<LocationPage />} />
           <Route path="/color/:slug" element={<ColorPage />} />
+          <Route path="/discover/*" element={<ProgrammaticDiscoveryPage />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/insights" element={<Blog />} />

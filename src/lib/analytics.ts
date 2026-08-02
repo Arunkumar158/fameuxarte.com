@@ -90,3 +90,28 @@ export const trackButtonClicked = (props?: {
   button_name?: string;
   page?: string;
 }) => trackEvent('button_clicked', props);
+
+// ---------------------------------------------------------------------------
+// QA & Discovery Diagnostics (Sprint 5.7)
+// ---------------------------------------------------------------------------
+
+export const trackDiscoveryAuditCompleted = (props?: { score?: number; url?: string; passed?: boolean }) =>
+  trackEvent('discovery_audit_completed', props);
+
+export const trackPageIndexabilityChecked = (props?: { url?: string; indexable?: boolean }) =>
+  trackEvent('page_indexability_checked', props);
+
+export const trackStructuredDataValidated = (props?: { url?: string; isValid?: boolean }) =>
+  trackEvent('structured_data_validated', props);
+
+export const trackAiReadinessChecked = (props?: { url?: string; score?: number }) =>
+  trackEvent('ai_readiness_checked', props);
+
+export const trackAccessibilityChecked = (props?: { url?: string; score?: number }) =>
+  trackEvent('accessibility_checked', props);
+
+export const trackPerformanceChecked = (props?: { url?: string; score?: number }) =>
+  trackEvent('performance_checked', props);
+
+export const trackSitemapGenerated = (props?: { totalUrls?: number }) =>
+  trackEvent('sitemap_generated', props);
