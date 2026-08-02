@@ -1,6 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, CheckCircle2, ExternalLink, Palette, ShieldCheck, UserPlus } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ExternalLink, Loader2, Palette, ShieldCheck, UserCheck, UserPlus } from "lucide-react";
 import HomeNav from "@/components/home/HomeNav";
 import MainLayout from "@/components/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { TrustBadge } from "@/components/ui/trust-badge";
 import { ArtistTimeline } from "@/components/artist/ArtistTimeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRelatedArtists } from "@/hooks/useRelatedArtists";
+import { useFollowArtist } from "@/hooks/useFollowArtist";
 
 // Unified artist data shape
 interface ArtistDisplayData {
@@ -110,6 +111,7 @@ const ArtistArtworkCard = ({
 const ArtistDetails = () => {
   const { artistId } = useParams();
   const navigate = useNavigate();
+  const { isFollowing, isLoading: followLoading, isMutating: followMutating, toggleFollow } = useFollowArtist(artistId);
 
   const {
     data: artist,
@@ -403,11 +405,25 @@ const ArtistDetails = () => {
                   )}
                   <Button
                     variant="outline"
-                    className="w-full bg-transparent border-border-subtle text-[#aaa] hover:text-gold hover:border-gold/40"
-                    onClick={() => trackEvent('artist_followed', { artist_id: artist.id })}
+                    disabled={followLoading || followMutating}
+                    className={`w-full bg-transparent border-border-subtle transition-colors ${
+                      isFollowing
+                        ? "text-gold border-gold/40 hover:text-red-400 hover:border-red-400/40"
+                        : "text-[#aaa] hover:text-gold hover:border-gold/40"
+                    }`}
+                    onClick={() => {
+                      trackEvent(isFollowing ? 'artist_unfollowed' : 'artist_followed', { artist_id: artist.id });
+                      toggleFollow();
+                    }}
                   >
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    Follow Artist
+                    {followMutating ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : isFollowing ? (
+                      <UserCheck className="mr-2 h-4 w-4" />
+                    ) : (
+                      <UserPlus className="mr-2 h-4 w-4" />
+                    )}
+                    {isFollowing ? "Following" : "Follow Artist"}
                   </Button>
                 </div>
               </div>

@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      artist_follows: {
+        Row: {
+          id: string
+          follower_id: string
+          artist_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          follower_id: string
+          artist_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          follower_id?: string
+          artist_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_follows_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       addresses: {
         Row: {
           id: string
