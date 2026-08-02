@@ -15,7 +15,8 @@
     "update-slugs": "tsx scripts/update-artwork-slugs.ts",
     "test-slugs": "tsx scripts/test-slug-generation.ts",
     "debug-artworks": "tsx scripts/debug-artworks.ts",
-    "test-artwork-fetch": "tsx scripts/test-artwork-fetch.ts"
+    "test-artwork-fetch": "tsx scripts/test-artwork-fetch.ts",
+    "generate-sitemaps": "tsx scripts/generate-sitemaps.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://gallery-canvas-commerce.vercel.app/sitemap-main.xml</loc>
+    <lastmod>2026-08-02</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://gallery-canvas-commerce.vercel.app/sitemap-artworks.xml</loc>
+    <lastmod>2026-08-02</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://gallery-canvas-commerce.vercel.app/sitemap-artists.xml</loc>
+    <lastmod>2026-08-02</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://gallery-canvas-commerce.vercel.app/sitemap-collections.xml</loc>
+    <lastmod>2026-08-02</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://gallery-canvas-commerce.vercel.app/sitemap-blog.xml</loc>
+    <lastmod>2026-08-02</lastmod>
+  </sitemap>
+</sitemapindex>

@@ -1,12 +1,28 @@
-
+# Fameuxarte Robots.txt - Production Environment
 User-agent: *
 Allow: /
-Disallow: /checkout
-Disallow: /cart
-Disallow: /account
-Disallow: /auth
+Disallow: /admin/
+Disallow: /collector/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /account/
+Disallow: /profile/
 
-# Crawl delay to prevent overwhelming the server
-Crawl-delay: 10
+# AI Crawlers & LLM Indexers Access Directives
+User-agent: GPTBot
+Allow: /
 
-Sitemap: https://gallery-canvas-commerce.vercel.app/sitemap.xml
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+# Sitemap Index
+Sitemap: https://gallery-canvas-commerce.vercel.app/sitemap-index.xml

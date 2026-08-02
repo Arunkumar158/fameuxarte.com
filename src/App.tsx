@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { HelmetProvider } from 'react-helmet-async';
+import { DiscoveryProvider } from '@/providers/DiscoveryProvider';
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
@@ -198,7 +198,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <HelmetProvider>
+    <DiscoveryProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -222,7 +222,7 @@ const App = () => (
           </PostHogProvider>
         </BrowserRouter>
       </TooltipProvider>
-    </HelmetProvider>
+    </DiscoveryProvider>
   </QueryClientProvider>
 );
 

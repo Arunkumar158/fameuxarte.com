@@ -1,6 +1,12 @@
-import { Helmet } from 'react-helmet-async';
+/**
+ * Fameuxarte SEO Component (Backward Compatibility Wrapper)
+ * Re-exports and wraps the Discovery Platform DiscoveryHead component.
+ */
 
-interface SEOProps {
+import { DiscoveryHead } from '@/platform/discovery/DiscoveryHead';
+import { EntityType } from '@/platform/discovery/types';
+
+export interface SEOProps {
   title: string;
   description: string;
   canonicalUrl?: string;
@@ -11,6 +17,7 @@ interface SEOProps {
   author?: string;
   robots?: string;
   language?: string;
+  entityType?: EntityType;
 }
 
 export const SEO = ({
@@ -22,51 +29,20 @@ export const SEO = ({
   structuredData,
   keywords,
   author = 'Fameuxarte',
-  robots = 'index, follow',
-  language = 'en',
+  robots,
+  entityType = 'static_page'
 }: SEOProps) => {
-  const siteUrl = 'https://gallery-canvas-commerce.vercel.app';
-  const fullCanonicalUrl = canonicalUrl ? `${siteUrl}${canonicalUrl}` : siteUrl;
-  const fullOgImage = ogImage?.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
-
   return (
-    <Helmet>
-      {/* Basic Meta Tags */}
-      <title>{title}</title>
-      <meta name="description" content={description} />
-      <link rel="canonical" href={fullCanonicalUrl} />
-      {keywords && <meta name="keywords" content={keywords} />}
-      {author && <meta name="author" content={author} />}
-      <meta name="robots" content={robots} />
-      <meta httpEquiv="Content-Language" content={language} />
-      
-      {/* Open Graph Meta Tags */}
-      <meta property="og:title" content={title} />
-      <meta property="og:description" content={description} />
-      <meta property="og:type" content={type} />
-      <meta property="og:url" content={fullCanonicalUrl} />
-      <meta property="og:image" content={fullOgImage} />
-      <meta property="og:site_name" content="Fameuxarte" />
-      <meta property="og:locale" content={language} />
-
-      {/* Twitter Meta Tags */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={fullOgImage} />
-      <meta name="twitter:site" content="@fameuxarte" />
-      <meta name="twitter:creator" content="@fameuxarte" />
-
-      {/* Mobile Meta Tags */}
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-      <meta name="theme-color" content="#000000" />
-      
-      {/* Structured Data */}
-      {structuredData && (
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
-      )}
-    </Helmet>
+    <DiscoveryHead
+      entityType={entityType === 'static_page' && type === 'product' ? 'artwork' : entityType === 'static_page' && type === 'article' ? 'blog' : entityType}
+      title={title}
+      description={description}
+      image={ogImage}
+      canonicalUrl={canonicalUrl}
+      author={author}
+      keywords={keywords ? keywords.split(',').map(k => k.trim()) : undefined}
+      robots={robots}
+      structuredDataOverride={structuredData}
+    />
   );
 };
