@@ -16,53 +16,14 @@ import { PLACEHOLDER_FEATURED, PLACEHOLDER_POSTS } from "@/components/blog/types
 const BLOGS_PER_PAGE = 6;
 const JournalNav = HomeNav as React.ComponentType<{ activeLink?: string }>;
 
-interface BlogAuthorProfile {
-  full_name: string | null;
-  avatar_url: string | null;
-}
-
-export interface BlogPostListItem {
-  id: string;
-  title: string;
-  content: string;
-  Slug: string;
-  image_url: string | null;
-  published_at: string;
-  author_id: string | null;
-  created_at: string;
-  updated_at: string;
-  profiles: BlogAuthorProfile | null;
-}
-
 interface BlogListResponse {
-  posts: BlogPostListItem[];
+  posts: BlogPost[];
   totalCount: number;
 }
 
 const stripHtml = (value: string) => value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
-const getExcerpt = (content: string) => {
-  const cleanContent = stripHtml(content);
-  return cleanContent.length > 160 ? `${cleanContent.substring(0, 157)}...` : cleanContent;
-};
-
-const getReadTime = (content: string) => Math.max(4, Math.ceil(stripHtml(content).split(/\s+/).filter(Boolean).length / 180));
-
-const toJournalPost = (post: BlogPostListItem): BlogPost => ({
-  id: post.id,
-  title: post.title,
-  slug: post.Slug || post.id,
-  category: "Art intelligence",
-  excerpt: getExcerpt(post.content),
-  content: post.content,
-  featured_image: post.image_url,
-  author: {
-    name: post.profiles?.full_name || "Fameuxarte Team",
-    avatar: post.profiles?.avatar_url || null,
-  },
-  published_at: post.published_at || post.created_at,
-  read_time: getReadTime(post.content),
-});
+const getReadTime = (content: string) => Math.max(4, Math.ceil(stripHtml(content || "").split(/\s+/).filter(Boolean).length / 180));
 
 const Blog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -73,37 +34,82 @@ const Blog = () => {
   }, [searchParams]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["blog-posts", page],
+    queryKey: ["blog-posts-unified", page],
     queryFn: async (): Promise<BlogListResponse> => {
       const from = (page - 1) * BLOGS_PER_PAGE;
       const to = from + BLOGS_PER_PAGE - 1;
 
-      const { data: rows, error, count } = await supabase
-        .from("blogs")
-        .select(
-          `
+      // 1. Fetch from Insights (Single Source of Truth)
+      const { data: insightsRows, error: insightsError, count: insightsCount } = await supabase
+        .from("insights")
+        .select(`
           *,
           profiles:author_id (
             full_name,
             avatar_url
           )
-        `,
-          { count: "exact" }
-        )
+        `, { count: "exact" })
+        .eq("status", "published")
         .order("published_at", { ascending: false })
         .range(from, to);
 
-      if (error) throw error;
+      if (insightsCount && insightsCount > 0) {
+        const posts: BlogPost[] = (insightsRows || []).map(row => ({
+          id: row.id,
+          title: row.title || "",
+          slug: row.slug || row.id,
+          category: row.category || "Art Market",
+          excerpt: row.excerpt || stripHtml(row.content || "").substring(0, 160) + "...",
+          content: row.content || "",
+          featured_image: row.featured_image || null,
+          author: {
+            name: row.profiles?.full_name || "Fameuxarte Team",
+            avatar: row.profiles?.avatar_url || null,
+          },
+          published_at: row.published_at || row.created_at || new Date().toISOString(),
+          read_time: getReadTime(row.content || ""),
+        }));
+        
+        return { posts, totalCount: insightsCount };
+      }
 
-      return {
-        posts: (rows ?? []) as BlogPostListItem[],
-        totalCount: count ?? 0,
-      };
+      // 2. Fallback to Legacy Blogs if no insights are published
+      const { data: blogsRows, error: blogsError, count: blogsCount } = await supabase
+        .from("blogs")
+        .select(`
+          *,
+          profiles:author_id (
+            full_name,
+            avatar_url
+          )
+        `, { count: "exact" })
+        .order("published_at", { ascending: false })
+        .range(from, to);
+
+      if (blogsError) throw blogsError;
+
+      const posts: BlogPost[] = (blogsRows || []).map(row => ({
+        id: row.id,
+        title: row.title || "",
+        slug: row.Slug || row.id,
+        category: "Art Intelligence",
+        excerpt: stripHtml(row.content || "").substring(0, 160) + "...",
+        content: row.content || "",
+        featured_image: row.image_url || null,
+        author: {
+          name: row.profiles?.full_name || "Fameuxarte Team",
+          avatar: row.profiles?.avatar_url || null,
+        },
+        published_at: row.published_at || row.created_at,
+        read_time: getReadTime(row.content || ""),
+      }));
+
+      return { posts, totalCount: blogsCount || 0 };
     },
   });
 
   const posts = data?.posts ?? [];
-  const journalPosts = posts.length ? posts.map(toJournalPost) : PLACEHOLDER_POSTS;
+  const journalPosts = posts.length ? posts : PLACEHOLDER_POSTS;
   const featuredPost = journalPosts[0] || PLACEHOLDER_FEATURED;
   const totalCount = data?.totalCount ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / BLOGS_PER_PAGE));
@@ -135,10 +141,10 @@ const Blog = () => {
         <section className="bg-obsidian px-4 sm:px-6 py-8">
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2">
             {[...Array(BLOGS_PER_PAGE)].map((_, i) => (
-              <div key={i} className="flex flex-col gap-4 rounded-lg border border-border-subtle bg-surface-2 p-4">
-                <div className="h-48 w-full animate-pulse rounded bg-surface-3" />
-                <div className="h-6 w-3/4 animate-pulse rounded bg-surface-3" />
-                <div className="h-4 w-full animate-pulse rounded bg-surface-3" />
+              <div key={i} className="flex flex-col gap-4 rounded-lg border border-border-subtle bg-surface-2 p-4 animate-pulse">
+                <div className="h-48 w-full rounded bg-surface-3" />
+                <div className="h-6 w-3/4 rounded bg-surface-3" />
+                <div className="h-4 w-full rounded bg-surface-3" />
               </div>
             ))}
           </div>

@@ -168,6 +168,12 @@ export interface AISummaryMetadata {
   artisticPhilosophy?: string;
   collectorRecommendations?: string;
   similarArtists?: string[];
+  readingTime?: number;
+  targetAudience?: string;
+  skillLevel?: string;
+  relatedArtists?: string[];
+  relatedArtworks?: string[];
+  relatedCollections?: string[];
 }
 
 export interface DiscoveryPipelineOutput {

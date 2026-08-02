@@ -60,6 +60,12 @@ export const DiscoveryHead = (props: DiscoveryHeadProps) => {
       {output.aiMetadata.experience && <meta name="ai-experience" content={output.aiMetadata.experience} />}
       {output.aiMetadata.techniques && <meta name="ai-techniques" content={output.aiMetadata.techniques.join(', ')} />}
       {output.aiMetadata.artisticPhilosophy && <meta name="ai-philosophy" content={output.aiMetadata.artisticPhilosophy} />}
+      {output.aiMetadata.readingTime && <meta name="ai-reading-time" content={`${output.aiMetadata.readingTime} min`} />}
+      {output.aiMetadata.targetAudience && <meta name="ai-target-audience" content={output.aiMetadata.targetAudience} />}
+      {output.aiMetadata.skillLevel && <meta name="ai-skill-level" content={output.aiMetadata.skillLevel} />}
+      {output.aiMetadata.relatedArtists && <meta name="ai-related-artists" content={output.aiMetadata.relatedArtists.join(', ')} />}
+      {output.aiMetadata.relatedArtworks && <meta name="ai-related-artworks" content={output.aiMetadata.relatedArtworks.join(', ')} />}
+      {output.aiMetadata.relatedCollections && <meta name="ai-related-collections" content={output.aiMetadata.relatedCollections.join(', ')} />}
 
       {/* Structured Data JSON-LD */}
       {finalStructuredData.map((schema, index) => (

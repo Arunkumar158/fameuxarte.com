@@ -26,6 +26,12 @@ export class AIDiscoveryEngine {
     techniques?: string[];
     artisticPhilosophy?: string;
     similarArtists?: string[];
+    readingTime?: number;
+    targetAudience?: string;
+    skillLevel?: string;
+    relatedArtists?: string[];
+    relatedArtworks?: string[];
+    relatedCollections?: string[];
   }): AISummaryMetadata {
     const keyEntities = [input.title];
     if (input.artistName) keyEntities.push(input.artistName);
@@ -57,7 +63,13 @@ export class AIDiscoveryEngine {
       experience: input.experience,
       techniques: input.techniques,
       artisticPhilosophy: input.artisticPhilosophy,
-      similarArtists: input.similarArtists
+      similarArtists: input.similarArtists,
+      readingTime: input.readingTime,
+      targetAudience: input.targetAudience,
+      skillLevel: input.skillLevel,
+      relatedArtists: input.relatedArtists,
+      relatedArtworks: input.relatedArtworks,
+      relatedCollections: input.relatedCollections
     };
   }
 
