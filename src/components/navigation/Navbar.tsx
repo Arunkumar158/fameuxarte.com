@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Heart, ShoppingCart, User, Menu, LogOut } from "lucide-react";
+import { Heart, ShoppingCart, User, Menu, LogOut, Palette, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -115,12 +115,29 @@ const Navbar = () => {
 
             {user ? (
               <div className="flex items-center space-x-1 sm:space-x-2">
+                {user.user_metadata?.role === 'admin' && (
+                  <Link to="/admin">
+                    <Button variant="ghost" size="icon" className={`${textColor} hidden md:flex h-8 w-8 sm:h-10 sm:w-10 group relative overflow-hidden`} title="Admin Dashboard">
+                      <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:scale-110 group-hover:text-brand-gold" />
+                      <span className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-gold/0 via-white/5 to-brand-gold/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    </Button>
+                  </Link>
+                )}
+                
+                <Link to="/artist">
+                  <Button variant="ghost" size="icon" className={`${textColor} hidden md:flex h-8 w-8 sm:h-10 sm:w-10 group relative overflow-hidden`} title="Artist Dashboard">
+                    <Palette className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:scale-110 group-hover:text-brand-gold" />
+                    <span className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-gold/0 via-white/5 to-brand-gold/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                  </Button>
+                </Link>
+
                 <Link to="/profile">
-                  <Button variant="ghost" size="icon" className={`${textColor} h-8 w-8 sm:h-10 sm:w-10 group relative overflow-hidden`}>
+                  <Button variant="ghost" size="icon" className={`${textColor} h-8 w-8 sm:h-10 sm:w-10 group relative overflow-hidden`} title="Collector Profile">
                     <User className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:scale-110 group-hover:text-brand-gold" />
                     <span className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-gold/0 via-white/5 to-brand-gold/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                   </Button>
                 </Link>
+
                 <Button 
                   variant="ghost" 
                   size="sm" 

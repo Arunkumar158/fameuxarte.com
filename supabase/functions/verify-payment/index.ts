@@ -185,6 +185,33 @@ serve(async (req: Request) => {
         console.error("❌ Failed to update artworks status:", artworksError.message);
       } else {
         console.log(`✅ Marked ${artworkIds.length} artworks as sold.`);
+
+        // Generate Certificates
+        for (const artwork_id of artworkIds) {
+          try {
+            console.log(`📜 Generating certificate for artwork ${artwork_id}...`);
+            const certRes = await fetch(`${SUPABASE_URL}/functions/v1/generate-certificate`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+              },
+              body: JSON.stringify({
+                artwork_id,
+                collector_id: user.id
+              })
+            });
+            
+            if (!certRes.ok) {
+              const text = await certRes.text();
+              console.error(`❌ Failed to generate certificate for artwork ${artwork_id}:`, text);
+            } else {
+              console.log(`✅ Successfully generated certificate for artwork ${artwork_id}`);
+            }
+          } catch (certError: any) {
+            console.error(`❌ Error calling generate-certificate:`, certError.message);
+          }
+        }
       }
     }
 

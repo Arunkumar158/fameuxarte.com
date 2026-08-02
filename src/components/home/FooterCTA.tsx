@@ -6,7 +6,7 @@ const FooterCTA = () => {
       <div className="mx-auto max-w-xl">
         <div className="mb-3 text-[11px] font-normal uppercase tracking-[0.14em] text-[#555]">Start collecting</div>
         <h2 className="mb-[10px] text-[28px] font-medium tracking-[-0.02em] text-linen">Your first acquisition starts here.</h2>
-        <p className="mb-6 text-[13px] text-[#555]">Browse 1,200+ verified original artworks from emerging and established Indian artists.</p>
+        <p className="mb-6 text-[13px] text-[#555]">Browse verified original artworks from emerging and established artists.</p>
 
         <div className="flex flex-col justify-center gap-[10px] sm:flex-row">
           <Link to="/artworks" className="rounded-[6px] bg-linen px-5 py-[11px] text-[13px] font-medium text-obsidian transition-opacity hover:opacity-90">

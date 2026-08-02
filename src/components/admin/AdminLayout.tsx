@@ -13,7 +13,8 @@ import {
   Bell,
   Sparkles,
   LogOut,
-  Menu
+  Menu,
+  ShieldCheck
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { name: "Artists", href: "/admin/artists", icon: Users },
   { name: "Artworks", href: "/admin/artworks", icon: ImageIcon },
+  { name: "Verification", href: "/admin/verification", icon: ShieldCheck },
   { name: "Collections", href: "/admin/collections", icon: Layers },
   { name: "Insights", href: "/admin/insights", icon: FileText },
   { name: "SEO", href: "/admin/seo", icon: Search },

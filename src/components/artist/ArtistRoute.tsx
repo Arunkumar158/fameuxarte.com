@@ -19,12 +19,8 @@ export const ArtistRoute = ({ children }: { children?: React.ReactNode }) => {
             .eq("id", user.id)
             .single();
 
-          console.log("DEBUG: ArtistRoute fetched profile", { userId: user.id, data, error });
-
           if (!error && data) {
             setRole(data.role as 'customer' | 'artist' | 'admin');
-          } else {
-            console.error("DEBUG: ArtistRoute fetch error or empty data");
           }
         } catch (error) {
           console.error("Error fetching role:", error);

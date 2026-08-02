@@ -13,6 +13,16 @@ export const formatCurrency = (amount: number): string => {
   }).format(amount);
 };
 
+// Helper function to format date
+export const formatDate = (value?: string | null): string => {
+  if (!value) return "Not available";
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+};
+
 /**
  * Extract the relative path from a full URL or path
  * @param imagePath - The image path which might be a full URL or relative path

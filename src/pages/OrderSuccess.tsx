@@ -4,11 +4,14 @@ import { useNavigate } from "react-router-dom";
 import MainLayout from "@/components/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
+import { trackEvent, trackPageViewed } from "@/lib/analytics";
 
 const OrderSuccess = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
+    trackPageViewed({ page: 'Order Success', title: 'Order Success' });
+    trackEvent('purchase_completed');
     // Clear any lingering order data if needed
   }, []);
 

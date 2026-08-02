@@ -4,7 +4,6 @@ import { generateOrganizationStructuredData } from "@/lib/seo";
 import HomeNav from "@/components/home/HomeNav";
 import TrustBar from "@/components/home/TrustBar";
 import FeaturedArtworks from "@/components/home/FeaturedArtworks";
-import ArtGuardSection from "@/components/home/ArtGuardSection";
 import ArtistsSection from "@/components/home/ArtistsSection";
 import WhySection from "@/components/home/WhySection";
 import JournalSection from "@/components/home/JournalSection";
@@ -27,7 +26,6 @@ const Index = () => {
       <HeroSection />
       <TrustBar />
       <FeaturedArtworks />
-      <ArtGuardSection />
       <ArtistsSection />
       <WhySection />
       <JournalSection />

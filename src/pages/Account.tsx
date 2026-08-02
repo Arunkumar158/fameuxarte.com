@@ -15,6 +15,8 @@ import {
   Upload,
   User,
   X,
+  FileText,
+  Download,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -369,7 +371,11 @@ const Account = () => {
             quantity,
             price_at_purchase,
             artwork_id,
-            artworks:artworks (
+            fulfillment_status,
+            tracking_number,
+            tracking_url,
+            shipping_provider,
+            artworks (
               title,
               category
             )
@@ -378,6 +384,21 @@ const Account = () => {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const { data: userCertificates } = useQuery({
+    queryKey: ["user-certificates", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("certificates")
+        .select("id, artwork_id, certificate_number, file_path")
+        .eq("collector_id", user.id);
+      
       if (error) throw error;
       return data;
     },
@@ -618,7 +639,36 @@ const Account = () => {
                               <div key={item.id} className="flex justify-between gap-4 border-b border-b-border-faint pb-3">
                                 <div>
                                   <p className="font-medium text-linen">{item.artworks?.title || "Unknown Artwork"}</p>
-                                  <p className="text-[12px] text-stone">Quantity: {item.quantity}</p>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-[12px] text-stone">Quantity: {item.quantity}</span>
+                                    <span className="text-[12px] text-stone">•</span>
+                                    <span className="text-[12px] uppercase tracking-wider text-gold">{item.fulfillment_status || 'PENDING'}</span>
+                                  </div>
+                                  {(item.tracking_number || item.shipping_provider) && (
+                                    <p className="text-[11px] text-[#888] mt-1">
+                                      {item.shipping_provider} {item.tracking_number && `• ${item.tracking_number}`}
+                                      {item.tracking_url && <a href={item.tracking_url} target="_blank" rel="noreferrer" className="ml-2 text-gold hover:underline">Track</a>}
+                                    </p>
+                                  )}
+                                  
+                                  {userCertificates?.find(c => c.artwork_id === item.artwork_id) && (
+                                    <div className="mt-3 flex gap-2">
+                                      <Button 
+                                        asChild 
+                                        variant="outline" 
+                                        size="sm" 
+                                        className="h-7 text-[10px] border-gold/30 text-gold hover:bg-gold/10 hover:text-gold"
+                                      >
+                                        <a 
+                                          href={`https://yexjmqhffxukzomkblqj.supabase.co/storage/v1/object/public/certificates/${userCertificates.find(c => c.artwork_id === item.artwork_id)?.file_path}`} 
+                                          target="_blank" 
+                                          rel="noreferrer"
+                                        >
+                                          <FileText className="w-3 h-3 mr-1" /> Certificate
+                                        </a>
+                                      </Button>
+                                    </div>
+                                  )}
                                 </div>
                                 <p className="font-medium text-gold">{formatCurrency(Number(item.price_at_purchase))}</p>
                               </div>

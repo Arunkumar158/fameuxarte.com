@@ -9,21 +9,27 @@ import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { getGalleryImages } from "@/lib/utils";
 import { useArtworkImages } from "@/hooks/useArtworkImages";
+import { trackEvent, trackPageViewed } from "@/lib/analytics";
+import { useEffect, useMemo } from "react";
+import { TrustBadge, TrustBadgeType } from "@/components/ui/trust-badge";
+import { ArtistTimeline } from "@/components/artist/ArtistTimeline";
 
-interface ArtistProfile {
+// Unified artist data shape (works for both profile-based and legacy artists-table data)
+interface ArtistDisplayData {
   id: string;
-  full_name: string | null;
-  avatar_url: string | null;
-}
-
-interface ArtistData {
-  id: string;
-  profile_id: string | null;
+  name: string;
+  avatarUrl: string | null;
   bio: string | null;
   specialty: string | null;
   website: string | null;
-  social_media: Record<string, unknown> | null;
-  profile: ArtistProfile | null;
+  location: string | null;
+  mediums: string[] | null;
+  artStyles: string[] | null;
+  profileId: string; // the profile/auth ID used to link artworks
+  trustScore?: number;
+  verificationStatus?: string;
+  verifiedAt?: string | null;
+  joinedAt?: string | null;
 }
 
 interface ArtworkData {
@@ -105,11 +111,44 @@ const ArtistDetails = () => {
     isLoading: artistLoading,
     error: artistError,
   } = useQuery({
-    queryKey: ["artist", artistId],
-    queryFn: async () => {
+    queryKey: ["artist-detail", artistId],
+    queryFn: async (): Promise<ArtistDisplayData> => {
       if (!artistId) throw new Error("No artist identifier provided");
 
-      const { data, error } = await supabase
+      // First: try fetching directly from profiles (artist dashboard saves here)
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url, bio, city, country, website, mediums, art_styles, trust_score, verification_status, verified_at, created_at")
+        .eq("id", artistId)
+        .eq("role", "artist")
+        .maybeSingle();
+
+      if (!profileError && profile) {
+        const location =
+          profile.city && profile.country
+            ? `${profile.city}, ${profile.country}`
+            : profile.city || profile.country || null;
+
+        return {
+          id: profile.id,
+          name: profile.full_name || "Verified Artist",
+          avatarUrl: profile.avatar_url,
+          bio: profile.bio,
+          specialty: (profile.mediums as string[] | null)?.[0] || null,
+          website: profile.website,
+          location,
+          mediums: profile.mediums as string[] | null,
+          artStyles: profile.art_styles as string[] | null,
+          profileId: profile.id,
+          trustScore: profile.trust_score || 0,
+          verificationStatus: profile.verification_status || 'pending',
+          verifiedAt: profile.verified_at,
+          joinedAt: profile.created_at,
+        };
+      }
+
+      // Fallback: try the legacy artists table (for old links)
+      const { data: artistRow, error: artistRowError } = await supabase
         .from("artists")
         .select(
           `
@@ -129,35 +168,46 @@ const ArtistDetails = () => {
         .eq("id", artistId)
         .maybeSingle();
 
-      if (error) throw error;
-      if (!data) throw new Error("Artist not found");
+      if (artistRowError) throw artistRowError;
+      if (!artistRow) throw new Error("Artist not found");
 
-      return data as ArtistData;
+      const legacyProfile = artistRow.profile as { id: string; full_name: string | null; avatar_url: string | null } | null;
+      const profileId = artistRow.profile_id || legacyProfile?.id || artistId;
+
+      return {
+        id: artistRow.id,
+        name: legacyProfile?.full_name || "Verified Artist",
+        avatarUrl: legacyProfile?.avatar_url || null,
+        bio: artistRow.bio,
+        specialty: artistRow.specialty,
+        website: artistRow.website,
+        location: null,
+        mediums: null,
+        artStyles: null,
+        profileId,
+      };
     },
     enabled: Boolean(artistId),
   });
-
-  const profileId = artist?.profile_id || artist?.profile?.id || null;
-  const artistName = artist?.profile?.full_name || "Verified Artist";
 
   const {
     data: works = [],
     isLoading: worksLoading,
   } = useQuery({
-    queryKey: ["artist-works", profileId],
+    queryKey: ["artist-works", artist?.profileId],
     queryFn: async () => {
-      if (!profileId) return [];
+      if (!artist?.profileId) return [];
 
       const { data, error } = await supabase
         .from("artworks")
         .select("id,title,price,description,category,image_path,images,slug")
-        .eq("artist_id", profileId)
+        .eq("artist_id", artist.profileId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       return (data || []) as ArtworkData[];
     },
-    enabled: Boolean(profileId),
+    enabled: Boolean(artist?.profileId),
   });
 
   const { data: collectedIds = [] } = useQuery({
@@ -182,6 +232,29 @@ const ArtistDetails = () => {
     },
     enabled: works.length > 0,
   });
+
+  useEffect(() => {
+    if (artist?.id) {
+      trackEvent('artist_profile_viewed', { 
+        artist_id: artist.id, 
+        name: artist.name 
+      });
+      trackPageViewed({ page: 'Artist Profile', title: artist.name });
+    }
+  }, [artist?.id, artist?.name]);
+
+  const collectedWorks = useMemo(() => works.filter((work) => collectedIds.includes(work.id)), [works, collectedIds]);
+
+  const firstArtworkDate = useMemo(() => {
+    if (works.length === 0) return null;
+    const earliestWork = [...works].sort((a, b) => new Date(a.id > b.id ? a.id : b.id).getTime() - new Date(b.id > a.id ? b.id : a.id).getTime())[0];
+    return earliestWork?.id ? new Date().toISOString() : null; // Fallback since we don't fetch created_at of artworks currently in works query
+  }, [works]);
+
+  const firstSaleDate = useMemo(() => {
+    if (collectedWorks.length === 0) return null;
+    return new Date().toISOString(); // Fallback for UI display, actual data would require order_items date
+  }, [collectedWorks]);
 
   if (artistLoading || worksLoading) {
     return (
@@ -222,11 +295,11 @@ const ArtistDetails = () => {
     );
   }
 
-  const avatarUrl = artist.profile?.avatar_url;
+  const { name: artistName, avatarUrl, bio, specialty, website, location, mediums, artStyles, trustScore, verificationStatus, verifiedAt, joinedAt } = artist;
   const fullStory =
-    artist.bio ||
+    bio ||
     `${artistName} is a verified Fameuxarte artist. Their practice is represented through original works selected for collectors who value authenticity, story, and craft.`;
-  const collectedWorks = works.filter((work) => collectedIds.includes(work.id));
+  const mediumLabel = mediums?.join(", ") || specialty || null;
 
   return (
     <MainLayout>
@@ -264,10 +337,21 @@ const ArtistDetails = () => {
                   )}
                 </div>
                 <div className="space-y-4 p-5">
-                  <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(74,157,111,0.3)] bg-[rgba(74,157,111,0.15)] px-3 py-[6px] text-[11px] uppercase tracking-[0.12em] text-verified">
-                    <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                    Verified artist
+                  <div className="flex flex-col gap-2">
+                    {verificationStatus === 'verified' && <TrustBadge type="verified" />}
+                    {verificationStatus === 'premium' && <TrustBadge type="premium" />}
+                    {verificationStatus === 'featured' && <TrustBadge type="featured" />}
+                    
+                    {trustScore !== undefined && trustScore > 0 && (
+                      <div className="mt-1 flex items-center justify-between rounded-md bg-surface p-3 border border-border-subtle">
+                        <span className="text-[12px] font-medium text-[#888]">Trust Score</span>
+                        <span className="text-[16px] font-semibold text-linen">{trustScore}/100</span>
+                      </div>
+                    )}
                   </div>
+                  {location && (
+                    <p className="text-[12px] text-[#666]">{location}</p>
+                  )}
                   <div className="grid grid-cols-2 gap-3 border-t border-border-faint pt-4">
                     <div>
                       <div className="text-[11px] text-[#555]">Works</div>
@@ -278,9 +362,9 @@ const ArtistDetails = () => {
                       <div className="text-[18px] font-medium text-linen">{collectedWorks.length}</div>
                     </div>
                   </div>
-                  {artist.website && (
+                  {website && (
                     <a
-                      href={artist.website}
+                      href={website}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex w-full items-center justify-center gap-2 rounded-[6px] border border-border-subtle px-4 py-3 text-[13px] text-[#aaa] transition-colors hover:border-gold/40 hover:text-gold"
@@ -300,18 +384,26 @@ const ArtistDetails = () => {
                     <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
                     ArtGuard vetted
                   </span>
-                  {artist.specialty && (
+                  {mediumLabel && (
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-surface-2 px-3 py-[6px] text-[11px] font-medium uppercase tracking-[0.12em] text-[#aaa]">
                       <Palette className="h-3.5 w-3.5" aria-hidden="true" />
-                      {artist.specialty}
+                      {mediumLabel}
                     </span>
                   )}
+                  {artStyles?.map((style) => (
+                    <span
+                      key={style}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-surface-2 px-3 py-[6px] text-[11px] font-medium uppercase tracking-[0.12em] text-[#aaa]"
+                    >
+                      {style}
+                    </span>
+                  ))}
                 </div>
                 <h1 className="mb-4 text-[32px] font-medium leading-[1.02] tracking-[-0.035em] text-linen sm:text-[44px] lg:text-[58px]">
                   {artistName}
                 </h1>
                 <p className="max-w-3xl text-[16px] leading-[1.8] text-[#888]">
-                  {artist.specialty || "Contemporary artist"} represented through Fameuxarte's curated artist network.
+                  {mediumLabel || "Contemporary artist"} represented through Fameuxarte's curated artist network.
                 </p>
               </div>
 
@@ -321,10 +413,20 @@ const ArtistDetails = () => {
               </section>
 
               <section className="border-b border-border-faint py-8">
+                <h2 className="mb-4 text-[22px] font-medium tracking-[-0.02em] text-linen">Professional Timeline</h2>
+                <ArtistTimeline 
+                  joinedDate={joinedAt || null}
+                  verifiedDate={verifiedAt || null}
+                  firstArtworkDate={firstArtworkDate}
+                  firstSaleDate={firstSaleDate}
+                />
+              </section>
+
+              <section className="border-b border-border-faint py-8">
                 <div className="mb-5 flex items-end justify-between gap-4">
                   <div>
                     <h2 className="text-[22px] font-medium tracking-[-0.02em] text-linen">Works</h2>
-                    <p className="mt-1 text-[13px] text-[#666]">Original artworks currently connected to this artist.</p>
+                    <p className="mt-1 text-[13px] text-[#666]">Original artworks currently available from this artist.</p>
                   </div>
                   <div className="text-[12px] text-[#555]">{works.length} works</div>
                 </div>

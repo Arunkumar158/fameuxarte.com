@@ -104,6 +104,12 @@ serve(async (req: Request) => {
     const keyId = Deno.env.get('RAZORPAY_KEY_ID');
     const keySecret = Deno.env.get('RAZORPAY_KEY_SECRET');
 
+    // Get Auth Header
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      throw new Error("Unauthorized – Missing Authorization Header");
+    }
+
     console.log('Razorpay Configuration:', {
       key_id: keyId ? `${keyId.slice(0, 8)}...${keyId.slice(-4)}` : 'NOT SET',
       key_secret: keySecret ? `${keySecret.slice(0, 4)}...${keySecret.slice(-4)}` : 'NOT SET',
@@ -282,14 +288,26 @@ serve(async (req: Request) => {
       return validatedItem;
     });
 
-    // 🛑 Duplicate Purchase Protection
+    // 🛑 Duplicate Purchase Protection & User Auth
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    if (supabaseUrl && supabaseKey) {
-      const supabase = createClient(supabaseUrl, supabaseKey, {
-        auth: { persistSession: false },
-      });
+    
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error("Missing Supabase configuration");
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: { persistSession: false },
+    });
+
+    // Verify user token
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user }, error: userErr } = await supabase.auth.getUser(token);
+    if (userErr || !user) {
+      throw new Error("Unauthorized – Invalid Token: " + userErr?.message);
+    }
+    console.log("✅ User verified:", user.id);
 
       const artworkIds = validatedItems.map(item => item.artworkId);
       const { data: artworks, error: artworksError } = await supabase
@@ -318,9 +336,6 @@ serve(async (req: Request) => {
           );
         }
       }
-    } else {
-      console.warn("⚠️ Supabase credentials not found, skipping duplicate purchase protection check");
-    }
 
     // Initialize Razorpay client with LIVE credentials
     const razorpay = new Razorpay({
@@ -398,13 +413,53 @@ serve(async (req: Request) => {
       createdAt: new Date(order.created_at * 1000).toISOString()
     });
 
+    // 💾 Insert Order into Database
+    const { data: orderRecord, error: orderErr } = await supabase
+      .from('orders')
+      .insert({
+        user_id: user.id,
+        total_amount: totalAmount,
+        status: 'pending',
+        payment_status: 'pending',
+        razorpay_order_id: order.id
+      })
+      .select()
+      .single();
+      
+    if (orderErr || !orderRecord) {
+      console.error("❌ Failed to insert order:", orderErr);
+      throw new Error("Failed to initialize database order");
+    }
+
+    // 💾 Insert Order Items into Database
+    const orderItemsForDb = validatedItems.map(item => ({
+      order_id: orderRecord.id,
+      artwork_id: item.artworkId,
+      quantity: item.quantity,
+      price_at_purchase: item.price,
+      fulfillment_status: 'pending',
+      payout_status: 'pending'
+    }));
+
+    const { error: itemsErr } = await supabase
+      .from('order_items')
+      .insert(orderItemsForDb);
+
+    if (itemsErr) {
+      console.error("❌ Failed to insert order items:", itemsErr);
+      throw new Error("Failed to initialize database order items");
+    }
+    
+    console.log(`✅ Inserted order ${orderRecord.id} and ${orderItemsForDb.length} items`);
+
     // Prepare response with LIVE key_id
-    const response: OrderResponse = {
+    const response: OrderResponse & { order_id: string } = {
       razorpay_order_id: order.id,
       amount: order.amount, // Amount in paise (already from Razorpay)
       currency: order.currency || 'INR',
       receipt: order.receipt,
       key_id: keyId, // LIVE key_id for frontend
+      order_id: orderRecord.id, // Internal database ID
     };
 
     console.log('=== CREATE ORDER REQUEST SUCCESS ===');

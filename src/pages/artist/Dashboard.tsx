@@ -16,6 +16,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
+import { ArtistSuccessCoach } from "@/components/artist/dashboard/ArtistSuccessCoach";
+import { AIInsights } from "@/components/artist/dashboard/AIInsights";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -155,50 +157,17 @@ const Dashboard = () => {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Quick Actions & Profile Strength */}
+        {/* Success Coach & Insights */}
         <div className="space-y-6 lg:col-span-1">
-          <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-5">
-            <h3 className="mb-4 text-[14px] font-medium text-linen">Quick Actions</h3>
-            <div className="space-y-3">
-              <Button asChild className="w-full justify-start gap-3 bg-gold text-obsidian hover:bg-linen">
-                <Link to="/artist/artworks/new">
-                  <Plus className="h-4 w-4" />
-                  Upload Artwork
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full justify-start gap-3 border-border-subtle text-linen hover:bg-surface-3">
-                <Link to="/artist/portfolio">
-                  <Eye className="h-4 w-4 text-stone" />
-                  View Public Portfolio
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full justify-start gap-3 border-border-subtle text-linen hover:bg-surface-3">
-                <Link to="/artist/settings">
-                  <ImageIcon className="h-4 w-4 text-stone" />
-                  Edit Profile
-                </Link>
-              </Button>
-            </div>
+          <div className="h-[320px]">
+            <ArtistSuccessCoach 
+              profile={profile}
+              artworksCount={totalArtworks}
+              draftsCount={draftArtworks}
+            />
           </div>
-
-          <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-5">
-            <h3 className="mb-4 text-[14px] font-medium text-linen">Profile Strength</h3>
-            <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="text-stone">Completion</span>
-              <span className="font-medium text-linen">{profileCompletion}%</span>
-            </div>
-            <div className="mb-4 h-2 w-full overflow-hidden rounded-full bg-obsidian">
-              <div 
-                className="h-full bg-gold transition-all duration-500" 
-                style={{ width: `${profileCompletion}%` }}
-              />
-            </div>
-            {profileCompletion < 100 && (
-              <div className="flex items-start gap-3 rounded-[6px] bg-gold/5 p-3 text-[12px] text-stone">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-                <p>Complete your profile to increase trust and discoverability among collectors.</p>
-              </div>
-            )}
+          <div className="h-[280px]">
+            <AIInsights />
           </div>
         </div>
 
@@ -218,7 +187,7 @@ const Dashboard = () => {
                   <div className="h-16 w-16 shrink-0 overflow-hidden rounded-[6px] bg-surface-3">
                     {artwork.image_path ? (
                       <img 
-                        src={`https://yidpsnjtqofphtwibxdf.supabase.co/storage/v1/object/public/artworks/${artwork.image_path}`} 
+                        src={`https://oqslvwynlppuacdrhlxl.supabase.co/storage/v1/object/public/artworks/${artwork.image_path}`} 
                         alt={artwork.title} 
                         className="h-full w-full object-cover"
                       />

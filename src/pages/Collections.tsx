@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layouts/MainLayout";
@@ -6,6 +6,7 @@ import HomeNav from "@/components/home/HomeNav";
 import ArtworkCard from "@/components/shared/ArtworkCard";
 import { useArtworkImage } from "@/hooks/useArtworkImage";
 import { getGalleryImages } from "@/lib/utils";
+import { trackEvent, trackPageViewed } from "@/lib/analytics";
 import {
   ArrowLeft,
   ArrowRight,
@@ -186,6 +187,15 @@ const Collections = () => {
   const handleCategoryClick = (category: string) => {
     setSelectedCategory((prev) => (prev === category ? null : category));
   };
+
+  useEffect(() => {
+    if (selectedCategory) {
+      trackEvent('collection_viewed', { category: selectedCategory });
+      trackPageViewed({ page: 'Collection Details', title: selectedCategory });
+    } else {
+      trackPageViewed({ page: 'Collections Listing', title: 'Your Collections' });
+    }
+  }, [selectedCategory]);
 
   const totalCollections = categories.length;
   const totalWorks = categories.reduce((s, c) => s + c.count, 0);

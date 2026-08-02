@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/utils";
 import HomeNav from "@/components/home/HomeNav";
+import { trackEvent, trackPageViewed } from "@/lib/analytics";
 
 // Razorpay payment response interface
 interface RazorpayPaymentResponse {
@@ -74,6 +75,9 @@ const Checkout = () => {
 
   // Load Razorpay script on component mount
   useEffect(() => {
+    trackPageViewed({ page: 'Checkout', title: 'Checkout' });
+    trackEvent('checkout_started', { amount: totalAmount, items_count: items.length });
+    
     // Check if Razorpay is already loaded
     if (window.Razorpay) {
       console.log('✅ Razorpay script already loaded');

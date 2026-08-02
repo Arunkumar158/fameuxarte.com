@@ -27,6 +27,8 @@ export default function AdminDashboard() {
     todaysRevenue: 0,
     todaysOrders: 0,
     pendingOrders: 0,
+    pendingShipments: 0,
+    deliveredOrders: 0,
     failedPayments: 0, // Mocked for now since not tracked in orders usually unless status='failed'
     totalArtworks: 0,
     collectedArtworks: 0,
@@ -54,11 +56,21 @@ export default function AdminDashboard() {
         const todaysRevenue = todayOrders?.reduce((acc, order) => acc + (order.total_amount || 0), 0) || 0;
         const todaysOrdersCount = todayOrders?.length || 0;
 
-        // Pending orders
+        // Order item statuses
         const { count: pendingOrders } = await supabase
-          .from('orders')
+          .from('order_items')
           .select('*', { count: 'exact', head: true })
-          .eq('status', 'pending');
+          .eq('fulfillment_status', 'pending');
+          
+        const { count: pendingShipments } = await supabase
+          .from('order_items')
+          .select('*', { count: 'exact', head: true })
+          .in('fulfillment_status', ['accepted', 'preparing', 'packed']);
+
+        const { count: deliveredOrders } = await supabase
+          .from('order_items')
+          .select('*', { count: 'exact', head: true })
+          .eq('fulfillment_status', 'delivered');
 
         // Artworks
         const { count: totalArtworks } = await supabase
@@ -77,8 +89,9 @@ export default function AdminDashboard() {
 
         // Artists
         const { count: totalArtists } = await supabase
-          .from('artists')
-          .select('*', { count: 'exact', head: true });
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .eq('role', 'artist');
 
         // Insights
         const { count: publishedArticles } = await supabase
@@ -95,6 +108,8 @@ export default function AdminDashboard() {
           todaysRevenue,
           todaysOrders: todaysOrdersCount,
           pendingOrders: pendingOrders || 0,
+          pendingShipments: pendingShipments || 0,
+          deliveredOrders: deliveredOrders || 0,
           failedPayments: 0, // Placeholder
           totalArtworks: totalArtworks || 0,
           collectedArtworks: collectedArtworks || 0,
@@ -165,6 +180,26 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-white text-slate-900 bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-900">Pending Shipments</CardTitle>
+            <Clock className="h-4 w-4 text-orange-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-slate-900">{stats.pendingShipments}</div>
+            <p className="text-xs text-slate-900 mt-1">Awaiting artist fulfillment</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white text-slate-900 bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-900">Delivered Orders</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-slate-900">{stats.deliveredOrders}</div>
+          </CardContent>
+        </Card>
         <Card className="bg-white text-slate-900 bg-white border-slate-200 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-900">Total Artworks</CardTitle>

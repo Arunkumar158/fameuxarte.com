@@ -22,16 +22,16 @@ import { SEO } from "@/components/SEO";
 
 const NAV_ITEMS = [
   { name: "Dashboard", href: "/artist", icon: LayoutDashboard },
+  { name: "Analytics", href: "/artist/analytics", icon: BarChart },
   { name: "My Artworks", href: "/artist/artworks", icon: ImageIcon },
   { name: "Collections", href: "/artist/collections", icon: FolderOpen },
   { name: "Public Portfolio", href: "/artist/portfolio", icon: User },
+  { name: "Verification", href: "/artist/verification", icon: ShieldCheck },
+  { name: "Orders", href: "/artist/orders", icon: ShoppingBag },
   { name: "Settings", href: "/artist/settings", icon: Settings },
 ];
 
 const UPCOMING_MODULES = [
-  { name: "Orders", href: "/artist/orders", icon: ShoppingBag },
-  { name: "Analytics", href: "/artist/analytics", icon: BarChart },
-  { name: "Verification", href: "/artist/verification", icon: ShieldCheck },
   { name: "Subscription", href: "/artist/subscription", icon: CreditCard },
   { name: "Messages", href: "/artist/messages", icon: MessageSquare },
   { name: "Reviews", href: "/artist/reviews", icon: Star },
@@ -157,7 +157,7 @@ export const ArtistLayout = () => {
               <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-gold"></span>
             </button>
             <Link to="/" className="text-[12px] font-medium text-stone hover:text-linen hidden sm:block">
-              Marketplace
+              FA Marketplace
             </Link>
           </div>
         </header>

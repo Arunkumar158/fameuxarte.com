@@ -161,7 +161,7 @@ const ArtworksList = () => {
                         <div className="h-12 w-12 shrink-0 overflow-hidden rounded-[4px] bg-surface-3">
                           {artwork.image_path ? (
                             <img 
-                              src={`https://yidpsnjtqofphtwibxdf.supabase.co/storage/v1/object/public/artworks/${artwork.image_path}`} 
+                              src={`https://oqslvwynlppuacdrhlxl.supabase.co/storage/v1/object/public/artworks/${artwork.image_path}`} 
                               alt={artwork.title} 
                               className="h-full w-full object-cover"
                             />

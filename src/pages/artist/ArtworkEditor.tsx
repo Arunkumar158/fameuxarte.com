@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { generateSlug } from "@/lib/utils";
+import { ArtistAgreementModal } from "@/components/artist/ArtistAgreementModal";
 
 const ArtworkEditor = () => {
   const { id } = useParams();
@@ -27,6 +28,8 @@ const ArtworkEditor = () => {
 
   const [isLoading, setIsLoading] = useState(isEditMode);
   const [isSaving, setIsSaving] = useState(false);
+  const [showAgreementModal, setShowAgreementModal] = useState(false);
+  const [hasAcceptedAgreement, setHasAcceptedAgreement] = useState(false);
   
   // Form State
   const [title, setTitle] = useState("");
@@ -61,6 +64,15 @@ const ArtworkEditor = () => {
     setPreviews(urls);
     return () => urls.forEach(URL.revokeObjectURL);
   }, [selectedFiles]);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      const { data } = await supabase.from('profiles').select('agreement_accepted').eq('id', user.id).single();
+      if (data) setHasAcceptedAgreement(!!data.agreement_accepted);
+    };
+    fetchProfile();
+  }, [user]);
 
   useEffect(() => {
     const fetchArtwork = async () => {
@@ -162,6 +174,15 @@ const ArtworkEditor = () => {
       return;
     }
 
+    if (saveAsStatus === 'available' && !hasAcceptedAgreement) {
+      setShowAgreementModal(true);
+      return;
+    }
+
+    await performSave(saveAsStatus);
+  };
+
+  const performSave = async (saveAsStatus: string) => {
     setIsSaving(true);
     setUploadProgress(0);
 
@@ -240,6 +261,30 @@ const ArtworkEditor = () => {
     } finally {
       setIsSaving(false);
       setUploadProgress(0);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this artwork? This cannot be undone.")) return;
+    
+    setIsSaving(true);
+    try {
+      const { error } = await supabase.from("artworks").delete().eq("id", id);
+      if (error) throw error;
+      
+      toast({
+        title: "Artwork deleted",
+        description: "The artwork has been successfully removed.",
+      });
+      navigate("/artist/artworks");
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete artwork.",
+      });
+      setIsSaving(false);
     }
   };
 
@@ -364,7 +409,7 @@ const ArtworkEditor = () => {
                 {/* Existing Images */}
                 {existingImages.map((path, index) => (
                   <div key={path} className="group relative aspect-square overflow-hidden rounded-[4px] border border-border-subtle bg-surface-3">
-                    <img src={`https://yidpsnjtqofphtwibxdf.supabase.co/storage/v1/object/public/artworks/${path}`} alt="Existing" className="h-full w-full object-cover" />
+                    <img src={`https://oqslvwynlppuacdrhlxl.supabase.co/storage/v1/object/public/artworks/${path}`} alt="Existing" className="h-full w-full object-cover" />
                     {index === 0 && <div className="absolute inset-x-0 bottom-0 bg-gold px-1 py-0.5 text-center text-[8px] font-semibold uppercase tracking-[0.08em] text-obsidian">Primary</div>}
                     <button type="button" onClick={() => removeExistingImage(index)} disabled={isSaving} className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white opacity-0 transition-opacity hover:bg-destructive group-hover:opacity-100">
                       <X className="h-3 w-3" />
@@ -429,9 +474,28 @@ const ArtworkEditor = () => {
             >
               Save as Draft
             </Button>
+            {isEditMode && (
+              <Button
+                onClick={handleDelete}
+                disabled={isSaving}
+                variant="outline"
+                className="w-full border-red-900/50 text-red-500 hover:bg-red-900/20 hover:text-red-400"
+              >
+                Delete Artwork
+              </Button>
+            )}
           </div>
         </div>
       </div>
+      <ArtistAgreementModal 
+        open={showAgreementModal} 
+        onOpenChange={setShowAgreementModal} 
+        onAccept={() => {
+          setHasAcceptedAgreement(true);
+          setShowAgreementModal(false);
+          performSave('available');
+        }} 
+      />
     </div>
   );
 };

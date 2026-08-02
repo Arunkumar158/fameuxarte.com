@@ -45,12 +45,12 @@ const Footer = () => {
 
             <div className="mt-6 grid max-w-[330px] grid-cols-2 gap-x-6 gap-y-4 border-t border-border-faint pt-5">
               <div>
-                <div className="mb-[2px] text-[18px] font-medium tracking-[-0.02em] text-linen">1,200+</div>
-                <div className="text-[11px] text-[#555]">Verified works</div>
+                <div className="mb-[2px] text-[15px] font-medium tracking-[-0.02em] text-linen">AI Analysis</div>
+                <div className="text-[11px] text-[#555]">ArtGuard Protection</div>
               </div>
               <div>
-                <div className="mb-[2px] text-[18px] font-medium tracking-[-0.02em] text-verified">98%</div>
-                <div className="text-[11px] text-[#555]">Authenticity rate</div>
+                <div className="mb-[2px] text-[15px] font-medium tracking-[-0.02em] text-verified">Verified</div>
+                <div className="text-[11px] text-[#555]">Artist Identity</div>
               </div>
             </div>
           </div>

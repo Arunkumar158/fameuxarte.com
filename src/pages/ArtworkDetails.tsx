@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
 import { generateProductStructuredData } from "@/lib/seo";
 import { getGalleryImages } from "@/lib/utils";
+import { trackEvent, trackPageViewed } from "@/lib/analytics";
 
 interface ArtworkData {
   id: string;
@@ -196,7 +197,15 @@ const ArtworkDetails = () => {
 
   useEffect(() => {
     setSelectedIndex(0);
-  }, [artwork?.id]);
+    if (artwork?.id) {
+      trackEvent('artwork_viewed', { 
+        artwork_id: artwork.id, 
+        title: artwork.title,
+        artist_id: artwork.artist?.full_name // Using full_name as id proxy if real id is not in the schema
+      });
+      trackPageViewed({ page: 'Artwork Details', title: artwork.title });
+    }
+  }, [artwork?.id, artwork?.title, artwork?.artist?.full_name]);
 
   const goNext = useCallback(() => {
     setSelectedIndex((index) => (index + 1) % imageUrls.length);
@@ -280,7 +289,15 @@ const ArtworkDetails = () => {
     sku: artwork.id,
   });
 
-  const handleAddToCart = () => addToCart(artwork.id).catch(console.error);
+  const handleAddToCart = () => {
+    addToCart(artwork.id).catch(console.error);
+    trackEvent('add_to_cart', { 
+      artwork_id: artwork.id, 
+      title: artwork.title,
+      price: artwork.price
+    });
+  };
+  
   const handleToggleLike = () => toggleLike(artwork.id).catch(console.error);
 
   return (

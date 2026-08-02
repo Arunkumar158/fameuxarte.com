@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { X, ShoppingCart, Heart, User, LogOut, Artboard } from "lucide-react";
+import { X, ShoppingCart, Heart, User, LogOut, Palette } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useLikedItems } from "@/hooks/useLikedItems";
@@ -167,8 +167,30 @@ const MobileMenu = ({ onClose }: MobileMenuProps) => {
                 className="flex h-12 w-full items-center gap-3 rounded-[8px] border border-border-subtle bg-surface-2 px-4 text-[13px] text-[#aaa] transition-colors hover:border-gold/30 hover:text-gold"
               >
                 <User className="h-4 w-4" aria-hidden="true" />
-                Profile
+                Collector Profile
               </Link>
+
+              {/* Artist Dashboard */}
+              <Link
+                to="/artist"
+                onClick={onClose}
+                className="flex h-12 w-full items-center gap-3 rounded-[8px] border border-border-subtle bg-surface-2 px-4 text-[13px] text-[#aaa] transition-colors hover:border-gold/30 hover:text-gold"
+              >
+                <Palette className="h-4 w-4" aria-hidden="true" />
+                Artist Dashboard
+              </Link>
+
+              {/* Admin Dashboard */}
+              {user.user_metadata?.role === 'admin' && (
+                <Link
+                  to="/admin"
+                  onClick={onClose}
+                  className="flex h-12 w-full items-center gap-3 rounded-[8px] border border-border-subtle bg-surface-2 px-4 text-[13px] text-[#aaa] transition-colors hover:border-gold/30 hover:text-gold"
+                >
+                  <User className="h-4 w-4" aria-hidden="true" />
+                  Admin Dashboard
+                </Link>
+              )}
 
               {/* Currency selector */}
               <div className="flex items-center justify-between rounded-[8px] border border-border-subtle bg-surface-2 px-4 py-2">

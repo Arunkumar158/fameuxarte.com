@@ -38,14 +38,33 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CancellationsAndRefunds from "./pages/CancellationsAndRefunds";
 import ForArtists from "./pages/ForArtists";
+import CertificateVerify from "./pages/CertificateVerify";
+import { Navigate } from "react-router-dom";
+import React, { Suspense } from "react";
+import { Loader2 } from "lucide-react";
+
+// Collector Imports
+import { CollectorRoute } from "./components/collector/CollectorRoute";
+import { CollectorLayout } from "./components/collector/CollectorLayout";
+const CollectorDashboard = React.lazy(() => import("./pages/collector/Dashboard"));
+const CollectorCollection = React.lazy(() => import("./pages/collector/Collection"));
+const CollectorWishlist = React.lazy(() => import("./pages/collector/Wishlist"));
+const CollectorOrders = React.lazy(() => import("./pages/collector/Orders"));
+const CollectorCertificates = React.lazy(() => import("./pages/collector/Certificates"));
+const CollectorFollowing = React.lazy(() => import("./pages/collector/Following"));
+const CollectorSavedCollections = React.lazy(() => import("./pages/collector/SavedCollections"));
+const CollectorNotifications = React.lazy(() => import("./pages/collector/Notifications"));
+const CollectorAddresses = React.lazy(() => import("./pages/collector/Addresses"));
+const CollectorSettings = React.lazy(() => import("./pages/collector/Settings"));
 
 // Admin Imports
 import { AdminRoute } from "./components/admin/AdminRoute";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import OrdersAdmin from "./pages/admin/Orders";
-import ArtistsAdmin from "./pages/admin/Artists";
 import ArtworksAdmin from "./pages/admin/Artworks";
+import ArtistsAdmin from "./pages/admin/Artists";
+import VerificationManagement from "./pages/admin/VerificationManagement";
 import CollectionsAdmin from "./pages/admin/Collections";
 import SEOAdmin from "./pages/admin/SEO";
 import AnalyticsAdmin from "./pages/admin/Analytics";
@@ -63,6 +82,10 @@ import ArtistCollectionsList from "./pages/artist/CollectionsList";
 import CollectionEditor from "./pages/artist/CollectionEditor";
 import ArtistPortfolioPreview from "./pages/artist/PortfolioPreview";
 import ArtistSettings from "./pages/artist/Settings";
+import ArtistAnalytics from "./pages/artist/Analytics";
+import ArtistOrdersList from "./pages/artist/OrdersList";
+import ArtistOrderDetails from "./pages/artist/OrderDetails";
+import ArtistVerificationCenter from "./pages/artist/VerificationCenter";
 
 const queryClient = new QueryClient();
 const organizationStructuredData = generateOrganizationStructuredData();
@@ -100,8 +123,9 @@ const AnimatedRoutes = () => {
           <Route path="/liked-items" element={<LikedItems />} />
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/profile" element={<Account />} />
+          <Route path="/verify/:certificateNumber" element={<CertificateVerify />} />
+          <Route path="/account" element={<Navigate to="/collector" replace />} />
+          <Route path="/profile" element={<Navigate to="/collector" replace />} />
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/faq" element={<FAQ />} />
@@ -114,8 +138,9 @@ const AnimatedRoutes = () => {
           <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
             <Route index element={<AdminDashboard />} />
             <Route path="orders" element={<OrdersAdmin />} />
-            <Route path="artists" element={<ArtistsAdmin />} />
             <Route path="artworks" element={<ArtworksAdmin />} />
+            <Route path="artists" element={<ArtistsAdmin />} />
+            <Route path="verification" element={<VerificationManagement />} />
             <Route path="collections" element={<CollectionsAdmin />} />
             <Route path="seo" element={<SEOAdmin />} />
             <Route path="analytics" element={<AnalyticsAdmin />} />
@@ -124,9 +149,24 @@ const AnimatedRoutes = () => {
             <Route path="insights/:id" element={<InsightsEditor />} />
           </Route>
 
+          {/* Collector Routes */}
+          <Route path="/collector" element={<CollectorRoute><CollectorLayout /></CollectorRoute>}>
+            <Route index element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorDashboard /></Suspense>} />
+            <Route path="collection" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorCollection /></Suspense>} />
+            <Route path="wishlist" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorWishlist /></Suspense>} />
+            <Route path="orders" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorOrders /></Suspense>} />
+            <Route path="certificates" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorCertificates /></Suspense>} />
+            <Route path="following" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorFollowing /></Suspense>} />
+            <Route path="saved-collections" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorSavedCollections /></Suspense>} />
+            <Route path="notifications" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorNotifications /></Suspense>} />
+            <Route path="addresses" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorAddresses /></Suspense>} />
+            <Route path="settings" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorSettings /></Suspense>} />
+          </Route>
+
           {/* Artist Routes */}
           <Route path="/artist" element={<ArtistRoute><ArtistLayout /></ArtistRoute>}>
             <Route index element={<ArtistDashboard />} />
+            <Route path="analytics" element={<ArtistAnalytics />} />
             <Route path="artworks" element={<ArtistArtworksList />} />
             <Route path="artworks/new" element={<ArtworkEditor />} />
             <Route path="artworks/:id/edit" element={<ArtworkEditor />} />
@@ -135,6 +175,9 @@ const AnimatedRoutes = () => {
             <Route path="collections/:id/edit" element={<CollectionEditor />} />
             <Route path="portfolio" element={<ArtistPortfolioPreview />} />
             <Route path="settings" element={<ArtistSettings />} />
+            <Route path="verification" element={<ArtistVerificationCenter />} />
+            <Route path="orders" element={<ArtistOrdersList />} />
+            <Route path="orders/:id" element={<ArtistOrderDetails />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

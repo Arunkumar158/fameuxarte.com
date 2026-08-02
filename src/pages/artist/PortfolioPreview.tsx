@@ -89,7 +89,7 @@ const PortfolioPreview = () => {
       <div className="relative h-[30vh] sm:h-[45vh] w-full bg-surface-2 overflow-hidden">
         {profile?.cover_image ? (
           <img 
-            src={`https://yidpsnjtqofphtwibxdf.supabase.co/storage/v1/object/public/artworks/${profile.cover_image}`} 
+            src={`https://oqslvwynlppuacdrhlxl.supabase.co/storage/v1/object/public/artworks/${profile.cover_image}`} 
             alt="Cover" 
             className="h-full w-full object-cover" 
           />
@@ -189,7 +189,7 @@ const PortfolioPreview = () => {
                       <div className="relative overflow-hidden bg-surface-2 rounded-[4px]">
                         {artwork.image_path ? (
                           <img 
-                            src={`https://yidpsnjtqofphtwibxdf.supabase.co/storage/v1/object/public/artworks/${artwork.image_path}`} 
+                            src={`https://oqslvwynlppuacdrhlxl.supabase.co/storage/v1/object/public/artworks/${artwork.image_path}`} 
                             alt={artwork.title}
                             className="w-full object-cover transition-transform duration-700 group-hover:scale-105"
                           />
@@ -233,7 +233,7 @@ const PortfolioPreview = () => {
                       <div className="relative aspect-[16/9] overflow-hidden rounded-[4px] bg-surface-2 mb-4">
                         {collection.cover_image ? (
                           <img 
-                            src={`https://yidpsnjtqofphtwibxdf.supabase.co/storage/v1/object/public/artworks/${collection.cover_image}`} 
+                            src={`https://oqslvwynlppuacdrhlxl.supabase.co/storage/v1/object/public/artworks/${collection.cover_image}`} 
                             alt={collection.title}
                             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                           />

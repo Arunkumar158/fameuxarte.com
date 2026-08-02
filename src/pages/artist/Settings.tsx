@@ -142,10 +142,10 @@ const Settings = () => {
       if (avatarFile) {
         const ext = avatarFile.name.split(".").pop();
         const path = `${user.id}/avatar_${Date.now()}.${ext}`;
-        const { error } = await supabase.storage.from("avatars").upload(path, avatarFile, { upsert: true });
+        const { error } = await supabase.storage.from("artworks").upload(path, avatarFile, { upsert: true });
         if (error) throw error;
         
-        const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+        const { data } = supabase.storage.from("artworks").getPublicUrl(path);
         finalAvatarUrl = data.publicUrl;
       }
 
@@ -224,7 +224,7 @@ const Settings = () => {
           <div className="relative h-48 w-full bg-surface-3">
             {(coverPreview || coverImage) ? (
               <img 
-                src={coverPreview || `https://yidpsnjtqofphtwibxdf.supabase.co/storage/v1/object/public/artworks/${coverImage}`} 
+                src={coverPreview || `https://oqslvwynlppuacdrhlxl.supabase.co/storage/v1/object/public/artworks/${coverImage}`} 
                 alt="Cover" 
                 className="h-full w-full object-cover" 
               />

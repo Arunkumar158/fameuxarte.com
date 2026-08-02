@@ -26,8 +26,8 @@ const ArtistsHeader = ({ totalArtists = 340, verifiedCount = 340 }: ArtistsHeade
             <div className="text-[11px] text-[#555]">ArtGuard verified</div>
           </div>
           <div>
-            <div className="mb-[2px] text-[20px] font-medium tracking-[-0.02em] text-linen">1,200+</div>
-            <div className="text-[11px] text-[#555]">Artworks available</div>
+            <div className="mb-[2px] text-[20px] font-medium tracking-[-0.02em] text-linen">100%</div>
+            <div className="text-[11px] text-[#555]">Original art</div>
           </div>
         </div>
       </div>

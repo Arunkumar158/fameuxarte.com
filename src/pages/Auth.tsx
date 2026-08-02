@@ -163,7 +163,7 @@ const Auth = () => {
         <p className="text-[11px] text-[#555]">
           {isLogin
             ? "Secured by ArtGuard - Your data is encrypted"
-            : "ArtGuard verified platform - Trusted by 12,000+ collectors"}
+            : "ArtGuard™ verified platform - Built for authentic art & verified artists"}
         </p>
       </div>
     </AuthLayout>

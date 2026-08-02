@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Heart, LogOut, ShoppingCart, User, Menu } from "lucide-react";
+import { Heart, LogOut, ShoppingCart, User, Menu, Palette } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useLikedItems } from "@/hooks/useLikedItems";
@@ -99,13 +99,21 @@ const HomeNav = () => {
                   </span>
                 )}
               </Link>
-              {/* Profile & logout only visible on desktop */}
+              {/* Profile, Artist Dashboard & logout only visible on desktop */}
               <Link
                 to="/profile"
                 aria-label="Profile"
                 className="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
               >
                 <User className="h-4 w-4" aria-hidden="true" />
+              </Link>
+              <Link
+                to="/artist"
+                aria-label="Artist Dashboard"
+                title="Artist Dashboard"
+                className="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
+              >
+                <Palette className="h-4 w-4" aria-hidden="true" />
               </Link>
               <button
                 type="button"

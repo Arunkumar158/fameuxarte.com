@@ -153,6 +153,30 @@ const CollectionEditor = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this collection? Artworks will remain but lose this collection association.")) return;
+    
+    setIsSaving(true);
+    try {
+      const { error } = await supabase.from("artist_collections").delete().eq("id", id);
+      if (error) throw error;
+      
+      toast({
+        title: "Collection deleted",
+        description: "The collection has been successfully removed.",
+      });
+      navigate("/artist/collections");
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete collection.",
+      });
+      setIsSaving(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -202,7 +226,7 @@ const CollectionEditor = () => {
             <div className="relative aspect-[16/9] w-full max-w-[320px] shrink-0 overflow-hidden rounded-[8px] border border-border-subtle bg-surface-3">
               {(preview || existingImage) ? (
                 <img 
-                  src={preview || `https://yidpsnjtqofphtwibxdf.supabase.co/storage/v1/object/public/artworks/${existingImage}`} 
+                  src={preview || `https://oqslvwynlppuacdrhlxl.supabase.co/storage/v1/object/public/artworks/${existingImage}`} 
                   alt="Cover" 
                   className="h-full w-full object-cover" 
                 />
@@ -232,23 +256,35 @@ const CollectionEditor = () => {
           </div>
         </section>
 
-        <div className="flex justify-end gap-3 pt-4">
-          <Button 
-            asChild
-            variant="outline" 
-            className="border-border-subtle text-stone hover:bg-surface-3 hover:text-linen"
-            disabled={isSaving}
-          >
-             <Link to="/artist/collections">Cancel</Link>
-          </Button>
-          <Button 
-            onClick={handleSave} 
-            disabled={isSaving || !title.trim()} 
-            className="bg-gold text-obsidian hover:bg-linen"
-          >
-            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            {isEditMode ? "Save Changes" : "Create Collection"}
-          </Button>
+        <div className="flex items-center pt-4">
+          {isEditMode && (
+            <Button
+              variant="outline"
+              onClick={handleDelete}
+              disabled={isSaving}
+              className="mr-auto border-red-900/50 text-red-500 hover:bg-red-900/20 hover:text-red-400"
+            >
+              Delete Collection
+            </Button>
+          )}
+          <div className="flex justify-end gap-3 ml-auto">
+            <Button 
+              asChild
+              variant="outline" 
+              className="border-border-subtle text-stone hover:bg-surface-3 hover:text-linen"
+              disabled={isSaving}
+            >
+               <Link to="/artist/collections">Cancel</Link>
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              disabled={isSaving || !title.trim()} 
+              className="bg-gold text-obsidian hover:bg-linen"
+            >
+              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              {isEditMode ? "Save Changes" : "Create Collection"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

@@ -45,30 +45,30 @@ const DefaultVisual = () => (
     <div className="max-w-xl">
       <div className="mb-8">
         <span className="inline-block text-[10px] tracking-[0.14em] uppercase text-verified bg-verified/10 border border-verified/20 px-3 py-1 rounded-full mb-6">
-          ArtGuard Verified Platform
+          ArtGuard™ Verified Platform
         </span>
       </div>
 
       <h2 className="text-[32px] font-medium text-linen tracking-[-0.025em] leading-[1.2] mb-4">
-        Join 12,000+ collectors who trust Fameuxarte
+        Trust Infrastructure for the Future of Art
       </h2>
 
       <p className="text-[15px] text-[#888] leading-[1.75] mb-8">
-        Every artwork authenticated. Every artist verified. Start building your collection with confidence.
+        ArtGuard™ combines AI-powered artwork analysis, artist verification, and provenance tracking to ensure original human creativity is protected.
       </p>
 
-      <div className="flex gap-12 pt-6 border-t border-border-faint">
+      <div className="grid grid-cols-3 gap-6 pt-6 border-t border-border-faint">
         <div>
-          <div className="text-[24px] font-medium text-linen tracking-[-0.02em] mb-1">98%</div>
-          <div className="text-[12px] text-[#555]">Authenticity rate</div>
+          <div className="text-[14px] font-medium text-linen tracking-[-0.01em] mb-1">AI Analysis</div>
+          <div className="text-[11px] text-[#666]">Artwork authenticity check</div>
         </div>
         <div>
-          <div className="text-[24px] font-medium text-linen tracking-[-0.02em] mb-1">1,200+</div>
-          <div className="text-[12px] text-[#555]">Verified artworks</div>
+          <div className="text-[14px] font-medium text-linen tracking-[-0.01em] mb-1">Artist Review</div>
+          <div className="text-[11px] text-[#666]">Vetted identity & portfolio</div>
         </div>
         <div>
-          <div className="text-[24px] font-medium text-linen tracking-[-0.02em] mb-1">340</div>
-          <div className="text-[12px] text-[#555]">Artists</div>
+          <div className="text-[14px] font-medium text-linen tracking-[-0.01em] mb-1">Provenance</div>
+          <div className="text-[11px] text-[#666]">Transparent lineage</div>
         </div>
       </div>
     </div>

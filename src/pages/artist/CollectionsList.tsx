@@ -35,7 +35,7 @@ const CollectionsList = () => {
         .from("artist_collections")
         .select(`
           *,
-          artworks:artworks(count)
+          artworks(count)
         `)
         .eq("artist_id", user.id)
         .order("created_at", { ascending: false });
@@ -111,7 +111,7 @@ const CollectionsList = () => {
                 <div className="aspect-[16/9] w-full overflow-hidden bg-surface-3 relative">
                   {collection.cover_image ? (
                      <img 
-                       src={`https://yidpsnjtqofphtwibxdf.supabase.co/storage/v1/object/public/artworks/${collection.cover_image}`} 
+                       src={`https://oqslvwynlppuacdrhlxl.supabase.co/storage/v1/object/public/artworks/${collection.cover_image}`} 
                        alt={collection.title} 
                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                      />
