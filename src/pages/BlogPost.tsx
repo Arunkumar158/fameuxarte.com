@@ -29,16 +29,7 @@ const BlogPost = () => {
       // 1. Try Insights Table (Single Source of Truth)
       const { data: insightData, error: insightError } = await supabase
         .from("insights")
-        .select(`
-          *,
-          profiles:author_id (
-            id,
-            full_name,
-            avatar_url,
-            role,
-            bio
-          )
-        `)
+        .select("*")
         .eq("slug", slug)
         .eq("status", "published")
         .maybeSingle();

@@ -42,13 +42,7 @@ const Blog = () => {
       // 1. Fetch from Insights (Single Source of Truth)
       const { data: insightsRows, error: insightsError, count: insightsCount } = await supabase
         .from("insights")
-        .select(`
-          *,
-          profiles:author_id (
-            full_name,
-            avatar_url
-          )
-        `, { count: "exact" })
+        .select("*", { count: "exact" })
         .eq("status", "published")
         .order("published_at", { ascending: false })
         .range(from, to);

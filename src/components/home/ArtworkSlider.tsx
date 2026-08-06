@@ -89,7 +89,8 @@ const ArtworkSlider = () => {
             full_name
           )
         `)
-        .not("category", "eq", "Uncategorized")
+        .eq("status", "available")
+        .or("category.is.null,category.neq.Uncategorized")
         .order("created_at", { ascending: false })
         .limit(12);
       

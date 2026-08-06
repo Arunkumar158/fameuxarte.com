@@ -110,12 +110,13 @@ export default function InsightsEditor() {
     setFormData(prev => ({ ...prev, slug }));
   };
 
-  const handleSave = async () => {
+  const handleSave = async (saveAsStatus?: string) => {
     setIsSaving(true);
     
     const tagsArray = formData.tags.split(',').map(t => t.trim()).filter(Boolean);
     const keywordsArray = formData.keywords.split(',').map(k => k.trim()).filter(Boolean);
     const contentHtml = editor?.getHTML() || "";
+    const finalStatus = saveAsStatus || formData.status;
 
     const payload = {
       title: formData.title,
@@ -125,7 +126,7 @@ export default function InsightsEditor() {
       featured_image: formData.featured_image,
       category: formData.category,
       tags: tagsArray,
-      status: formData.status,
+      status: finalStatus,
       meta_title: formData.meta_title,
       meta_description: formData.meta_description,
       canonical_url: formData.canonical_url,
@@ -133,7 +134,7 @@ export default function InsightsEditor() {
       og_image: formData.og_image,
       schema_type: formData.schema_type,
       author_id: user?.id,
-      published_at: formData.status === 'published' ? new Date().toISOString() : null,
+      published_at: finalStatus === 'published' ? new Date().toISOString() : null,
       updated_at: new Date().toISOString()
     };
 
@@ -173,9 +174,13 @@ export default function InsightsEditor() {
           <Button variant="outline" disabled className="bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-100 text-indigo-700">
             <Sparkles className="w-4 h-4 mr-2" /> Generate with AI (Soon)
           </Button>
-          <Button onClick={handleSave} disabled={isSaving}>
+          <Button onClick={() => handleSave('draft')} disabled={isSaving} variant="outline" className="border-slate-200 text-slate-700">
+            {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+            Save Draft
+          </Button>
+          <Button onClick={() => handleSave('published')} disabled={isSaving}>
             {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            {isNew ? 'Publish' : 'Save Changes'}
+            Publish
           </Button>
         </div>
       </div>
@@ -271,19 +276,6 @@ export default function InsightsEditor() {
         
         {/* Sidebar */}
         <div className="space-y-6">
-          <div className="bg-white p-6 rounded-lg border shadow-sm space-y-4">
-            <h3 className="font-semibold border-b pb-2 text-slate-900">Publishing</h3>
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <Select className="bg-white text-slate-900 border-slate-200" value={formData.status} onValueChange={(v) => handleSelectChange('status', v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="published">Published</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
 
           <div className="bg-white p-6 rounded-lg border shadow-sm space-y-4">
             <h3 className="font-semibold border-b pb-2 text-slate-900">Categorization</h3>

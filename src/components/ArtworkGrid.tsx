@@ -80,7 +80,8 @@ export const useArtworks = (limit?: number) => {
               full_name
             )
           `, { count: "exact" })
-          .not("category", "eq", "Uncategorized")
+          .eq("status", "available")
+          .or("category.is.null,category.neq.Uncategorized")
           .order("created_at", { ascending: false })
           .range(from, to);
         
