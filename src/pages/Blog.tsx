@@ -39,35 +39,10 @@ const Blog = () => {
       const from = (page - 1) * BLOGS_PER_PAGE;
       const to = from + BLOGS_PER_PAGE - 1;
 
-      // 1. Fetch from Insights (Single Source of Truth)
-      const { data: insightsRows, error: insightsError, count: insightsCount } = await supabase
-        .from("insights")
-        .select("*", { count: "exact" })
-        .eq("status", "published")
-        .order("published_at", { ascending: false })
-        .range(from, to);
+      // NOTE: insights table query removed — table does not exist in this Supabase instance.
+      // To re-enable, create the insights table via migration and uncomment the insights block.
 
-      if (insightsCount && insightsCount > 0) {
-        const posts: BlogPost[] = (insightsRows || []).map(row => ({
-          id: row.id,
-          title: row.title || "",
-          slug: row.slug || row.id,
-          category: row.category || "Art Market",
-          excerpt: row.excerpt || stripHtml(row.content || "").substring(0, 160) + "...",
-          content: row.content || "",
-          featured_image: row.featured_image || null,
-          author: {
-            name: row.profiles?.full_name || "Fameuxarte Team",
-            avatar: row.profiles?.avatar_url || null,
-          },
-          published_at: row.published_at || row.created_at || new Date().toISOString(),
-          read_time: getReadTime(row.content || ""),
-        }));
-        
-        return { posts, totalCount: insightsCount };
-      }
-
-      // 2. Fallback to Legacy Blogs if no insights are published
+      // Query blogs table directly
       const { data: blogsRows, error: blogsError, count: blogsCount } = await supabase
         .from("blogs")
         .select(`

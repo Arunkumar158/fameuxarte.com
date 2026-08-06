@@ -69,26 +69,34 @@ export function useKnowledgeGraph(
   });
 
   const { data: insights = [], isLoading: isLoadingInsights } = useQuery({
-    queryKey: ["kg-insights", insightId, searchTerms],
+    queryKey: ["kg-related-blogs", insightId, searchTerms],
     queryFn: async () => {
       if (!searchTerms.length) return [];
       
       let query = supabase
-        .from("insights")
-        .select("id, title, slug, featured_image, excerpt, published_at, category")
-        .eq("status", "published")
+        .from("blogs")
+        .select("id, title, Slug, image_url, content, published_at, category")
+        .order("published_at", { ascending: false })
         .limit(3);
         
+      // Exclude the current article
       if (insightId) {
         query = query.neq("id", insightId);
       }
       
       const { data, error } = await query;
-      if (error) {
-        console.error("Error fetching related insights:", error);
-        return [];
-      }
-      return data || [];
+      if (error) return [];
+
+      // Normalize to the shape DiscoveryHub expects
+      return (data || []).map((row: any) => ({
+        id: row.id,
+        title: row.title || "",
+        slug: row.Slug || row.id,
+        featured_image: row.image_url || null,
+        excerpt: row.content?.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().substring(0, 120) + "..." || "",
+        published_at: row.published_at,
+        category: row.category || "Art Intelligence",
+      }));
     },
     enabled: searchTerms.length > 0,
     staleTime: 1000 * 60 * 5,

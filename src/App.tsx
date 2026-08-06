@@ -39,9 +39,15 @@ import TermsOfService from "./pages/TermsOfService";
 import CancellationsAndRefunds from "./pages/CancellationsAndRefunds";
 import ForArtists from "./pages/ForArtists";
 import CertificateVerify from "./pages/CertificateVerify";
-import { Navigate } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import React, { Suspense } from "react";
 import { Loader2 } from "lucide-react";
+
+// Redirect bare-slug URLs (Google-indexed without /blog/ prefix) → /blog/:slug
+const BlogSlugRedirect = () => {
+  const { slug } = useParams<{ slug: string }>();
+  return <Navigate to={`/blog/${slug}`} replace />;
+};
 
 // Discovery Pages
 import CollectionPage from "./pages/discovery/CollectionPage";
@@ -136,8 +142,12 @@ const AnimatedRoutes = () => {
           <Route path="/discover/*" element={<ProgrammaticDiscoveryPage />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
+          {/* Handle double-slash /blog// URLs */}
+          <Route path="/blog//:slug" element={<BlogPost />} />
           <Route path="/insights" element={<Blog />} />
           <Route path="/insights/:slug" element={<BlogPost />} />
+          {/* Redirect root-level slugs (old Google-indexed URLs) → /blog/:slug */}
+          <Route path="/:slug" element={<BlogSlugRedirect />} />
           <Route path="/liked-items" element={<LikedItems />} />
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />

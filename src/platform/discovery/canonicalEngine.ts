@@ -11,7 +11,7 @@ export interface CanonicalOptions {
 }
 
 export class CanonicalEngine {
-  private static DEFAULT_BASE_URL = 'https://gallery-canvas-commerce.vercel.app';
+  private static DEFAULT_BASE_URL = 'https://fameuxarte.com';
 
   /**
    * Generates a clean canonical URL for any route path

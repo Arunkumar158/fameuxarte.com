@@ -22,40 +22,18 @@ const getReadTime = (content: string) => Math.max(4, Math.ceil(stripHtml(content
 const BlogPost = () => {
   const { slug } = useParams();
 
-  // Fetch article with fallback to legacy blogs table
+  // Fetch article from blogs table (insights table not yet created in this Supabase instance)
   const { data: post, isLoading } = useQuery({
     queryKey: ["blog-post-unified", slug],
     queryFn: async () => {
-      // 1. Try Insights Table (Single Source of Truth)
-      const { data: insightData, error: insightError } = await supabase
-        .from("insights")
-        .select("*")
-        .eq("slug", slug)
-        .eq("status", "published")
-        .maybeSingle();
+      // NOTE: insights table query removed — table does not exist in this Supabase instance.
+      // To re-enable, create the insights table via migration and add insights lookup here.
 
-      if (insightData) {
-        return {
-          source: "insights",
-          id: insightData.id,
-          title: insightData.title || "",
-          slug: insightData.slug || "",
-          category: insightData.category || "Art Market",
-          excerpt: insightData.excerpt || "",
-          content: insightData.content || "",
-          featured_image: insightData.featured_image || insightData.og_image,
-          published_at: insightData.published_at || insightData.created_at,
-          author: insightData.profiles || { full_name: "Fameuxarte Team" },
-          tags: insightData.tags || [],
-          keywords: insightData.keywords || [],
-          meta_title: insightData.meta_title || insightData.title,
-          meta_description: insightData.meta_description || insightData.excerpt,
-          canonical_url: insightData.canonical_url || `/blog/${insightData.slug}`,
-        };
-      }
+      // Query blogs table (try capital-S 'Slug' column first, then lowercase)
+      const cleanSlug = (slug || "").replace(/\/+$/, ""); // strip any trailing slashes
 
-      // 2. Fallback to Legacy Blogs Table
-      const { data: blogData } = await supabase
+      let blogData: any = null;
+      const { data: blogByCapSlug } = await supabase
         .from("blogs")
         .select(`
           *,
@@ -67,17 +45,39 @@ const BlogPost = () => {
             bio
           )
         `)
-        .eq("Slug", slug)
+        .eq("Slug", cleanSlug)
         .maybeSingle();
 
+      blogData = blogByCapSlug;
+
+      // If not found with capital-S, try lowercase 'slug' column
+      if (!blogData) {
+        const { data: blogBySlug } = await supabase
+          .from("blogs")
+          .select(`
+            *,
+            profiles:author_id (
+              id,
+              full_name,
+              avatar_url,
+              role,
+              bio
+            )
+          `)
+          .eq("slug", cleanSlug)
+          .maybeSingle();
+        blogData = blogBySlug;
+      }
+
       if (blogData) {
+        const slugValue = blogData.Slug || blogData.slug || cleanSlug;
         const excerpt = stripHtml(blogData.content || "").substring(0, 160) + "...";
         return {
           source: "blogs",
           id: blogData.id,
           title: blogData.title,
-          slug: blogData.Slug,
-          category: "Art Intelligence", // default for legacy
+          slug: slugValue,
+          category: "Art Intelligence",
           excerpt: excerpt,
           content: blogData.content || "",
           featured_image: blogData.image_url,
@@ -87,7 +87,7 @@ const BlogPost = () => {
           keywords: [],
           meta_title: blogData.title,
           meta_description: excerpt,
-          canonical_url: `/blog/${blogData.Slug}`,
+          canonical_url: `/blog/${slugValue}`,
         };
       }
 
