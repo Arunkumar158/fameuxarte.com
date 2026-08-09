@@ -312,7 +312,7 @@ serve(async (req: Request) => {
       const artworkIds = validatedItems.map(item => item.artworkId);
       const { data: artworks, error: artworksError } = await supabase
         .from("artworks")
-        .select("id, status")
+        .select("id, status, reserved_until")
         .in("id", artworkIds);
 
       if (artworksError) {
@@ -321,12 +321,21 @@ serve(async (req: Request) => {
       }
 
       if (artworks) {
-        const soldArtworks = artworks.filter(a => a.status === 'sold');
-        if (soldArtworks.length > 0) {
-          console.error("❌ Attempted to purchase already sold artwork(s):", soldArtworks.map(a => a.id));
+        const now = new Date();
+        const unavailableArtworks = artworks.filter(a => {
+          if (a.status === 'sold') return true;
+          if (a.status === 'reserved' && a.reserved_until) {
+            const reservedUntil = new Date(a.reserved_until);
+            return reservedUntil > now;
+          }
+          return false;
+        });
+
+        if (unavailableArtworks.length > 0) {
+          console.error("❌ Attempted to purchase unavailable artwork(s):", unavailableArtworks.map(a => a.id));
           return new Response(
             JSON.stringify({
-              error: "This artwork has already been collected by another collector.",
+              error: "One or more artworks are currently unavailable or reserved by another collector. Please try again later.",
               timestamp: new Date().toISOString(),
             }),
             {
@@ -450,7 +459,25 @@ serve(async (req: Request) => {
       throw new Error("Failed to initialize database order items");
     }
     
-    console.log(`✅ Inserted order ${orderRecord.id} and ${orderItemsForDb.length} items`);
+    // 💾 Reserve Artworks for 15 minutes
+    const reservedUntil = new Date();
+    reservedUntil.setMinutes(reservedUntil.getMinutes() + 15);
+    
+    const { error: reserveError } = await supabase
+      .from('artworks')
+      .update({
+        status: 'reserved',
+        reserved_until: reservedUntil.toISOString()
+      })
+      .in('id', artworkIds);
+
+    if (reserveError) {
+      console.error("❌ Failed to reserve artworks:", reserveError);
+      // We don't fail the whole request here since Razorpay order is already created,
+      // but we log the error for monitoring.
+    }
+    
+    console.log(`✅ Inserted order ${orderRecord.id}, ${orderItemsForDb.length} items, and reserved artworks`);
 
     // Prepare response with LIVE key_id
     const response: OrderResponse & { order_id: string } = {

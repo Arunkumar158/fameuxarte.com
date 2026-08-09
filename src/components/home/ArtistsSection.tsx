@@ -43,11 +43,12 @@ const ArtistsSection = ({ artists }: ArtistsSectionProps) => {
           id,
           profile_id,
           specialty,
-          profiles:profile_id (
+          profiles!inner (
             full_name
           )
         `
         )
+        .eq('profiles.verification_status', 'featured')
         .order("created_at", { ascending: false })
         .limit(4);
 
@@ -90,7 +91,7 @@ const ArtistsSection = ({ artists }: ArtistsSectionProps) => {
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <div className="mb-2 text-[11px] font-normal uppercase tracking-[0.14em] text-[#555]">Verified artists</div>
+            <div className="mb-2 text-[11px] font-normal uppercase tracking-[0.14em] text-[#555]">Featured artists</div>
             <h2 className="text-[22px] font-medium tracking-[-0.02em] text-linen">Creators behind the works</h2>
           </div>
           <Link to="/artists" className="shrink-0 text-[12px] text-[#555] transition-colors hover:text-gold">
@@ -106,7 +107,7 @@ const ArtistsSection = ({ artists }: ArtistsSectionProps) => {
 
           {!isLoading && displayArtists.length === 0 && (
             <div className="rounded-[10px] border border-border-subtle bg-surface-2 p-[14px] text-[12px] text-[#555] sm:col-span-2 lg:col-span-4">
-              No verified artists available at the moment.
+              No featured artists available at the moment.
             </div>
           )}
 

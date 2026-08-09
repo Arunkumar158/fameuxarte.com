@@ -1,3 +1,5 @@
+const APP_URL = import.meta.env.VITE_PUBLIC_APP_URL || 'https://fameuxarte.com';
+
 export const generateProductStructuredData = (product: {
   name: string;
   description: string;
@@ -31,7 +33,7 @@ export const generateProductStructuredData = (product: {
       price: product.price,
       priceCurrency: product.currency,
       availability: `https://schema.org/${product.availability}`,
-      url: `https://gallery-canvas-commerce.vercel.app/artworks/${product.sku}`,
+      url: `${APP_URL}/artworks/${product.sku}`,
       seller: {
         '@type': 'Organization',
         name: 'Fameuxarte'
@@ -99,14 +101,14 @@ export const generateBlogPostStructuredData = (post: {
       name: 'Fameuxarte',
       logo: {
         '@type': 'ImageObject',
-        url: post.publisherLogo || 'https://gallery-canvas-commerce.vercel.app/logo.png'
+        url: post.publisherLogo || `${APP_URL}/logo.png`
       }
     },
     datePublished: post.datePublished,
     dateModified: post.dateModified,
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': post.url || 'https://gallery-canvas-commerce.vercel.app/blog'
+      '@id': post.url || `${APP_URL}/blog`
     },
     keywords: post.keywords?.join(', '),
     isAccessibleForFree: true,
@@ -119,8 +121,8 @@ export const generateOrganizationStructuredData = () => {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Fameuxarte',
-    url: 'https://gallery-canvas-commerce.vercel.app',
-    logo: 'https://gallery-canvas-commerce.vercel.app/logo.png',
+    url: APP_URL,
+    logo: `${APP_URL}/logo.png`,
     description: 'A trusted platform connecting art enthusiasts with authentic physical and digital artworks from talented artists worldwide.',
     sameAs: [
       'https://facebook.com/fameuxarte',
@@ -180,7 +182,7 @@ export const generateBreadcrumbStructuredData = (breadcrumbs: { name: string, it
       '@type': 'ListItem',
       position: index + 1,
       name: breadcrumb.name,
-      item: `https://gallery-canvas-commerce.vercel.app${breadcrumb.item}`
+      item: `${APP_URL}${breadcrumb.item}`
     }))
   };
 };
@@ -190,9 +192,9 @@ export const generateLocalBusinessStructuredData = () => {
     '@context': 'https://schema.org',
     '@type': 'ArtGallery',
     name: 'Gallery Canvas Commerce',
-    image: 'https://gallery-canvas-commerce.vercel.app/logo.png',
-    '@id': 'https://gallery-canvas-commerce.vercel.app',
-    url: 'https://gallery-canvas-commerce.vercel.app',
+    image: `${APP_URL}/logo.png`,
+    '@id': APP_URL,
+    url: APP_URL,
     telephone: '+1-555-555-5555',
     address: {
       '@type': 'PostalAddress',
