@@ -21,9 +21,17 @@ serve(async (req: Request) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let requestData: any = {};
+  
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("Missing Authorization header");
+
+    try {
+      requestData = await req.json();
+    } catch (e) {
+      throw new Error("Invalid JSON body");
+    }
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -38,8 +46,10 @@ serve(async (req: Request) => {
     const { data: { user }, error: userErr } = await supabaseAdmin.auth.getUser(token);
     if (userErr || !user) throw new Error("Unauthorized");
 
-    const { artwork_id, collector_id } = await req.json();
-    if (!artwork_id || !collector_id) throw new Error("Missing artwork_id or collector_id");
+    const { artwork_id, collector_id, order_item_id } = requestData;
+    if (!artwork_id || !collector_id || !order_item_id) {
+      throw new Error("Missing artwork_id, collector_id, or order_item_id");
+    }
 
     // Fetch Artwork and Artist details
     const { data: artwork, error: artworkError } = await supabaseAdmin
@@ -141,9 +151,10 @@ serve(async (req: Request) => {
         artwork_id: artwork_id,
         artist_id: artwork.artist_id,
         collector_id: collector_id,
+        order_item_id: order_item_id,
         certificate_number: certNumber,
-        file_path: filePath,
-        certificate_status: 'valid'
+        pdf_url: filePath,
+        certificate_status: 'active'
       })
       .select()
       .single();
@@ -156,6 +167,33 @@ serve(async (req: Request) => {
     });
   } catch (error: any) {
     console.error("Certificate Generation Error:", error.message);
+    
+    // Attempt to log failure to certificates table for retry mechanisms
+    try {
+      const { artwork_id, collector_id, order_item_id, artist_id } = requestData || {};
+      if (artwork_id && collector_id && order_item_id) {
+        const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+        const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+          auth: { persistSession: false },
+        });
+
+        // Use 'pending' status for failed ones so they can be identified and retried,
+        // and attach the error_message.
+        await supabaseAdmin.from('certificates').insert({
+          artwork_id,
+          collector_id,
+          order_item_id,
+          artist_id: artist_id || '00000000-0000-0000-0000-000000000000', // Need artist_id per schema
+          certificate_number: 'FAIL-' + Date.now().toString().substring(5),
+          certificate_status: 'pending',
+          error_message: error.message
+        });
+      }
+    } catch (e) {
+      console.error("Failed to log certificate error to database:", e);
+    }
+
     return new Response(JSON.stringify({ success: false, error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400

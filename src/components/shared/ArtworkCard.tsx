@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Price } from "@/components/shared/Price";
 import { useCart } from "@/contexts/CartContext";
 import { useLikedItems } from "@/hooks/useLikedItems";
-import { Heart, ShieldCheck, Sparkles, Images } from "lucide-react";
+import { Heart, ShieldCheck, Sparkles, Images, Eye } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
@@ -21,6 +21,7 @@ type ArtworkCardProps = {
     status?: "available" | "sold" | "reserved";
     /** Total number of images in the gallery (used for badge) */
     imageCount?: number;
+    viewsCount?: number;
   };
 };
 
@@ -200,6 +201,11 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
           <span className="text-xs bg-brand-gold/10 text-brand-gold px-2 py-0.5 rounded-sm font-medium flex items-center gap-1">
             <Sparkles className="w-3 h-3" /> Limited Edition
           </span>
+          {artwork.viewsCount !== undefined && artwork.viewsCount > 0 && (
+            <span className="text-xs text-muted-foreground px-2 py-0.5 flex items-center gap-1" title={`${artwork.viewsCount} views`}>
+              <Eye className="w-3 h-3 opacity-70" /> {artwork.viewsCount}
+            </span>
+          )}
         </div>
 
         <div className="mt-3 flex items-center justify-between">

@@ -163,7 +163,7 @@ serve(async (req: Request) => {
     // Fetch all order_items for this order
     const { data: orderItems, error: itemsError } = await supabase
       .from("order_items")
-      .select("artwork_id")
+      .select("id, artwork_id")
       .eq("order_id", updatedOrder.id);
 
     if (itemsError) {
@@ -187,9 +187,9 @@ serve(async (req: Request) => {
         console.log(`✅ Marked ${artworkIds.length} artworks as sold.`);
 
         // Generate Certificates
-        for (const artwork_id of artworkIds) {
+        for (const item of orderItems) {
           try {
-            console.log(`📜 Generating certificate for artwork ${artwork_id}...`);
+            console.log(`📜 Generating certificate for artwork ${item.artwork_id}...`);
             const certRes = await fetch(`${SUPABASE_URL}/functions/v1/generate-certificate`, {
               method: "POST",
               headers: {
@@ -197,16 +197,17 @@ serve(async (req: Request) => {
                 "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
               },
               body: JSON.stringify({
-                artwork_id,
-                collector_id: user.id
+                artwork_id: item.artwork_id,
+                collector_id: user.id,
+                order_item_id: item.id
               })
             });
             
             if (!certRes.ok) {
               const text = await certRes.text();
-              console.error(`❌ Failed to generate certificate for artwork ${artwork_id}:`, text);
+              console.error(`❌ Failed to generate certificate for artwork ${item.artwork_id}:`, text);
             } else {
-              console.log(`✅ Successfully generated certificate for artwork ${artwork_id}`);
+              console.log(`✅ Successfully generated certificate for artwork ${item.artwork_id}`);
             }
           } catch (certError: any) {
             console.error(`❌ Error calling generate-certificate:`, certError.message);

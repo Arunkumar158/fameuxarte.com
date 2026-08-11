@@ -60,6 +60,21 @@ const Dashboard = () => {
   const soldArtworks = artworks?.filter(a => a.status === 'sold').length || 0;
   const draftArtworks = artworks?.filter(a => a.status === 'draft').length || 0;
   
+  const { data: orderItems } = useQuery({
+    queryKey: ["artist-order-items", artworks?.map(a => a.id)],
+    queryFn: async () => {
+      if (!artworks || artworks.length === 0) return [];
+      const { data, error } = await supabase
+        .from("order_items")
+        .select("price_at_purchase, payout_amount, order_id")
+        .in("artwork_id", artworks.map((a) => a.id));
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!artworks && artworks.length > 0,
+  });
+
   // Calculate profile completion
   const profileFields = [
     profile?.full_name,
@@ -73,9 +88,13 @@ const Dashboard = () => {
   const filledFields = profileFields.filter(field => field && field.trim() !== "").length;
   const profileCompletion = Math.round((filledFields / profileFields.length) * 100) || 0;
 
-  // Placeholder for revenue (needs order tracking properly)
-  const revenue = 0; 
-  const totalOrders = 0;
+  // Real revenue and orders
+  const totalOrders = new Set(orderItems?.map((item) => item.order_id)).size || 0;
+  const revenue = orderItems?.reduce((sum, item) => sum + (item.payout_amount || item.price_at_purchase), 0) || 0;
+
+  // Portfolio Views
+  // @ts-ignore - views_count may not be explicitly typed in the basic select if we don't use a specific projection, but it exists
+  const portfolioViews = artworks?.reduce((sum, item) => sum + (item.views_count || 0), 0) || 0;
 
   if (artworksLoading || profileLoading) {
     return (
@@ -147,11 +166,11 @@ const Dashboard = () => {
             </div>
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-[#666]">Portfolio Views</p>
-              <h3 className="text-2xl font-medium text-linen">--</h3>
+              <h3 className="text-2xl font-medium text-linen">{portfolioViews}</h3>
             </div>
           </div>
           <div className="text-xs text-stone border-t border-border-faint pt-3 mt-3">
-            Analytics module coming soon
+            Across {totalArtworks} artworks
           </div>
         </div>
       </div>

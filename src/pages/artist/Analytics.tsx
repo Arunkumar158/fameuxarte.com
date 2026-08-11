@@ -46,26 +46,40 @@ const Analytics = () => {
     enabled: !!user,
   });
 
+  const { data: orderItems } = useQuery({
+    queryKey: ["artist-analytics-orders", artworks?.map(a => a.id)],
+    queryFn: async () => {
+      if (!artworks || artworks.length === 0) return [];
+      const { data, error } = await supabase
+        .from("order_items")
+        .select("artwork_id, price_at_purchase, payout_amount, order_id")
+        .in("artwork_id", artworks.map((a) => a.id));
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!artworks && artworks.length > 0,
+  });
+
   // Calculate top-level metrics
-  const soldArtworks = artworks?.filter(a => a.status === 'sold') || [];
-  const totalSold = soldArtworks.length;
-  const totalRevenue = soldArtworks.reduce((sum, a) => sum + (a.price || 0), 0);
+  const totalSold = orderItems?.length || 0;
+  const totalRevenue = orderItems?.reduce((sum, a) => sum + (a.payout_amount || a.price_at_purchase), 0) || 0;
   const avgPrice = totalSold > 0 ? totalRevenue / totalSold : 0;
   
-  // For now, views are mocked based on created_at to simulate PostHog data until backend sync is ready.
-  // In a production environment, this would come from an aggregated PostHog API endpoint.
-  const chartData = (artworks || []).slice(0, 10).map((artwork) => {
-    // Generate a pseudo-random but consistent view count based on artwork ID for the mock
-    const seed = artwork.id.split('-')[0];
-    const mockViews = parseInt(seed, 16) % 1500 + 100; 
+  const chartData = (artworks || []).map((artwork) => {
+    // @ts-ignore - views_count exists on the table but may not be explicitly typed without projection
+    const realViews = artwork.views_count || 0;
+    
+    const relatedOrders = orderItems?.filter(o => o.artwork_id === artwork.id) || [];
+    const salesCount = relatedOrders.length;
+    const revenueForArtwork = relatedOrders.reduce((sum, order) => sum + (order.payout_amount || order.price_at_purchase), 0);
     
     return {
       name: artwork.title.length > 15 ? artwork.title.substring(0, 15) + '...' : artwork.title,
-      views: mockViews,
-      sales: artwork.status === 'sold' ? 1 : 0,
-      revenue: artwork.status === 'sold' ? artwork.price : 0,
-      originalData: artwork,
-      mockViews
+      views: realViews,
+      sales: salesCount,
+      revenue: revenueForArtwork,
+      originalData: artwork
     };
   });
 
@@ -282,7 +296,7 @@ const Analytics = () => {
                     <td className="px-4 py-4">{item.sales}</td>
                     <td className="px-4 py-4">{formatCurrency(item.revenue)}</td>
                     <td className="px-4 py-4 text-right text-[#666]">
-                      {item.originalData.status === 'sold' ? `${convRate}%` : '--'}
+                      {item.sales > 0 ? `${convRate}%` : '--'}
                     </td>
                   </tr>
                 );

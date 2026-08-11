@@ -1,6 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, CheckCircle2, ExternalLink, Loader2, Palette, ShieldCheck, UserCheck, UserPlus } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ExternalLink, Loader2, Palette, ShieldCheck, UserCheck, UserPlus, Eye } from "lucide-react";
 import HomeNav from "@/components/home/HomeNav";
 import MainLayout from "@/components/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { DiscoveryHead } from "@/platform/discovery/DiscoveryHead";
 import { supabase } from "@/integrations/supabase/client";
 import { getGalleryImages } from "@/lib/utils";
 import { useArtworkImages } from "@/hooks/useArtworkImages";
-import { trackEvent, trackPageViewed } from "@/lib/analytics";
+import { trackPageViewed, recordProfileView, trackEvent } from "@/lib/analytics";
 import { useEffect, useMemo } from "react";
 import { TrustBadge } from "@/components/ui/trust-badge";
 import { ArtistTimeline } from "@/components/artist/ArtistTimeline";
@@ -33,6 +33,7 @@ interface ArtistDisplayData {
   verificationStatus?: string;
   verifiedAt?: string | null;
   joinedAt?: string | null;
+  viewsCount?: number;
 }
 
 interface ArtworkData {
@@ -124,7 +125,7 @@ const ArtistDetails = () => {
 
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, bio, city, country, website, mediums, art_styles, trust_score, verification_status, verified_at, created_at")
+        .select("id, full_name, avatar_url, bio, city, country, website, mediums, art_styles, trust_score, verification_status, verified_at, created_at, profile_views_count")
         .eq("id", artistId)
         .eq("role", "artist")
         .maybeSingle();
@@ -150,6 +151,7 @@ const ArtistDetails = () => {
           verificationStatus: profile.verification_status || 'pending',
           verifiedAt: profile.verified_at,
           joinedAt: profile.created_at,
+          viewsCount: profile.profile_views_count,
         };
       }
 
@@ -166,7 +168,8 @@ const ArtistDetails = () => {
           profile:profiles!artists_profile_id_fkey (
             id,
             full_name,
-            avatar_url
+            avatar_url,
+            profile_views_count
           )
         `
         )
@@ -176,7 +179,7 @@ const ArtistDetails = () => {
       if (artistRowError) throw artistRowError;
       if (!artistRow) throw new Error("Artist not found");
 
-      const legacyProfile = artistRow.profile as { id: string; full_name: string | null; avatar_url: string | null } | null;
+      const legacyProfile = artistRow.profile as { id: string; full_name: string | null; avatar_url: string | null; profile_views_count?: number } | null;
       const profileId = artistRow.profile_id || legacyProfile?.id || artistId;
 
       return {
@@ -190,6 +193,7 @@ const ArtistDetails = () => {
         mediums: null,
         artStyles: null,
         profileId,
+        viewsCount: legacyProfile?.profile_views_count,
       };
     },
     enabled: Boolean(artistId),
@@ -249,10 +253,7 @@ const ArtistDetails = () => {
 
   useEffect(() => {
     if (artist?.id) {
-      trackEvent('artist_profile_viewed', { 
-        artist_id: artist.id, 
-        name: artist.name 
-      });
+      recordProfileView(artist.id, artist.name);
       trackPageViewed({ page: 'Artist Profile', title: artist.name });
     }
   }, [artist?.id, artist?.name]);
@@ -375,6 +376,15 @@ const ArtistDetails = () => {
                       <div className="mt-1 flex items-center justify-between rounded-md bg-surface p-3 border border-border-subtle">
                         <span className="text-[12px] font-medium text-[#888]">Trust Score</span>
                         <span className="text-[16px] font-semibold text-linen">{trustScore}/100</span>
+                      </div>
+                    )}
+                    {artist?.viewsCount !== undefined && (
+                      <div className="mt-1 flex items-center justify-between rounded-md bg-surface p-3 border border-border-subtle" title="Total profile views">
+                        <span className="text-[12px] font-medium text-[#888]">Profile Views</span>
+                        <div className="flex items-center gap-1.5 text-[16px] font-semibold text-linen">
+                          <Eye className="h-4 w-4 text-[#777]" aria-hidden="true" />
+                          {artist.viewsCount}
+                        </div>
                       </div>
                     )}
                   </div>

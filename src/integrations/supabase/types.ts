@@ -153,6 +153,7 @@ export type Database = {
           status: "available" | "sold" | "reserved"
           sold_at: string | null
           sold_order_id: string | null
+          views_count: number
         }
         Insert: {
           artist_id?: string | null
@@ -169,6 +170,7 @@ export type Database = {
           status?: "available" | "sold" | "reserved"
           sold_at?: string | null
           sold_order_id?: string | null
+          views_count?: number
         }
         Update: {
           artist_id?: string | null
@@ -185,6 +187,7 @@ export type Database = {
           status?: "available" | "sold" | "reserved"
           sold_at?: string | null
           sold_order_id?: string | null
+          views_count?: number
         }
         Relationships: [
           {
@@ -384,7 +387,7 @@ export type Database = {
           order_item_id: string
           artist_id: string
           collector_id: string
-          pdf_url: string
+          pdf_url: string | null
           qr_code: string | null
           issued_at: string | null
           verification_url: string | null
@@ -392,6 +395,7 @@ export type Database = {
           hash: string | null
           version: string | null
           created_by: string | null
+          error_message: string | null
         }
         Insert: {
           id?: string
@@ -400,7 +404,7 @@ export type Database = {
           order_item_id: string
           artist_id: string
           collector_id: string
-          pdf_url: string
+          pdf_url?: string | null
           qr_code?: string | null
           issued_at?: string | null
           verification_url?: string | null
@@ -408,6 +412,7 @@ export type Database = {
           hash?: string | null
           version?: string | null
           created_by?: string | null
+          error_message?: string | null
         }
         Update: {
           id?: string
@@ -416,7 +421,7 @@ export type Database = {
           order_item_id?: string
           artist_id?: string
           collector_id?: string
-          pdf_url?: string
+          pdf_url?: string | null
           qr_code?: string | null
           issued_at?: string | null
           verification_url?: string | null
@@ -424,6 +429,7 @@ export type Database = {
           hash?: string | null
           version?: string | null
           created_by?: string | null
+          error_message?: string | null
         }
         Relationships: [
           {
@@ -719,6 +725,7 @@ export type Database = {
           agreement_accepted: boolean | null
           agreement_version: string | null
           agreement_accepted_at: string | null
+          profile_views_count: number
         }
         Insert: {
           avatar_url?: string | null
@@ -735,6 +742,7 @@ export type Database = {
           agreement_accepted?: boolean | null
           agreement_version?: string | null
           agreement_accepted_at?: string | null
+          profile_views_count?: number
         }
         Update: {
           avatar_url?: string | null
@@ -751,6 +759,7 @@ export type Database = {
           agreement_accepted?: boolean | null
           agreement_version?: string | null
           agreement_accepted_at?: string | null
+          profile_views_count?: number
         }
         Relationships: []
       }
@@ -786,7 +795,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_artwork_view: {
+        Args: {
+          p_artwork_id: string
+        }
+        Returns: undefined
+      }
+      increment_profile_view: {
+        Args: {
+          p_artist_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

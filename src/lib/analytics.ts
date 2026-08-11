@@ -10,6 +10,7 @@
 
 // Guard: posthog is a browser-only library. This module is safe to import
 // anywhere because every public function checks `typeof window` before acting.
+import { supabase } from '@/integrations/supabase/client';
 
 const isBrowser = typeof window !== 'undefined';
 
@@ -115,3 +116,85 @@ export const trackPerformanceChecked = (props?: { url?: string; score?: number }
 
 export const trackSitemapGenerated = (props?: { totalUrls?: number }) =>
   trackEvent('sitemap_generated', props);
+
+// ---------------------------------------------------------------------------
+// Trust & Real-Time Metrics (Sprint 2)
+// ---------------------------------------------------------------------------
+
+const SESSION_VIEW_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
+
+const hasViewedRecently = (key: string): boolean => {
+  if (!isBrowser) return false;
+  try {
+    const lastViewed = sessionStorage.getItem(key);
+    if (!lastViewed) return false;
+    if (Date.now() - parseInt(lastViewed, 10) < SESSION_VIEW_EXPIRY_MS) {
+      return true;
+    }
+  } catch (e) {
+    // sessionStorage not available (incognito, etc.)
+  }
+  return false;
+};
+
+const markAsViewed = (key: string): void => {
+  if (!isBrowser) return;
+  try {
+    sessionStorage.setItem(key, Date.now().toString());
+  } catch (e) {}
+};
+
+/**
+ * Track an artwork view in both PostHog and Supabase with deduplication.
+ */
+export const recordArtworkView = async (artworkId: string, title: string, artistId: string | null) => {
+  if (!artworkId) return;
+  
+  // Track in PostHog
+  trackEvent('artwork_viewed', { 
+    artwork_id: artworkId, 
+    title: title,
+    artist_id: artistId
+  });
+
+  // Check deduplication token for Supabase increment
+  const sessionKey = `viewed_artwork_${artworkId}`;
+  if (hasViewedRecently(sessionKey)) return;
+
+  markAsViewed(sessionKey);
+  
+  // Increment in Supabase
+  try {
+    const { error } = await supabase.rpc('increment_artwork_view', { p_artwork_id: artworkId });
+    if (error) console.error("Failed to increment artwork view:", error);
+  } catch (err) {
+    console.error("Error calling increment_artwork_view:", err);
+  }
+};
+
+/**
+ * Track an artist profile view in both PostHog and Supabase with deduplication.
+ */
+export const recordProfileView = async (artistId: string, artistName: string | null) => {
+  if (!artistId) return;
+
+  // Track in PostHog
+  trackEvent('artist_profile_viewed', { 
+    artist_id: artistId, 
+    name: artistName || 'Unknown Artist'
+  });
+
+  // Check deduplication token for Supabase increment
+  const sessionKey = `viewed_artist_${artistId}`;
+  if (hasViewedRecently(sessionKey)) return;
+
+  markAsViewed(sessionKey);
+  
+  // Increment in Supabase
+  try {
+    const { error } = await supabase.rpc('increment_profile_view', { p_artist_id: artistId });
+    if (error) console.error("Failed to increment profile view:", error);
+  } catch (err) {
+    console.error("Error calling increment_profile_view:", err);
+  }
+};

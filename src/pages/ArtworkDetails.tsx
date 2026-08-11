@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Award, CheckCircle2, ChevronLeft, ChevronRight, Heart, ShieldCheck, X, ZoomIn } from "lucide-react";
+import { ArrowLeft, Award, CheckCircle2, ChevronLeft, ChevronRight, Heart, ShieldCheck, X, ZoomIn, Eye } from "lucide-react";
 import HomeNav from "@/components/home/HomeNav";
 import MainLayout from "@/components/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DiscoveryHead } from "@/platform/discovery/DiscoveryHead";
 import { DiscoveryBreadcrumbs } from "@/components/discovery/DiscoveryBreadcrumbs";
 import { getGalleryImages } from "@/lib/utils";
-import { trackEvent, trackPageViewed } from "@/lib/analytics";
+import { trackPageViewed, recordArtworkView } from "@/lib/analytics";
 import ArtworkGrid from "@/components/ArtworkGrid";
 
 interface ArtworkData {
@@ -28,6 +28,7 @@ interface ArtworkData {
   images: string[] | null;
   slug: string | null;
   status?: "available" | "sold" | "reserved";
+  views_count?: number;
   artist_id?: string | null;
   artist: {
     id?: string;
@@ -159,6 +160,7 @@ const ArtworkDetails = () => {
           images,
           slug,
           status,
+          views_count,
           artist_id,
           artist:profiles!artworks_artist_id_fkey (
             id,
@@ -191,6 +193,7 @@ const ArtworkDetails = () => {
         images: (data as Record<string, unknown>).images as string[] | null,
         slug: data.slug,
         status: data.status,
+        views_count: data.views_count,
         artist_id: data.artist_id,
         artist: data.artist,
       };
@@ -209,14 +212,14 @@ const ArtworkDetails = () => {
   useEffect(() => {
     setSelectedIndex(0);
     if (artwork?.id) {
-      trackEvent('artwork_viewed', { 
-        artwork_id: artwork.id, 
-        title: artwork.title,
-        artist_id: artwork.artist?.full_name // Using full_name as id proxy if real id is not in the schema
-      });
+      recordArtworkView(
+        artwork.id, 
+        artwork.title,
+        artwork.artist_id ?? artwork.artist?.id ?? null
+      );
       trackPageViewed({ page: 'Artwork Details', title: artwork.title });
     }
-  }, [artwork?.id, artwork?.title, artwork?.artist?.full_name]);
+  }, [artwork?.id, artwork?.title, artwork?.artist_id, artwork?.artist?.id]);
 
   const goNext = useCallback(() => {
     setSelectedIndex((index) => (index + 1) % imageUrls.length);
@@ -473,6 +476,12 @@ const ArtworkDetails = () => {
                     <Award className="h-3.5 w-3.5" aria-hidden="true" />
                     Authenticity score: 92%
                   </div>
+                  {artwork?.views_count !== undefined && (
+                    <div className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-surface-2 px-3 py-[6px] text-[11px] font-medium uppercase tracking-[0.12em] text-[#aaa]" title="Total views">
+                      <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                      {artwork.views_count}
+                    </div>
+                  )}
                 </div>
 
                 {/* Responsive title — scaled down on mobile to prevent overflow */}
