@@ -1,4 +1,5 @@
-import { Navigate } from "react-router-dom";
+import React from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
@@ -13,8 +14,16 @@ export const CollectorRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth", { replace: true });
+    }
+  }, [loading, user, navigate]);
+
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return null;
   }
 
   return <>{children}</>;

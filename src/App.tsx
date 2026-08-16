@@ -21,6 +21,7 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 import Artworks from "./pages/Artworks";
+import Search from "./pages/Search";
 import Artists from "./pages/Artists";
 import ArtistDetails from "./pages/ArtistDetails";
 import Collections from "./pages/Collections";
@@ -126,6 +127,7 @@ const AnimatedRoutes = () => {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/search" element={<Search />} />
           <Route path="/artworks" element={<Artworks />} />
           <Route path="/artworks/:slug" element={<ArtworkDetails />} />
           <Route path="/for-artists" element={<ForArtists />} />

@@ -109,7 +109,7 @@ export default function VerificationCenter() {
     }
   };
 
-  const isVerified = ['verified', 'premium', 'featured'].includes(profile?.verification_status || '');
+  const isVerified = profile?.verification_status === 'verified';
   const hasSubmitted = ['identity_submitted', 'under_review'].includes(profile?.verification_status || '');
 
   return (

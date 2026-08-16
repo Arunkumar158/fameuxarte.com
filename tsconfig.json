@@ -13,6 +13,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "react-router-dom": [
+        "./src/lib/router-compat.tsx"
       ]
     },
     "noImplicitAny": false,
@@ -35,14 +38,29 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "frontend",
+    ".next",
+    "scripts",
+    "test-auth.js",
+    "test-storage.js",
+    "audit_artworks.js",
+    "src/App.tsx",
+    "src/main.tsx",
+    "src/vite-env.d.ts"
   ]
 }

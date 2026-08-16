@@ -37,7 +37,7 @@ const UPCOMING_MODULES = [
   { name: "Reviews", href: "/artist/reviews", icon: Star },
 ];
 
-export const ArtistLayout = () => {
+export const ArtistLayout = ({ children }: { children?: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
@@ -164,10 +164,11 @@ export const ArtistLayout = () => {
 
         <main className="flex-1 overflow-y-auto bg-obsidian">
           <div className="mx-auto max-w-7xl p-6 lg:p-8">
-            <Outlet />
+            {children ?? <Outlet />}
           </div>
         </main>
       </div>
     </div>
   );
 };
+

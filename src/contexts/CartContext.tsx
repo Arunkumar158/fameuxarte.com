@@ -1,3 +1,4 @@
+"use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -235,3 +236,4 @@ export const useCart = () => {
   }
   return context;
 };
+

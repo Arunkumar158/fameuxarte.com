@@ -1,3 +1,4 @@
+"use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -126,3 +127,4 @@ export const useCurrency = () => {
   }
   return context;
 };
+

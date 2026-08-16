@@ -1,3 +1,4 @@
+"use client";
 /**
  * PostHogProvider.tsx
  *
@@ -79,3 +80,4 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
 }
 
 export default PostHogProvider;
+

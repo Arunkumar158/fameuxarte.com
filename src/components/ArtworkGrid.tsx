@@ -20,7 +20,7 @@ const ArtworkCardWithImage = ({ artwork }: { artwork: {
   description: string | null;
   image_path: string | null;
   slug: string | null;
-  status?: "available" | "sold" | "reserved";
+  status?: "available" | "sold" | "reserved" | "draft" | "hidden";
   artist: {
     full_name: string | null;
   } | null;
@@ -157,3 +157,4 @@ const ArtworkGrid = ({ limit }: ArtworkGridProps) => {
 };
 
 export default ArtworkGrid;
+

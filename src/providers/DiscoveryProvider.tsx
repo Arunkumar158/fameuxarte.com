@@ -1,3 +1,4 @@
+"use client";
 /**
  * Fameuxarte DiscoveryProvider
  * Global React Provider wrapping HelmetProvider with Discovery state context.
@@ -42,3 +43,4 @@ export const DiscoveryProvider: React.FC<DiscoveryProviderProps> = ({
 };
 
 export const useDiscoveryContext = () => useContext(DiscoveryContext);
+

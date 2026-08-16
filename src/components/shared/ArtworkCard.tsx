@@ -18,7 +18,7 @@ type ArtworkCardProps = {
     price: number;
     image: string;
     category?: string;
-    status?: "available" | "sold" | "reserved";
+    status?: "available" | "sold" | "reserved" | "draft" | "hidden";
     /** Total number of images in the gallery (used for badge) */
     imageCount?: number;
     viewsCount?: number;
@@ -242,3 +242,4 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
 };
 
 export default ArtworkCard;
+

@@ -34,6 +34,16 @@ interface ArtworkData {
     id?: string;
     full_name: string | null;
   } | null;
+  medium?: string | null;
+  style?: string | null;
+  dimensions?: { width?: number; height?: number; depth?: number; unit?: string } | null;
+  orientation?: string | null;
+  tags?: string[] | null;
+  collection_id?: string | null;
+  story?: string | null;
+  creation_year?: number | null;
+  certificate_included?: boolean | null;
+  frame_included?: boolean | null;
 }
 
 const Lightbox = ({
@@ -161,6 +171,16 @@ const ArtworkDetails = () => {
           slug,
           status,
           views_count,
+          medium,
+          style,
+          dimensions,
+          orientation,
+          tags,
+          collection_id,
+          story,
+          creation_year,
+          certificate_included,
+          frame_included,
           artist_id,
           artist:profiles!artworks_artist_id_fkey (
             id,
@@ -196,6 +216,16 @@ const ArtworkDetails = () => {
         views_count: data.views_count,
         artist_id: data.artist_id,
         artist: data.artist,
+        medium: data.medium,
+        style: data.style,
+        dimensions: data.dimensions as any,
+        orientation: data.orientation,
+        tags: data.tags,
+        collection_id: data.collection_id,
+        story: data.story,
+        creation_year: data.creation_year,
+        certificate_included: data.certificate_included,
+        frame_included: data.frame_included,
       };
 
       return artworkData;
@@ -468,14 +498,6 @@ const ArtworkDetails = () => {
             <aside className="lg:sticky lg:top-6 lg:self-start">
               <div className="border-b border-border-faint pb-6 sm:pb-7">
                 <div className="mb-4 sm:mb-6 flex flex-wrap gap-2">
-                  <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(201,169,110,0.25)] bg-[rgba(201,169,110,0.1)] px-3 py-[6px] text-[11px] font-medium uppercase tracking-[0.12em] text-gold">
-                    <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-                    AI verified
-                  </div>
-                  <div className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-surface-2 px-3 py-[6px] text-[11px] font-medium uppercase tracking-[0.12em] text-[#aaa]">
-                    <Award className="h-3.5 w-3.5" aria-hidden="true" />
-                    Authenticity score: 92%
-                  </div>
                   {artwork?.views_count !== undefined && (
                     <div className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-surface-2 px-3 py-[6px] text-[11px] font-medium uppercase tracking-[0.12em] text-[#aaa]" title="Total views">
                       <Eye className="h-3.5 w-3.5" aria-hidden="true" />
@@ -513,15 +535,36 @@ const ArtworkDetails = () => {
               <div className="grid grid-cols-2 gap-3 border-b border-border-faint py-5 sm:py-7">
                 <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-3 sm:p-4">
                   <div className="mb-1 text-[11px] text-[#555]">Medium</div>
-                  <div className="text-[13px] text-linen">{categoryLabel}</div>
+                  <div className="text-[13px] text-linen">{artwork.medium || categoryLabel}</div>
                 </div>
-                <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-3 sm:p-4">
-                  <div className="mb-1 text-[11px] text-[#555]">Verification</div>
-                  <div className="inline-flex items-center gap-1.5 text-[13px] text-verified">
-                    <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                    ArtGuard passed
+                {artwork.style && (
+                  <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-3 sm:p-4">
+                    <div className="mb-1 text-[11px] text-[#555]">Style</div>
+                    <div className="text-[13px] text-linen">{artwork.style}</div>
                   </div>
-                </div>
+                )}
+                {artwork.dimensions && (artwork.dimensions.width || artwork.dimensions.height) && (
+                  <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-3 sm:p-4">
+                    <div className="mb-1 text-[11px] text-[#555]">Dimensions</div>
+                    <div className="text-[13px] text-linen">
+                      {artwork.dimensions.width} x {artwork.dimensions.height} {artwork.dimensions.depth ? `x ${artwork.dimensions.depth}` : ""} {artwork.dimensions.unit || "in"}
+                    </div>
+                  </div>
+                )}
+                {artwork.creation_year && (
+                  <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-3 sm:p-4">
+                    <div className="mb-1 text-[11px] text-[#555]">Year</div>
+                    <div className="text-[13px] text-linen">{artwork.creation_year}</div>
+                  </div>
+                )}
+                {artwork.frame_included !== null && (
+                  <div className="rounded-[8px] border border-border-subtle bg-surface-2 p-3 sm:p-4">
+                    <div className="mb-1 text-[11px] text-[#555]">Framing</div>
+                    <div className="text-[13px] text-linen">
+                      {artwork.frame_included ? "Framed" : "Unframed"}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Desktop CTAs */}

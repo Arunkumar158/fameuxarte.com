@@ -15,7 +15,7 @@ export interface Artwork {
   verified?: boolean;
   available?: boolean;
   stock?: number;
-  status?: "available" | "sold" | "reserved";
+  status?: "available" | "sold" | "reserved" | "draft" | "hidden";
 }
 
 interface ArtworkCardProps {
@@ -118,3 +118,4 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
 };
 
 export default ArtworkCard;
+

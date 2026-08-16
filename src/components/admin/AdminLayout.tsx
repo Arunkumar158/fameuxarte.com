@@ -1,3 +1,4 @@
+import type React from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -39,7 +40,7 @@ const COMING_SOON_ITEMS = [
   { name: "AI Features", icon: Sparkles },
 ];
 
-export function AdminLayout() {
+export function AdminLayout({ children }: { children?: React.ReactNode }) {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -149,10 +150,12 @@ export function AdminLayout() {
         {/* Main Content Area */}
         <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none bg-slate-50">
           <div className="py-6 px-4 sm:px-6 md:px-8">
-            <Outlet />
+            {children ?? <Outlet />}
           </div>
         </main>
       </div>
     </div>
   );
 }
+
+

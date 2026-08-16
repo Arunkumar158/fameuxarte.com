@@ -65,6 +65,7 @@ const ArtistArtworkCard = ({
   artwork: ArtworkData;
   artistName: string;
   collected?: boolean;
+  isVerified?: boolean;
 }) => {
   const imagePaths = getGalleryImages(artwork);
   const { primaryImage } = useArtworkImages(imagePaths);
@@ -83,7 +84,7 @@ const ArtistArtworkCard = ({
             }}
           />
           <div className="absolute left-3 top-3 flex gap-2">
-            {!collected && (
+            {!collected && isVerified && (
               <span className="rounded-full border border-[rgba(74,157,111,0.3)] bg-[rgba(74,157,111,0.9)] px-2 py-1 text-[9px] uppercase tracking-[0.08em] text-white backdrop-blur-sm">
                 Verified
               </span>
@@ -138,7 +139,7 @@ const ArtistDetails = () => {
 
         return {
           id: profile.id,
-          name: profile.full_name || "Verified Artist",
+          name: profile.full_name || "Unknown Artist",
           avatarUrl: profile.avatar_url,
           bio: profile.bio,
           specialty: (profile.mediums as string[] | null)?.[0] || null,
@@ -184,7 +185,7 @@ const ArtistDetails = () => {
 
       return {
         id: artistRow.id,
-        name: legacyProfile?.full_name || "Verified Artist",
+        name: legacyProfile?.full_name || "Unknown Artist",
         avatarUrl: legacyProfile?.avatar_url || null,
         bio: artistRow.bio,
         specialty: artistRow.specialty,
@@ -442,10 +443,6 @@ const ArtistDetails = () => {
             <div className="min-w-0">
               <div className="border-b border-border-faint pb-8">
                 <div className="mb-5 flex flex-wrap gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(201,169,110,0.25)] bg-[rgba(201,169,110,0.1)] px-3 py-[6px] text-[11px] font-medium uppercase tracking-[0.12em] text-gold" onClick={() => trackEvent('certificate_viewed', { artist_id: artist.id })}>
-                    <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-                    ArtGuard vetted
-                  </span>
                   {mediums?.map((medium) => (
                     <Link
                       key={medium}
@@ -531,7 +528,7 @@ const ArtistDetails = () => {
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                       {works.slice(0, 6).map((work) => (
                         <div key={work.id} onClick={() => trackEvent('featured_artwork_clicked', { artwork_id: work.id })}>
-                          <ArtistArtworkCard artwork={work} artistName={artistName} collected={collectedIds.includes(work.id)} />
+                          <ArtistArtworkCard artwork={work} artistName={artistName} collected={collectedIds.includes(work.id)} isVerified={artist?.verificationStatus === 'verified'} />
                         </div>
                       ))}
                       {works.length === 0 && <div className="col-span-full py-12 text-center text-[#666]">No works available yet.</div>}
@@ -541,7 +538,7 @@ const ArtistDetails = () => {
                   <TabsContent value="available" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                       {availableWorks.map((work) => (
-                        <ArtistArtworkCard key={work.id} artwork={work} artistName={artistName} />
+                        <ArtistArtworkCard key={work.id} artwork={work} artistName={artistName} isVerified={artist?.verificationStatus === 'verified'} />
                       ))}
                       {availableWorks.length === 0 && <div className="col-span-full py-12 text-center text-[#666]">No available works at the moment.</div>}
                     </div>
@@ -550,7 +547,7 @@ const ArtistDetails = () => {
                   <TabsContent value="latest" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                       {latestWorks.map((work) => (
-                        <ArtistArtworkCard key={work.id} artwork={work} artistName={artistName} collected={collectedIds.includes(work.id)} />
+                        <ArtistArtworkCard key={work.id} artwork={work} artistName={artistName} collected={collectedIds.includes(work.id)} isVerified={artist?.verificationStatus === 'verified'} />
                       ))}
                       {latestWorks.length === 0 && <div className="col-span-full py-12 text-center text-[#666]">No works available yet.</div>}
                     </div>
@@ -559,7 +556,7 @@ const ArtistDetails = () => {
                   <TabsContent value="sold" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                       {soldWorks.map((work) => (
-                        <ArtistArtworkCard key={work.id} artwork={work} artistName={artistName} collected />
+                        <ArtistArtworkCard key={work.id} artwork={work} artistName={artistName} collected isVerified={artist?.verificationStatus === 'verified'} />
                       ))}
                       {soldWorks.length === 0 && <div className="col-span-full py-12 text-center text-[#666]">No collected works recorded yet.</div>}
                     </div>

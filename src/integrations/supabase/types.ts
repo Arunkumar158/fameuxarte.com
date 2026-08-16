@@ -150,10 +150,20 @@ export type Database = {
           title: string
           updated_at: string
           slug: string | null
-          status: "available" | "sold" | "reserved"
+          status: "available" | "sold" | "reserved" | "draft" | "hidden"
           sold_at: string | null
           sold_order_id: string | null
           views_count: number
+          medium: string | null
+          style: string | null
+          dimensions: Json | null
+          orientation: string | null
+          tags: string[] | null
+          collection_id: string | null
+          story: string | null
+          creation_year: number | null
+          certificate_included: boolean | null
+          frame_included: boolean | null
         }
         Insert: {
           artist_id?: string | null
@@ -167,10 +177,20 @@ export type Database = {
           title: string
           updated_at?: string
           slug?: string | null
-          status?: "available" | "sold" | "reserved"
+          status?: "available" | "sold" | "reserved" | "draft" | "hidden"
           sold_at?: string | null
           sold_order_id?: string | null
           views_count?: number
+          medium?: string | null
+          style?: string | null
+          dimensions?: Json | null
+          orientation?: string | null
+          tags?: string[] | null
+          collection_id?: string | null
+          story?: string | null
+          creation_year?: number | null
+          certificate_included?: boolean | null
+          frame_included?: boolean | null
         }
         Update: {
           artist_id?: string | null
@@ -184,10 +204,20 @@ export type Database = {
           title?: string
           updated_at?: string
           slug?: string | null
-          status?: "available" | "sold" | "reserved"
+          status?: "available" | "sold" | "reserved" | "draft" | "hidden"
           sold_at?: string | null
           sold_order_id?: string | null
           views_count?: number
+          medium?: string | null
+          style?: string | null
+          dimensions?: Json | null
+          orientation?: string | null
+          tags?: string[] | null
+          collection_id?: string | null
+          story?: string | null
+          creation_year?: number | null
+          certificate_included?: boolean | null
+          frame_included?: boolean | null
         }
         Relationships: [
           {

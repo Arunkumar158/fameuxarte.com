@@ -81,7 +81,7 @@ export default function VerificationManagement() {
   const { data: metrics } = useQuery({
     queryKey: ["trust-metrics"],
     queryFn: async () => {
-      const { data: verifiedData } = await supabase.from("profiles").select('id').eq('role', 'artist').in('verification_status', ['verified', 'premium', 'featured']);
+      const { data: verifiedData } = await supabase.from("profiles").select('id').eq('role', 'artist').eq('verification_status', 'verified');
       const { data: pendingData } = await supabase.from("profiles").select('id').eq('role', 'artist').in('verification_status', ['identity_submitted', 'under_review']);
       const { data: certsData } = await supabase.from("certificates").select('id', { count: 'exact' });
       
@@ -264,7 +264,7 @@ export default function VerificationManagement() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {artist.verification_status === 'verified' || artist.verification_status === 'premium' || artist.verification_status === 'featured' ? (
+                      {artist.verification_status === 'verified' ? (
                         <TrustBadge type={artist.verification_status as TrustBadgeType} />
                       ) : (
                         <span className={`inline-flex items-center rounded-full px-2 py-1 text-[10px] font-medium uppercase tracking-wider ${

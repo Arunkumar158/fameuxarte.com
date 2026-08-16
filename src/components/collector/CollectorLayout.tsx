@@ -57,7 +57,7 @@ const NAV_GROUPS = [
   }
 ];
 
-export const CollectorLayout = () => {
+export const CollectorLayout = ({ children }: { children?: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
@@ -172,10 +172,11 @@ export const CollectorLayout = () => {
 
         <main className="flex-1 overflow-y-auto bg-obsidian">
           <div className="mx-auto max-w-7xl p-6 lg:p-10">
-            <Outlet />
+            {children ?? <Outlet />}
           </div>
         </main>
       </div>
     </div>
   );
 };
+

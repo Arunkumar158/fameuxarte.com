@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
@@ -8,6 +8,8 @@ export const ArtistRoute = ({ children }: { children?: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const [role, setRole] = useState<'customer' | 'artist' | 'admin' | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRole = async () => {
@@ -38,6 +40,12 @@ export const ArtistRoute = ({ children }: { children?: React.ReactNode }) => {
     }
   }, [user, loading]);
 
+  useEffect(() => {
+    if (!loading && !roleLoading && !user) {
+      navigate("/auth", { replace: true });
+    }
+  }, [loading, roleLoading, user, navigate]);
+
   if (loading || roleLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-obsidian text-gold">
@@ -47,7 +55,7 @@ export const ArtistRoute = ({ children }: { children?: React.ReactNode }) => {
   }
 
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return null;
   }
 
   // if (role !== 'artist' && role !== 'admin') {

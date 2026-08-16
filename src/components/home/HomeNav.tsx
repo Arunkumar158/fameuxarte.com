@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Heart, LogOut, ShoppingCart, User, Menu, Palette } from "lucide-react";
+import { Heart, LogOut, ShoppingCart, User, Menu, Palette, Search } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useLikedItems } from "@/hooks/useLikedItems";
@@ -76,6 +76,13 @@ const HomeNav = () => {
           {user ? (
             <div className="flex items-center gap-2">
               <Link
+                to="/search"
+                aria-label="Search artworks"
+                className="relative inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
+              >
+                <Search className="h-4 w-4" aria-hidden="true" />
+              </Link>
+              <Link
                 to="/liked-items"
                 aria-label={`Liked artworks${likedCount > 0 ? `, ${likedCount} items` : ""}`}
                 className="relative inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
@@ -126,6 +133,13 @@ const HomeNav = () => {
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-3">
+              <Link
+                to="/search"
+                aria-label="Search artworks"
+                className="relative inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-border-subtle bg-surface-2 text-[#666] transition-colors hover:border-gold/30 hover:text-gold"
+              >
+                <Search className="h-4 w-4" aria-hidden="true" />
+              </Link>
               <Link
                 to="/auth"
                 state={{ from: location.pathname }}

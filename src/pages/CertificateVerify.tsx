@@ -103,7 +103,7 @@ export default function CertificateVerify() {
 
                     <div>
                       <h3 className="text-xs text-[#666] uppercase tracking-wider font-semibold mb-1">Original Collector</h3>
-                      <p className="text-md text-[#aaa]">{cert.collector?.full_name || "Private Collection"}</p>
+                      <p className="text-md text-[#aaa]">Private Collection</p>
                     </div>
 
                     <div>

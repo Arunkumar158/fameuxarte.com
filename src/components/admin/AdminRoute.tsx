@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
@@ -45,6 +45,14 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
     checkAdminStatus();
   }, [user, isLoading]);
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && isAdmin === false && !user) {
+      navigate("/auth", { state: { from: location.pathname }, replace: true });
+    }
+  }, [isLoading, isAdmin, user, navigate, location.pathname]);
+
   if (isAdmin === null || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -55,8 +63,8 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
 
   if (!isAdmin) {
     if (!user) {
-      // Redirect to login if not authenticated at all
-      return <Navigate to="/auth" state={{ from: location }} replace />;
+      // Return null while the useEffect handles the redirect
+      return null;
     }
 
     // Show explicit error if logged in but not an admin
