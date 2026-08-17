@@ -15,8 +15,9 @@
     --popover: 0 0% 4%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 43 45% 59%;
-    --primary-foreground: 0 0% 0%;
+    /* Primary = FA logo refined to gallery red (oxblood) */
+    --primary: 351 62% 34%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 95%;
@@ -24,17 +25,23 @@
     --muted: 0 0% 12%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 43 45% 59%;
-    --accent-foreground: 0 0% 0%;
+    /* Accent = FA logo cobalt blue */
+    --accent: 223 73% 33%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 95%;
 
     --border: 0 0% 12%;
     --input: 0 0% 12%;
-    --ring: 43 45% 59%;
+    --ring: 351 62% 34%;
 
     --radius: 0.5rem;
+
+    /* FA logo brand color vars for inline use */
+    --brand-red: 140, 33, 49;
+    --brand-blue: 26, 58, 143;
+    --brand-glow: 123, 63, 228;
   }
 }
 
@@ -85,8 +92,9 @@
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
   }
   
+  /* Artwork card — premium dark base, hover accent uses purple glow (red+blue mix) */
   .artwork-card {
-    @apply flex flex-col overflow-hidden rounded-md border border-white/5 transition-all duration-500 hover:shadow-[0_0_30px_rgba(194,163,107,0.1)] hover:border-brand-gold/30 relative z-10 bg-brand-dark backdrop-blur-sm;
+    @apply flex flex-col overflow-hidden rounded-md border border-white/5 transition-all duration-500 hover:shadow-[0_10_40px_rgba(123,63,228,0.12)] hover:border-white/10 hover:-translate-y-1 relative z-10 bg-[#0A0A0A]/50 backdrop-blur-md;
   }
 
   .artwork-image {
@@ -97,12 +105,24 @@
     @apply p-4 flex flex-col gap-1;
   }
 
+  /* Primary CTA — Stealth premium with gradient reveal on hover */
   .btn-primary {
-    @apply bg-brand-gold text-black font-medium hover:bg-brand-goldMuted transition-all duration-300 shadow-sm hover:shadow-[0_0_15px_rgba(194,163,107,0.25)];
+    @apply relative overflow-hidden bg-white/[0.03] border border-white/10 text-white font-medium transition-all duration-500 hover:border-transparent hover:shadow-[0_0_25px_rgba(123,63,228,0.3)] z-10;
   }
 
+  /* This pseudo-element creates the smooth gradient fade-in */
+  .btn-primary::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-brand-red/90 via-[#7B3FE4]/80 to-brand-blue/90 opacity-0 transition-opacity duration-500 -z-10;
+  }
+
+  .btn-primary:hover::before {
+    @apply opacity-100;
+  }
+
+  /* Secondary CTA — blue hover accent */
   .btn-secondary {
-    @apply bg-transparent text-white border border-white/20 hover:border-brand-gold hover:text-brand-gold transition-all duration-300;
+    @apply bg-transparent text-white border border-white/20 hover:border-brand-blue hover:text-brand-blue transition-all duration-300;
   }
 
   /* Responsive section padding — reduced for mobile */
@@ -110,8 +130,9 @@
     @apply py-12 md:py-20 lg:py-28;
   }
 
+  /* Text gradient: red → blue (mirrors logo split) */
   .text-gradient {
-    @apply bg-gradient-to-r from-brand-gold to-white bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-brand-red to-brand-blue bg-clip-text text-transparent;
   }
 
   .card-hover {
@@ -126,8 +147,9 @@
     @apply bg-brand-dark/80 backdrop-blur-2xl border border-white/5;
   }
 
+  /* Card hover — subtle lift with purple glow (mix of red & blue) */
   .card-hover-gold {
-    @apply transition-all duration-500 hover:scale-[1.01] hover:shadow-[0_0_25px_rgba(194,163,107,0.15)] hover:border-brand-gold/30;
+    @apply transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_10_30px_rgba(123,63,228,0.12)] hover:border-white/10 hover:bg-[#111111]/80;
   }
 
   /* Minimum touch target — 44px per WCAG */

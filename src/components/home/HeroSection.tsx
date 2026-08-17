@@ -35,7 +35,7 @@ const HeroSection = ({ artworkCount: _artworkCount, artistCount: _artistCount }:
   return (
     <section className="relative overflow-hidden bg-obsidian px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-24 border-b border-white/[0.06]">
       {/* Ambient background glow effects (Linear / Vercel style) */}
-      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-[#c5a059]/15 via-amber-500/5 to-transparent blur-[120px] rounded-full opacity-60" />
+      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-[#8C2131]/20 via-[#1A3A8F]/10 to-transparent blur-[120px] rounded-full opacity-60" />
       <div className="pointer-events-none absolute right-1/4 top-1/3 w-[400px] h-[300px] bg-gradient-to-bl from-emerald-500/10 via-transparent to-transparent blur-[100px] rounded-full opacity-40" />
 
       {/* Grid Pattern Overlay */}
@@ -53,7 +53,7 @@ const HeroSection = ({ artworkCount: _artworkCount, artistCount: _artistCount }:
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.5)] transition-colors hover:border-[#c5a059]/40"
+          className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.5)] transition-colors hover:border-[#1A3A8F]/40"
         >
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -74,7 +74,7 @@ const HeroSection = ({ artworkCount: _artworkCount, artistCount: _artistCount }:
         >
           Trust Original Art.
           <br />
-          <span className="bg-gradient-to-r from-linen via-[#f4e8d0] to-[#c5a059] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-white via-[#8C2131] to-[#1A3A8F] bg-clip-text text-transparent">
             In the Age of AI.
           </span>
         </motion.h1>
@@ -98,9 +98,12 @@ const HeroSection = ({ artworkCount: _artworkCount, artistCount: _artistCount }:
         >
           <Link 
             to="/artworks" 
-            className="group relative inline-flex items-center justify-center gap-2.5 rounded-lg bg-gradient-to-b from-[#dfca98] via-[#c5a059] to-[#a6823c] px-6 py-3 text-[14px] font-medium text-obsidian shadow-[0_0_20px_rgba(197,160,89,0.25)] transition-all duration-300 hover:shadow-[0_0_30px_rgba(197,160,89,0.4)] hover:brightness-110 active:scale-[0.99] w-full sm:w-auto"
+            className="group relative inline-flex items-center justify-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.02] px-6 py-3 text-[14px] font-medium text-white backdrop-blur-md transition-all duration-500 hover:border-white/0 hover:shadow-[0_0_30px_rgba(123,63,228,0.25)] active:scale-[0.99] w-full sm:w-auto overflow-hidden z-10"
           >
-            <Shield className="h-4 w-4 fill-obsidian/20" />
+            {/* Smooth glowing gradient background that fades in on hover */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#8C2131]/90 via-[#7B3FE4]/80 to-[#1A3A8F]/90 opacity-0 transition-opacity duration-500 group-hover:opacity-100 -z-10" />
+
+            <Shield className="h-4 w-4 fill-white/20" />
             <span>Explore Verified Artworks</span>
             <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
           </Link>
@@ -125,10 +128,13 @@ const HeroSection = ({ artworkCount: _artworkCount, artistCount: _artistCount }:
             return (
               <div 
                 key={pillar.title} 
-                className="group relative rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-white/[0.01] p-6 backdrop-blur-md transition-all duration-300 hover:border-[#c5a059]/40 hover:bg-white/[0.06] hover:shadow-[0_0_30px_rgba(197,160,89,0.08)] hover:-translate-y-0.5"
+                className="group relative rounded-xl border border-white/[0.06] bg-[#0A0A0A]/50 p-6 backdrop-blur-md transition-all duration-500 hover:border-white/10 hover:bg-[#111111]/80 hover:shadow-[0_10_40px_rgba(123,63,228,0.08)] hover:-translate-y-1 overflow-hidden"
               >
-                <div className="mb-4 flex items-center justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#c5a059]/30 bg-[#c5a059]/10 text-gold transition-colors group-hover:border-[#c5a059]/60 group-hover:bg-[#c5a059]/20">
+                {/* Subtle gradient wash that appears on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#8C2131]/[0.03] to-[#1A3A8F]/[0.05] opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none" />
+
+                <div className="mb-4 flex items-center justify-between relative z-10">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/5 bg-white/[0.02] text-stone-400 transition-all duration-500 group-hover:border-[#8C2131]/30 group-hover:bg-[#8C2131]/10 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(200,16,46,0.2)]">
                     <Icon className="h-5 w-5" />
                   </div>
                   <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider bg-gradient-to-r ${pillar.badgeColor}`}>
@@ -136,16 +142,16 @@ const HeroSection = ({ artworkCount: _artworkCount, artistCount: _artistCount }:
                   </span>
                 </div>
 
-                <h3 className="mb-2 text-[17px] font-semibold tracking-[-0.01em] text-linen group-hover:text-white transition-colors">
+                <h3 className="mb-2 text-[17px] font-semibold tracking-[-0.01em] text-linen group-hover:text-white transition-colors relative z-10">
                   {pillar.title}
                 </h3>
                 
-                <p className="text-[13px] leading-[1.65] text-stone-400 font-normal">
+                <p className="text-[13px] leading-[1.65] text-stone-400 font-normal relative z-10">
                   {pillar.description}
                 </p>
 
-                {/* Bottom card highlight border */}
-                <div className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-[#c5a059]/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                {/* Bottom card highlight border - purple glow merging red and blue */}
+                <div className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-[#7B3FE4]/50 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
               </div>
             );
           })}

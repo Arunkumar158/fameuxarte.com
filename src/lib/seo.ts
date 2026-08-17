@@ -1,4 +1,4 @@
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.VITE_PUBLIC_APP_URL || 'https://fameuxarte.com';
+const APP_URL = import.meta.env.VITE_PUBLIC_APP_URL || 'https://fameuxarte.com';
 
 export const generateProductStructuredData = (product: {
   name: string;

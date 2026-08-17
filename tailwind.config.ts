@@ -35,7 +35,9 @@ export default {
         'surface-2': '#111111',
         'surface-3': '#141414',
         linen: '#f0ece4',
-        gold: '#c9a96e',
+        gold: '#D4D0C8', // Aliased to elegant warm grey/silver
+        crimson: '#8C2131', // Updated to deep gallery red
+        cobalt: '#1A3A8F',
         stone: '#888780',
         verified: '#4a9d6f',
         'border-subtle': '#1e1e1e',
@@ -83,12 +85,17 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))'
         },
-        // Brand colors
+        // Brand colors — FA logo palette refined to Gallery aesthetics
         brand: {
-          gold: '#C2A36B', // Soft, muted luxury gold
-          goldMuted: '#A38B57',
+          red: '#8C2131',      // Sophisticated gallery red (oxblood)
+          redMuted: '#6B141F', // Deeper shade for hover/muted
+          blue: '#1A3A8F',     // Logo cobalt blue
+          blueMuted: '#122B6E',// Deeper cobalt for hover/muted
+          glow: '#7B3FE4',     // Purple glow accent (where red meets blue)
+          gold: '#D4D0C8',     // Aliased to warm silver/grey for backward-compat text
+          goldMuted: '#A3A098',// Aliased to muted silver for backward-compat text
           black: '#000000',
-          dark: '#0A0A0A', // Deep charcoal
+          dark: '#0A0A0A',     // Deep charcoal
           surface: '#111111',
         }
       },
@@ -143,8 +150,8 @@ export default {
           '100%': { opacity: '1', transform: 'translateY(0)' }
         },
         'glow': {
-          '0%, 100%': { boxShadow: '0 0 5px rgba(194, 163, 107, 0.2)' },
-          '50%': { boxShadow: '0 0 20px rgba(194, 163, 107, 0.5)' }
+          '0%, 100%': { boxShadow: '0 0 5px rgba(200, 16, 46, 0.3)' },
+          '50%': { boxShadow: '0 0 25px rgba(200, 16, 46, 0.6)' }
         },
         'float': {
           '0%, 100%': { transform: 'translateY(0)' },
