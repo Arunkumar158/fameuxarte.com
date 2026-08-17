@@ -1,6 +1,8 @@
 import React from 'react';
-import ArtworkCard, { Artwork } from '@/components/shared/ArtworkCard';
+import ArtworkCard from '@/components/shared/ArtworkCard';
 import { Loader2 } from 'lucide-react';
+
+type Artwork = React.ComponentProps<typeof ArtworkCard>['artwork'];
 
 interface DiscoveryArtworkGridProps {
   artworks: Artwork[];
