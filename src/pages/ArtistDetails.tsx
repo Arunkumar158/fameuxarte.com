@@ -61,6 +61,7 @@ const ArtistArtworkCard = ({
   artwork,
   artistName,
   collected = false,
+  isVerified = false,
 }: {
   artwork: ArtworkData;
   artistName: string;
@@ -124,12 +125,14 @@ const ArtistDetails = () => {
     queryFn: async (): Promise<ArtistDisplayData> => {
       if (!artistId) throw new Error("No artist identifier provided");
 
-      const { data: profile, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("id, full_name, avatar_url, bio, city, country, website, mediums, art_styles, trust_score, verification_status, verified_at, created_at, profile_views_count")
         .eq("id", artistId)
         .eq("role", "artist")
         .maybeSingle();
+
+      const profile = profileData as any;
 
       if (!profileError && profile) {
         const location =
@@ -156,7 +159,7 @@ const ArtistDetails = () => {
         };
       }
 
-      const { data: artistRow, error: artistRowError } = await supabase
+      const { data: artistRowData, error: artistRowError } = await supabase
         .from("artists")
         .select(
           `
@@ -176,6 +179,8 @@ const ArtistDetails = () => {
         )
         .eq("id", artistId)
         .maybeSingle();
+
+      const artistRow = artistRowData as any;
 
       if (artistRowError) throw artistRowError;
       if (!artistRow) throw new Error("Artist not found");

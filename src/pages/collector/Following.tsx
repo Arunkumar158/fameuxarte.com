@@ -148,17 +148,17 @@ const Following = () => {
       // Fetch profile info for all followed artists
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, mediums, city, country")
+        .select("id, full_name, avatar_url, city, country")
         .in("id", artistIds);
 
       if (profilesError) throw profilesError;
 
       const profileMap = new Map(
-        (profiles || []).map((p) => [p.id, p])
+        (profiles as any || []).map((p: any) => [p.id, p])
       );
 
       return data.map((follow) => {
-        const profile = profileMap.get(follow.artist_id);
+        const profile = profileMap.get(follow.artist_id) as any;
         const city = profile?.city;
         const country = profile?.country;
         const location =

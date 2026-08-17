@@ -261,8 +261,8 @@ export default function InsightsEditor() {
               </div>
               <div className="space-y-2">
                 <Label>Schema Type</Label>
-                <Select className="bg-white text-slate-900 border-slate-200" value={formData.schema_type} onValueChange={(v) => handleSelectChange('schema_type', v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select value={formData.schema_type} onValueChange={(v) => handleSelectChange('schema_type', v)}>
+                  <SelectTrigger className="bg-white text-slate-900 border-slate-200"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Article">Article</SelectItem>
                     <SelectItem value="BlogPosting">BlogPosting</SelectItem>

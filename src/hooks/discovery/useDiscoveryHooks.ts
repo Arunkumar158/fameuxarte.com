@@ -1,7 +1,10 @@
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DiscoveryEntity } from "@/lib/discovery/registry";
-import { Artwork } from "@/components/shared/ArtworkCard";
+import ArtworkCard from "@/components/shared/ArtworkCard";
+
+type Artwork = React.ComponentProps<typeof ArtworkCard>['artwork'];
 
 const getDisplayImage = (imagePath?: string | null) => {
   if (!imagePath) return "/placeholder.svg";

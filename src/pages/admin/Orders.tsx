@@ -31,7 +31,6 @@ export default function AdminOrders() {
             id,
             created_at,
             status,
-            payment_status,
             profiles (
               full_name,
               email

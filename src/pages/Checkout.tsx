@@ -146,41 +146,45 @@ const Checkout = () => {
 
       // 🔍 DEBUG - Log raw cart items structure
       console.log('🔍 Cart Items (raw):', JSON.stringify(items, null, 2));
-      console.log('🔍 Cart Items (detailed):', items.map((item, idx) => ({
-        index: idx,
-        cartItemId: item.id,
-        hasArtworkId: !!item.artwork_id,
-        artworkId: item.artwork_id,
-        artworkIdType: typeof item.artwork_id,
-        hasArtwork: !!item.artwork,
-        artwork: item.artwork ? {
-          hasId: !!item.artwork.id,
-          id: item.artwork.id,
-          idType: typeof item.artwork.id,
-          hasTitle: !!item.artwork.title,
-          title: item.artwork.title,
-          hasPrice: item.artwork.price !== undefined && item.artwork.price !== null,
-          price: item.artwork.price,
-          priceType: typeof item.artwork.price
-        } : null,
-        hasQuantity: item.quantity !== undefined && item.quantity !== null,
-        quantity: item.quantity,
-        quantityType: typeof item.quantity
-      })));
+      console.log('🔍 Cart Items (detailed):', items.map((item, idx) => {
+        const artwork = item.artwork as any;
+        return {
+          index: idx,
+          cartItemId: item.id,
+          hasArtworkId: !!item.artwork_id,
+          artworkId: item.artwork_id,
+          artworkIdType: typeof item.artwork_id,
+          hasArtwork: !!artwork,
+          artwork: artwork ? {
+            hasId: !!artwork.id,
+            id: artwork.id,
+            idType: typeof artwork.id,
+            hasTitle: !!artwork.title,
+            title: artwork.title,
+            hasPrice: artwork.price !== undefined && artwork.price !== null,
+            price: artwork.price,
+            priceType: typeof artwork.price
+          } : null,
+          hasQuantity: item.quantity !== undefined && item.quantity !== null,
+          quantity: item.quantity,
+          quantityType: typeof item.quantity
+        };
+      }));
 
       // Step 3: Format items according to backend contract
       // Backend expects: { items: [{ artworkId, quantity, price }], totalAmount }
       const formattedItems: OrderItemRequest[] = items.map((item, index) => {
+        const artwork = item.artwork as any;
         console.log(`🔍 Processing item ${index}:`, {
           cartItemId: item.id,
           artworkId: item.artwork_id,
           artworkIdType: typeof item.artwork_id,
           artworkIdValue: item.artwork_id,
-          hasArtwork: !!item.artwork,
-          artworkIdFromArtwork: item.artwork?.id,
-          artworkTitle: item.artwork?.title,
-          artworkPrice: item.artwork?.price,
-          artworkPriceType: typeof item.artwork?.price,
+          hasArtwork: !!artwork,
+          artworkIdFromArtwork: artwork?.id,
+          artworkTitle: artwork?.title,
+          artworkPrice: artwork?.price,
+          artworkPriceType: typeof artwork?.price,
           quantity: item.quantity,
           quantityType: typeof item.quantity
         });
@@ -192,24 +196,24 @@ const Checkout = () => {
           });
           throw new Error(`Item ${index} is missing artwork_id`);
         }
-        if (!item.artwork) {
+        if (!artwork) {
           console.error(`❌ Item ${index} validation failed: artwork object is missing`, {
             item: JSON.stringify(item, null, 2)
           });
           throw new Error(`Item ${index} is missing artwork object`);
         }
-        if (item.artwork.price === undefined || item.artwork.price === null) {
+        if (artwork.price === undefined || artwork.price === null) {
           console.error(`❌ Item ${index} validation failed: artwork.price is missing`, {
             item: JSON.stringify(item, null, 2),
-            artwork: JSON.stringify(item.artwork, null, 2)
+            artwork: JSON.stringify(artwork, null, 2)
           });
-          throw new Error(`Item ${index} has invalid price: ${item.artwork.price}`);
+          throw new Error(`Item ${index} has invalid price: ${artwork.price}`);
         }
-        if (item.artwork.price <= 0) {
+        if (artwork.price <= 0) {
           console.error(`❌ Item ${index} validation failed: artwork.price is not positive`, {
-            price: item.artwork.price
+            price: artwork.price
           });
-          throw new Error(`Item ${index} has invalid price: ${item.artwork.price}`);
+          throw new Error(`Item ${index} has invalid price: ${artwork.price}`);
         }
         if (item.quantity === undefined || item.quantity === null) {
           console.error(`❌ Item ${index} validation failed: quantity is missing`, {
@@ -227,7 +231,7 @@ const Checkout = () => {
         // Extract values with type checking
         const artworkId = String(item.artwork_id);
         const quantity = Number(item.quantity);
-        const price = Number(item.artwork.price);
+        const price = Number(artwork.price);
 
         console.log(`✅ Item ${index} extracted values:`, {
           artworkId,

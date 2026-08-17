@@ -30,7 +30,7 @@ const Artists = () => {
 
       try {
         // Fetch artist profiles directly from profiles table
-        const { data: profiles, error, count } = await supabase
+        const { data: profilesData, error, count } = await supabase
           .from("profiles")
           .select("id, full_name, avatar_url, bio, city, country, mediums, art_styles, cover_image, website", { count: "exact" })
           .eq("role", "artist")
@@ -44,6 +44,8 @@ const Artists = () => {
           setHasMore(from + limit < count);
         }
 
+        const profiles = profilesData as any[];
+        
         if (!profiles || profiles.length === 0) return [];
 
         // Fetch artwork counts for all artist profiles in one query

@@ -396,7 +396,7 @@ const Account = () => {
       if (!user) return [];
       const { data, error } = await supabase
         .from("certificates")
-        .select("id, artwork_id, certificate_number, file_path")
+        .select("id, artwork_id, certificate_number, pdf_url")
         .eq("collector_id", user.id);
       
       if (error) throw error;
@@ -660,7 +660,7 @@ const Account = () => {
                                         className="h-7 text-[10px] border-gold/30 text-gold hover:bg-gold/10 hover:text-gold"
                                       >
                                         <a 
-                                          href={`https://yexjmqhffxukzomkblqj.supabase.co/storage/v1/object/public/certificates/${userCertificates.find(c => c.artwork_id === item.artwork_id)?.file_path}`} 
+                                          href={`https://yexjmqhffxukzomkblqj.supabase.co/storage/v1/object/public/certificates/${userCertificates.find(c => c.artwork_id === item.artwork_id)?.pdf_url}`} 
                                           target="_blank" 
                                           rel="noreferrer"
                                         >

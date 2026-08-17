@@ -22,7 +22,7 @@ export default function CertificateVerify() {
           certificate_number,
           issued_at,
           certificate_status,
-          artwork:artworks(title, image_path, category, mediums, description),
+          artwork:artworks(title, image_path, category, description),
           artist:profiles!certificates_artist_id_fkey(full_name, verification_status),
           collector:profiles!certificates_collector_id_fkey(full_name)
         `)
@@ -32,7 +32,7 @@ export default function CertificateVerify() {
       if (error) throw error;
       if (!data) throw new Error("Certificate not found");
 
-      return data;
+      return data as any;
     },
     enabled: Boolean(certificateNumber),
   });

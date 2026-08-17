@@ -9,6 +9,11 @@ import { useArtworkImage } from "@/hooks/useArtworkImage";
 
 interface ArtworkGridProps {
   limit?: number;
+  artworks?: any[];
+  isLoading?: boolean;
+  viewMode?: string;
+  onLikeToggle?: any;
+  isLiked?: any;
 }
 
 // Component to handle individual artwork with proper image loading
@@ -108,11 +113,16 @@ export const useArtworks = (limit?: number) => {
   };
 };
 
-const ArtworkGrid = ({ limit }: ArtworkGridProps) => {
-  const { artworks, isLoading, isLoadingMore, page, totalPages, goToPage } = useArtworks(limit);
+const ArtworkGrid = ({ limit, artworks: passedArtworks, isLoading: passedIsLoading }: ArtworkGridProps) => {
+  const { artworks: fetchedArtworks, isLoading: fetchedIsLoading, isLoadingMore, page, totalPages, goToPage } = useArtworks(limit);
   const { toast } = useToast();
 
+  const artworks = passedArtworks || fetchedArtworks;
+  const isLoading = passedIsLoading !== undefined ? passedIsLoading : fetchedIsLoading;
+
   useEffect(() => {
+    if (passedArtworks) return; // Don't subscribe to changes if using passed artworks
+    
     const channel = supabase
       .channel('artwork-changes')
       .on(
@@ -130,7 +140,7 @@ const ArtworkGrid = ({ limit }: ArtworkGridProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [toast]);
+  }, [toast, passedArtworks]);
 
   if (isLoading) return <div>Loading artworks...</div>;
 
@@ -141,11 +151,11 @@ const ArtworkGrid = ({ limit }: ArtworkGridProps) => {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {artworks.map((artwork) => (
+        {artworks.map((artwork: any) => (
           <ArtworkCardWithImage key={artwork.id} artwork={artwork} />
         ))}
       </div>
-      {!limit && totalPages > 1 && (
+      {!limit && !passedArtworks && totalPages > 1 && (
         <Pagination
           currentPage={page}
           totalPages={totalPages}

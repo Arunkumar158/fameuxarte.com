@@ -51,7 +51,7 @@ const CollectionEditor = () => {
       
       try {
         const { data, error } = await supabase
-          .from("artist_collections")
+          .from("artist_collections" as any)
           .select("*")
           .eq("id", id)
           .eq("artist_id", user.id)
@@ -59,10 +59,11 @@ const CollectionEditor = () => {
           
         if (error) throw error;
         
-        setTitle(data.title || "");
-        setDescription(data.description || "");
-        setSeoDescription(data.seo_description || "");
-        setExistingImage(data.cover_image || null);
+        const collectionData = data as any;
+        setTitle(collectionData.title || "");
+        setDescription(collectionData.description || "");
+        setSeoDescription(collectionData.seo_description || "");
+        setExistingImage(collectionData.cover_image || null);
         
       } catch (error) {
         console.error("Error fetching collection:", error);
@@ -124,10 +125,10 @@ const CollectionEditor = () => {
       };
 
       if (isEditMode) {
-        const { error } = await supabase.from("artist_collections").update(payload).eq("id", id);
+        const { error } = await supabase.from("artist_collections" as any).update(payload).eq("id", id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("artist_collections").insert({
+        const { error } = await supabase.from("artist_collections" as any).insert({
           ...payload,
           artist_id: user.id,
           slug: slug as string,
@@ -158,7 +159,7 @@ const CollectionEditor = () => {
     
     setIsSaving(true);
     try {
-      const { error } = await supabase.from("artist_collections").delete().eq("id", id);
+      const { error } = await supabase.from("artist_collections" as any).delete().eq("id", id);
       if (error) throw error;
       
       toast({

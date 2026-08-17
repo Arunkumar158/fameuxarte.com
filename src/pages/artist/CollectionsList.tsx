@@ -32,7 +32,7 @@ const CollectionsList = () => {
     queryFn: async () => {
       if (!user) return [];
       const { data, error } = await supabase
-        .from("artist_collections")
+        .from("artist_collections" as any)
         .select(`
           *,
           artworks(count)
@@ -41,7 +41,7 @@ const CollectionsList = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as any[];
     },
     enabled: !!user,
   });
@@ -50,7 +50,7 @@ const CollectionsList = () => {
     if (!confirm("Are you sure you want to delete this collection? Artworks will remain but lose this collection association.")) return;
     
     try {
-      const { error } = await supabase.from("artist_collections").delete().eq("id", id);
+      const { error } = await supabase.from("artist_collections" as any).delete().eq("id", id);
       if (error) throw error;
       
       toast({
@@ -68,8 +68,8 @@ const CollectionsList = () => {
     }
   };
 
-  const filteredCollections = collections?.filter((c) => 
-    c.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCollections = collections?.filter((c: any) => 
+    c.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (

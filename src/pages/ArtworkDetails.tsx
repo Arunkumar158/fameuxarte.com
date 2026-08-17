@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DiscoveryHead } from "@/platform/discovery/DiscoveryHead";
 import { DiscoveryBreadcrumbs } from "@/components/discovery/DiscoveryBreadcrumbs";
 import { getGalleryImages } from "@/lib/utils";
-import { trackPageViewed, recordArtworkView } from "@/lib/analytics";
+import { trackPageViewed, recordArtworkView, trackEvent } from "@/lib/analytics";
 import ArtworkGrid from "@/components/ArtworkGrid";
 
 interface ArtworkData {
@@ -27,7 +27,7 @@ interface ArtworkData {
   image_path: string | null;
   images: string[] | null;
   slug: string | null;
-  status?: "available" | "sold" | "reserved";
+  status?: "available" | "sold" | "reserved" | "draft" | "hidden" | string;
   views_count?: number;
   artist_id?: string | null;
   artist: {
@@ -380,13 +380,12 @@ const ArtworkDetails = () => {
         <section className="border-t border-border-faint px-4 sm:px-6 py-4 sm:py-6">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
             <DiscoveryBreadcrumbs 
-              entityType="artwork" 
-              entityTitle={artwork.title}
-              customPath={`/artworks/${artwork.slug || artwork.id}`}
-              options={{
-                category: artwork.category,
-                artistName: artistName,
-              }}
+              items={[
+                { name: 'Home', url: '/', position: 1 },
+                { name: 'Artworks', url: '/artworks', position: 2 },
+                ...(artwork.category ? [{ name: artwork.category, url: `/artworks?category=${artwork.category}`, position: 3 }] : []),
+                { name: artwork.title, url: `/artworks/${artwork.slug || artwork.id}`, position: artwork.category ? 4 : 3 }
+              ]}
             />
             <div className="hidden text-[11px] uppercase tracking-[0.14em] text-[#444] sm:block">
               Verified artwork record

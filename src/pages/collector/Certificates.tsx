@@ -18,7 +18,6 @@ const Certificates = () => {
         .select(`
           id,
           certificate_number,
-          file_path,
           created_at,
           artwork_id,
           artworks (
@@ -36,7 +35,7 @@ const Certificates = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as any;
     },
     enabled: !!user,
   });

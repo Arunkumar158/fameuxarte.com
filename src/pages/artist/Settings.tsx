@@ -118,7 +118,7 @@ const Settings = () => {
         .single();
         
       if (error) throw error;
-      return data;
+      return data as any;
     },
     enabled: !!user,
   });
@@ -252,7 +252,7 @@ const Settings = () => {
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from("profiles").update(payload).eq("id", user.id);
+      const { error } = await supabase.from("profiles").update(payload as any).eq("id", user.id);
       
       if (error) throw error;
 

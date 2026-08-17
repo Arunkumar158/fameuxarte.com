@@ -42,7 +42,6 @@ export default function ArtistOrderDetails() {
             id,
             created_at,
             status,
-            payment_status,
             user_id,
             shipping_address,
             profiles (

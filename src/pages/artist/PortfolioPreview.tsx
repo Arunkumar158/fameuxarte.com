@@ -31,7 +31,7 @@ const PortfolioPreview = () => {
         .single();
         
       if (error) throw error;
-      return data;
+      return data as any;
     },
     enabled: !!user,
   });
@@ -58,7 +58,7 @@ const PortfolioPreview = () => {
     queryFn: async () => {
       if (!user) return [];
       const { data, error } = await supabase
-        .from("artist_collections")
+        .from("artist_collections" as any)
         .select(`
           *,
           artworks(id, image_path, title)
@@ -67,7 +67,7 @@ const PortfolioPreview = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as any[];
     },
     enabled: !!user,
   });

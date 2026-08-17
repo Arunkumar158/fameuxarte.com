@@ -52,7 +52,7 @@ const BlogPost = () => {
 
       // If not found with capital-S, try lowercase 'slug' column
       if (!blogData) {
-        const { data: blogBySlug } = await supabase
+        const query: any = supabase
           .from("blogs")
           .select(`
             *,
@@ -63,9 +63,8 @@ const BlogPost = () => {
               role,
               bio
             )
-          `)
-          .eq("slug", cleanSlug)
-          .maybeSingle();
+          `);
+        const { data: blogBySlug } = await query.eq("slug", cleanSlug).maybeSingle();
         blogData = blogBySlug;
       }
 

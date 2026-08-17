@@ -49,7 +49,7 @@ const Dashboard = () => {
         .single();
         
       if (error) throw error;
-      return data;
+      return data as any;
     },
     enabled: !!user,
   });

@@ -221,7 +221,7 @@ const ArtworkEditor = () => {
         tags: tagsArray,
         image_path: finalImages.length > 0 ? finalImages[0] : null,
         images: finalImages,
-        status: saveAsStatus,
+        status: saveAsStatus as any,
         certificate_included: certificateIncluded,
         frame_included: frameIncluded,
         dimensions: {

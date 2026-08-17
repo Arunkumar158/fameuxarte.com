@@ -32,7 +32,8 @@ export class SearchIndex {
     console.log('[Discovery SearchIndex] Query executed:', query);
     
     try {
-      const { data, error } = await supabase.rpc('search_artworks', {
+      const sb = supabase as any;
+      const { data, error } = await sb.rpc('search_artworks', {
         search_term: query.term || null,
         category_filter: query.filters?.category || null,
         medium_filter: query.filters?.medium || null,

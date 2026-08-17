@@ -41,10 +41,11 @@ const Collection = () => {
 
       const { data: certificates } = await supabase
         .from("certificates")
-        .select("artwork_id, file_path")
+        .select("artwork_id")
         .eq("collector_id", user.id);
 
-      const certMap = new Map(certificates?.map((c) => [c.artwork_id, c.file_path]) || []);
+      const certs = certificates as any;
+      const certMap = new Map(certs?.map((c: any) => [c.artwork_id, c.file_path]) || []);
 
       const items = orders?.flatMap(order => 
         (order.order_items || []).map(item => ({
@@ -140,7 +141,7 @@ const Collection = () => {
                   
                   {item.certificate_path && (
                     <Button asChild variant="outline" className="border-border-subtle text-linen hover:bg-surface-3 hover:text-linen w-48 rounded-full">
-                      <a href={getCertUrl(item.certificate_path)} target="_blank" rel="noreferrer">
+                      <a href={getCertUrl(item.certificate_path as string)} target="_blank" rel="noreferrer">
                         <Download className="w-4 h-4 mr-2" /> Download Cert
                       </a>
                     </Button>

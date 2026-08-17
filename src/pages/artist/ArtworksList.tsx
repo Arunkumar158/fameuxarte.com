@@ -70,7 +70,7 @@ const ArtworksList = () => {
 
   const handleUpdateStatus = async (id: string, status: string) => {
     try {
-      const { error } = await supabase.from("artworks").update({ status }).eq("id", id);
+      const { error } = await supabase.from("artworks").update({ status: status as any }).eq("id", id);
       if (error) throw error;
       
       toast({

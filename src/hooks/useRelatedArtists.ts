@@ -26,7 +26,7 @@ export function useRelatedArtists(currentArtistId: string | undefined, currentAr
       // Fetch active artists excluding the current one
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url, bio, mediums, art_styles, country, created_at')
+        .select('id, full_name, avatar_url, created_at')
         .eq('role', 'artist')
         .neq('id', currentArtistId)
         .limit(50); // Get a pool to score
@@ -38,7 +38,7 @@ export function useRelatedArtists(currentArtistId: string | undefined, currentAr
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       // Score each artist
-      const scoredArtists: RelatedArtist[] = data.map((artist) => {
+      const scoredArtists: RelatedArtist[] = data.map((artist: any) => {
         let score = 0;
 
         // Same Style: 40% (Up to 40 points)

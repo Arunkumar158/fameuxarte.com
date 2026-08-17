@@ -99,11 +99,11 @@ export default function VerificationManagement() {
     queryFn: async () => {
       let query = supabase
         .from("profiles")
-        .select("id, full_name, email, verification_status, trust_score, verified_at")
+        .select("id, full_name, verification_status, trust_score, verified_at")
         .eq("role", "artist");
 
       if (statusFilter !== "all") {
-        query = query.eq("verification_status", statusFilter);
+        query = query.eq("verification_status", statusFilter as any);
       } else {
         query = query.order("verification_status", { ascending: false }); // identity_submitted comes up
       }
@@ -146,9 +146,9 @@ export default function VerificationManagement() {
     setIsReviewModalOpen(true);
   };
 
-  const filteredArtists = artists?.filter((a) => 
+  const filteredArtists = artists?.filter((a: any) => 
     a.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    a.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    (a.email && a.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -260,7 +260,7 @@ export default function VerificationManagement() {
                     <TableCell>
                       <div>
                         <p className="font-medium text-linen">{artist.full_name || "Unknown"}</p>
-                        <p className="text-xs text-[#888]">{artist.email}</p>
+                        <p className="text-xs text-[#888]">{(artist as any).email || "No email"}</p>
                       </div>
                     </TableCell>
                     <TableCell>

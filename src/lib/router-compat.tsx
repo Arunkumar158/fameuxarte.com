@@ -60,15 +60,25 @@ export function useParams<T extends Record<string, any> = Record<string, string>
   return normalized as T;
 }
 
-export function useSearchParams(): [URLSearchParams, (nextInit: URLSearchParams | Record<string, string> | string) => void] {
+export function useSearchParams(): [URLSearchParams, (nextInit: URLSearchParams | Record<string, string> | string | ((prev: URLSearchParams) => URLSearchParams), options?: { replace?: boolean; state?: any }) => void] {
   const router = useRouter();
   const pathname = usePathname() || "/";
   const nextParams = useNextSearchParams();
   const params = useMemo(() => new URLSearchParams(nextParams?.toString()), [nextParams]);
-  const setSearchParams = (nextInit: URLSearchParams | Record<string, string> | string) => {
-    const updated = nextInit instanceof URLSearchParams ? nextInit : new URLSearchParams(nextInit as any);
+  const setSearchParams = (nextInit: URLSearchParams | Record<string, string> | string | ((prev: URLSearchParams) => URLSearchParams), options?: { replace?: boolean; state?: any }) => {
+    let updated: URLSearchParams;
+    if (typeof nextInit === 'function') {
+      updated = nextInit(params);
+    } else {
+      updated = nextInit instanceof URLSearchParams ? nextInit : new URLSearchParams(nextInit as any);
+    }
     const query = updated.toString();
-    router.push(query ? `${pathname}?${query}` : pathname);
+    const href = query ? `${pathname}?${query}` : pathname;
+    if (options?.replace) {
+      router.replace(href);
+    } else {
+      router.push(href);
+    }
   };
   return [params, setSearchParams];
 }

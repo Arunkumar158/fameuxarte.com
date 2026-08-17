@@ -94,7 +94,7 @@ export class StructuredDataValidatorPlugin implements DiscoveryAuditPlugin {
     }, {} as Record<string, number>);
 
     Object.entries(typesCount).forEach(([type, count]) => {
-      if (count > 1 && type !== 'ListItem' && type !== 'Question') {
+      if ((count as number) > 1 && type !== 'ListItem' && type !== 'Question') {
         issues.push({ type: 'info', message: `Multiple schemas of type ${type} found. Ensure this is intentional.` });
       }
     });
