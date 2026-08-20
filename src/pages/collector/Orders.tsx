@@ -49,10 +49,8 @@ const Orders = () => {
             artworks (
               title,
               image_path,
-              artists (
-                profiles (
-                  full_name
-                )
+              profiles (
+                full_name
               )
             )
           )
@@ -133,7 +131,7 @@ const Orders = () => {
               <div className="divide-y divide-border-faint">
                 {order.order_items?.map((item) => {
                   const artwork = item.artworks as any;
-                  const artistName = artwork?.artists?.profiles?.full_name || "Unknown Artist";
+                  const artistName = artwork?.profiles?.full_name || "Unknown Artist";
                   const currentStepIdx = getStepIndex(item.fulfillment_status || order.status);
 
                   return (

@@ -11,7 +11,7 @@ const trustItems = [
 
 const TrustBar = () => {
   return (
-    <section id="trust" className="flex flex-wrap items-center justify-center gap-8 bg-surface-2 px-6 py-[14px]">
+    <section id="trust" className="flex flex-wrap items-center justify-center gap-8 bg-transparent px-6 py-[14px]">
       {trustItems.map(({ label, icon: Icon }) => (
         <div key={label} className="flex items-center gap-[7px]">
           <Icon className="h-[14px] w-[14px] text-verified" />

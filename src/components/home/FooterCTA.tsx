@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 const FooterCTA = () => {
   return (
-    <section className="border-t border-border-faint bg-obsidian px-6 py-14 text-center">
+    <section className="border-t border-border-faint bg-transparent px-6 py-14 text-center">
       <div className="mx-auto max-w-xl">
         <div className="mb-3 text-[11px] font-normal uppercase tracking-[0.14em] text-[#555]">Start collecting</div>
         <h2 className="mb-[10px] text-[28px] font-medium tracking-[-0.02em] text-linen">Your first acquisition starts here.</h2>

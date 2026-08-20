@@ -33,7 +33,7 @@ const trustPillars = [
 
 const HeroSection = ({ artworkCount: _artworkCount, artistCount: _artistCount }: HeroSectionProps) => {
   return (
-    <section className="relative overflow-hidden bg-obsidian px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-24 border-b border-white/[0.06]">
+    <section className="relative overflow-hidden bg-transparent px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-24 border-b border-white/[0.06]">
       {/* Ambient background glow effects (Linear / Vercel style) */}
       <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-[#8C2131]/20 via-[#1A3A8F]/10 to-transparent blur-[120px] rounded-full opacity-60" />
       <div className="pointer-events-none absolute right-1/4 top-1/3 w-[400px] h-[300px] bg-gradient-to-bl from-emerald-500/10 via-transparent to-transparent blur-[100px] rounded-full opacity-40" />

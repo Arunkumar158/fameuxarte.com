@@ -87,7 +87,7 @@ const ArtistsSection = ({ artists }: ArtistsSectionProps) => {
   const displayArtists = artists ?? homeArtists ?? [];
 
   return (
-    <section className="bg-surface-1 px-6 py-10">
+    <section className="bg-transparent px-6 py-10">
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>

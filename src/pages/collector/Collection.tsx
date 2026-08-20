@@ -26,10 +26,8 @@ const Collection = () => {
               title,
               slug,
               image_path,
-              artists (
-                profiles (
-                  full_name
-                )
+              profiles (
+                full_name
               )
             )
           )
@@ -41,11 +39,11 @@ const Collection = () => {
 
       const { data: certificates } = await supabase
         .from("certificates")
-        .select("artwork_id")
+        .select("artwork_id, pdf_url")
         .eq("collector_id", user.id);
 
       const certs = certificates as any;
-      const certMap = new Map(certs?.map((c: any) => [c.artwork_id, c.file_path]) || []);
+      const certMap = new Map(certs?.map((c: any) => [c.artwork_id, c.pdf_url]) || []);
 
       const items = orders?.flatMap(order => 
         (order.order_items || []).map(item => ({
@@ -76,7 +74,7 @@ const Collection = () => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {[1, 2, 3].map((i) => (
           <div key={i} className="animate-pulse space-y-4">
             <div className="aspect-[3/4] bg-surface-2 rounded-[12px]"></div>
@@ -114,24 +112,22 @@ const Collection = () => {
         <p className="text-[14px] text-stone">{collection.length} {collection.length === 1 ? 'Artwork' : 'Artworks'}</p>
       </div>
 
-      <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {collection.map((item) => {
-          // Type casting since we know the structure from the query
           const artwork = item.artworks as any;
-          const artistName = artwork?.artists?.profiles?.full_name || "Unknown Artist";
+          const artistName = artwork?.profiles?.full_name || "Unknown Artist";
 
           return (
-            <div key={item.id} className="group relative break-inside-avoid overflow-hidden rounded-[16px] bg-surface-1 border border-border-subtle transition-all hover:border-gold/30 hover:shadow-[0_0_30px_rgba(212,175,55,0.1)]">
-              {/* Image Section */}
-              <div className="relative w-full overflow-hidden bg-surface-2 aspect-auto">
+            <div key={item.id} className="group relative flex flex-col overflow-hidden rounded-[16px] bg-surface-1 border border-border-subtle transition-all hover:border-gold/30 hover:shadow-[0_0_30px_rgba(212,175,55,0.1)]">
+              <div className="relative w-full aspect-[4/5] overflow-hidden bg-surface-2">
                 <img 
                   src={getImageUrl(artwork.image_path)} 
                   alt={artwork.title}
-                  className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+                  onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
                 />
                 
-                {/* Hover Overlay */}
                 <div className="absolute inset-0 bg-black/60 opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100 flex flex-col items-center justify-center gap-4">
                   <Button asChild variant="outline" className="border-gold text-gold hover:bg-gold hover:text-obsidian w-48 rounded-full">
                     <Link to={`/artworks/${artwork.slug}`}>
@@ -152,7 +148,6 @@ const Collection = () => {
                   </Button>
                 </div>
 
-                {/* Badges */}
                 <div className="absolute top-4 left-4 flex gap-2">
                   <span className="inline-flex items-center rounded-full bg-black/70 backdrop-blur-md px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-gold border border-gold/20">
                     <ShieldCheck className="w-3 h-3 mr-1" /> Authentic
@@ -160,8 +155,7 @@ const Collection = () => {
                 </div>
               </div>
 
-              {/* Info Section */}
-              <div className="p-5">
+              <div className="p-5 flex-grow flex flex-col">
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h3 className="text-[18px] font-medium text-linen leading-tight mb-1">{artwork.title}</h3>
@@ -172,7 +166,7 @@ const Collection = () => {
                   </Link>
                 </div>
                 
-                <div className="mt-4 pt-4 border-t border-border-faint flex items-center justify-between text-[11px] uppercase tracking-wider">
+                <div className="mt-auto pt-4 border-t border-border-faint flex items-center justify-between text-[11px] uppercase tracking-wider">
                   <span className="text-[#666]">Acquired</span>
                   <span className="text-linen font-medium">{formatDate(item.purchase_date)}</span>
                 </div>

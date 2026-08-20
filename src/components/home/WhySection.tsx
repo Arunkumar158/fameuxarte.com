@@ -20,7 +20,7 @@ const reasons = [
 
 const WhySection = () => {
   return (
-    <section className="bg-obsidian px-6 py-12">
+    <section className="bg-transparent px-6 py-12">
       <div className="mx-auto max-w-6xl">
         <h2 className="mb-7 text-center text-[22px] font-medium tracking-[-0.015em] text-linen">
           Why collectors choose Fameuxarte
