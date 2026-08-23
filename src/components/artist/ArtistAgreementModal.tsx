@@ -29,7 +29,6 @@ export function ArtistAgreementModal({ open, onOpenChange, onAccept }: ArtistAgr
     copyright: false,
     ownership: false,
     authenticity: false,
-    terms: false,
     packaging: false,
     commission: false
   });
