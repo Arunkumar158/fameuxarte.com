@@ -25,6 +25,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 const NAV_ITEMS = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
+  { name: "Support", href: "/admin/support", icon: HelpCircle },
   { name: "Artists", href: "/admin/artists", icon: Users },
   { name: "Artworks", href: "/admin/artworks", icon: ImageIcon },
   { name: "Verification", href: "/admin/verification", icon: ShieldCheck },
@@ -35,7 +36,6 @@ const NAV_ITEMS = [
 ];
 
 const COMING_SOON_ITEMS = [
-  { name: "Support", icon: HelpCircle },
   { name: "Notifications", icon: Bell },
   { name: "AI Features", icon: Sparkles },
 ];

@@ -52,6 +52,7 @@ const NAV_GROUPS = [
     items: [
       { name: "Notifications", href: "/collector/notifications", icon: Bell },
       { name: "Addresses", href: "/collector/addresses", icon: MapPin },
+      { name: "Support Tickets", href: "/collector/support", icon: Settings },
       { name: "Settings", href: "/collector/settings", icon: Settings },
     ]
   }

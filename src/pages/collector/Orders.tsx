@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Check, Package, Truck, CheckCircle2, Circle, ExternalLink } from "lucide-react";
+import { Check, Package, Truck, CheckCircle2, Circle, ExternalLink, HelpCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { CreateTicketDialog } from "@/components/support/CreateTicketDialog";
 
 const STEPS = [
   { id: "ordered", label: "Ordered" },
@@ -26,6 +27,8 @@ const getStepIndex = (status: string) => {
 
 const Orders = () => {
   const { user } = useAuth();
+  const [ticketOpen, setTicketOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | undefined>();
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ["collector-orders", user?.id],
@@ -155,6 +158,18 @@ const Orders = () => {
                             <Button variant="outline" size="sm" className="h-8 text-[12px] rounded-full border-border-subtle text-linen hover:bg-surface-3 hover:text-white">
                               View Invoice
                             </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-8 text-[12px] rounded-full border-border-subtle text-linen hover:bg-surface-3 hover:text-white"
+                              onClick={() => {
+                                setSelectedOrderId(order.id);
+                                setTicketOpen(true);
+                              }}
+                            >
+                              <HelpCircle className="w-3 h-3 mr-1.5" />
+                              Get Help
+                            </Button>
                             {currentStepIdx >= 4 && (
                               <Button variant="outline" size="sm" className="h-8 text-[12px] rounded-full border-gold/30 text-gold hover:bg-gold/10 hover:text-gold">
                                 Review Artwork
@@ -233,6 +248,12 @@ const Orders = () => {
           );
         })}
       </div>
+
+      <CreateTicketDialog 
+        open={ticketOpen}
+        onOpenChange={setTicketOpen}
+        orderId={selectedOrderId}
+      />
     </div>
   );
 };

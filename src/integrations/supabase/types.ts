@@ -793,6 +793,144 @@ export type Database = {
         }
         Relationships: []
       }
+      support_tickets: {
+        Row: {
+          id: string
+          ticket_number: string
+          user_id: string
+          subject: string
+          category: string
+          priority: string
+          status: string
+          order_id: string | null
+          artwork_id: string | null
+          certificate_id: string | null
+          assigned_agent_id: string | null
+          created_at: string
+          updated_at: string
+          resolved_at: string | null
+          closed_at: string | null
+          last_message_at: string
+        }
+        Insert: {
+          id?: string
+          ticket_number?: string
+          user_id: string
+          subject: string
+          category: string
+          priority?: string
+          status?: string
+          order_id?: string | null
+          artwork_id?: string | null
+          certificate_id?: string | null
+          assigned_agent_id?: string | null
+          created_at?: string
+          updated_at?: string
+          resolved_at?: string | null
+          closed_at?: string | null
+          last_message_at?: string
+        }
+        Update: {
+          id?: string
+          ticket_number?: string
+          user_id?: string
+          subject?: string
+          category?: string
+          priority?: string
+          status?: string
+          order_id?: string | null
+          artwork_id?: string | null
+          certificate_id?: string | null
+          assigned_agent_id?: string | null
+          created_at?: string
+          updated_at?: string
+          resolved_at?: string | null
+          closed_at?: string | null
+          last_message_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_artwork_id_fkey"
+            columns: ["artwork_id"]
+            isOneToOne: false
+            referencedRelation: "artworks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_certificate_id_fkey"
+            columns: ["certificate_id"]
+            isOneToOne: false
+            referencedRelation: "certificates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_assigned_agent_id_fkey"
+            columns: ["assigned_agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      support_ticket_messages: {
+        Row: {
+          id: string
+          ticket_id: string
+          sender_id: string
+          message: string
+          is_internal: boolean
+          attachments: string[] | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          ticket_id: string
+          sender_id: string
+          message: string
+          is_internal?: boolean
+          attachments?: string[] | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          ticket_id?: string
+          sender_id?: string
+          message?: string
+          is_internal?: boolean
+          attachments?: string[] | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_ticket_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       support_messages: {
         Row: {
           created_at: string | null

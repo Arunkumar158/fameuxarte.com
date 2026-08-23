@@ -73,6 +73,8 @@ const CollectorSavedCollections = React.lazy(() => import("./pages/collector/Sav
 const CollectorNotifications = React.lazy(() => import("./pages/collector/Notifications"));
 const CollectorAddresses = React.lazy(() => import("./pages/collector/Addresses"));
 const CollectorSettings = React.lazy(() => import("./pages/collector/Settings"));
+const CollectorSupportTickets = React.lazy(() => import("./pages/collector/SupportTickets"));
+const CollectorSupportTicketDetails = React.lazy(() => import("./pages/collector/SupportTicketDetails"));
 
 // Admin Imports
 import { AdminRoute } from "./components/admin/AdminRoute";
@@ -88,6 +90,8 @@ import AnalyticsAdmin from "./pages/admin/Analytics";
 import SettingsAdmin from "./pages/admin/Settings";
 import InsightsList from "./pages/admin/insights/InsightsList";
 import InsightsEditor from "./pages/admin/insights/InsightsEditor";
+const AdminSupportTickets = React.lazy(() => import("./pages/admin/SupportTicketsAdmin"));
+const AdminSupportTicketDetails = React.lazy(() => import("./pages/admin/SupportTicketDetailsAdmin"));
 
 // Artist Imports
 import { ArtistRoute } from "./components/artist/ArtistRoute";
@@ -175,6 +179,8 @@ const AnimatedRoutes = () => {
             <Route path="seo" element={<SEOAdmin />} />
             <Route path="analytics" element={<AnalyticsAdmin />} />
             <Route path="settings" element={<SettingsAdmin />} />
+            <Route path="support" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><AdminSupportTickets /></Suspense>} />
+            <Route path="support/:id" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><AdminSupportTicketDetails /></Suspense>} />
             <Route path="insights" element={<InsightsList />} />
             <Route path="insights/:id" element={<InsightsEditor />} />
           </Route>
@@ -191,6 +197,8 @@ const AnimatedRoutes = () => {
             <Route path="notifications" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorNotifications /></Suspense>} />
             <Route path="addresses" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorAddresses /></Suspense>} />
             <Route path="settings" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorSettings /></Suspense>} />
+            <Route path="support" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorSupportTickets /></Suspense>} />
+            <Route path="support/:id" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><CollectorSupportTicketDetails /></Suspense>} />
           </Route>
 
           {/* Artist Routes */}

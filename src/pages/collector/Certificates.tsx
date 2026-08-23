@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Download, ShieldCheck, CheckCircle, ExternalLink } from "lucide-react";
+import { Download, ShieldCheck, CheckCircle, ExternalLink, HelpCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { CreateTicketDialog } from "@/components/support/CreateTicketDialog";
 
 const Certificates = () => {
   const { user } = useAuth();
+  const [ticketOpen, setTicketOpen] = useState(false);
+  const [selectedCertId, setSelectedCertId] = useState<string | undefined>();
 
   const { data: certificates, isLoading } = useQuery({
     queryKey: ["collector-certificates", user?.id],
@@ -212,28 +215,38 @@ const Certificates = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="grid grid-cols-2 gap-3 pt-6 border-t border-border-faint mt-auto">
+                <div className="flex flex-wrap gap-2 pt-6 border-t border-border-faint mt-auto">
                   <Button
                     asChild
                     variant="outline"
-                    className="rounded-full border-border-subtle text-linen hover:bg-surface-3 hover:text-white h-10 text-[13px]"
+                    className="flex-1 min-w-[110px] rounded-full border-border-subtle text-linen hover:bg-surface-3 hover:text-white h-10 text-[13px]"
                   >
                     <a
                       href={getCertUrl(cert.pdf_url)}
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <Download className="w-4 h-4 mr-2 shrink-0" /> Download
+                      <Download className="w-4 h-4 mr-1.5 shrink-0" /> Download
                     </a>
                   </Button>
                   <Button
                     asChild
                     variant="outline"
-                    className="rounded-full border-gold/30 text-gold hover:bg-gold/10 hover:text-gold h-10 text-[13px]"
+                    className="flex-1 min-w-[110px] rounded-full border-gold/30 text-gold hover:bg-gold/10 hover:text-gold h-10 text-[13px]"
                   >
                     <Link to={`/verify/${cert.certificate_number}`}>
-                      Verify <ExternalLink className="w-4 h-4 ml-2 shrink-0" />
+                      Verify <ExternalLink className="w-4 h-4 ml-1.5 shrink-0" />
                     </Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedCertId(cert.id);
+                      setTicketOpen(true);
+                    }}
+                    className="flex-1 min-w-[110px] rounded-full border-border-subtle text-linen hover:bg-surface-3 hover:text-white h-10 text-[13px]"
+                  >
+                    <HelpCircle className="w-4 h-4 mr-1.5 shrink-0" /> Support
                   </Button>
                 </div>
               </div>
@@ -241,6 +254,12 @@ const Certificates = () => {
           );
         })}
       </div>
+
+      <CreateTicketDialog 
+        open={ticketOpen}
+        onOpenChange={setTicketOpen}
+        certificateId={selectedCertId}
+      />
     </div>
   );
 };

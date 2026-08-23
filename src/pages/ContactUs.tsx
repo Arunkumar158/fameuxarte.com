@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ContactUs = () => {
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -31,9 +33,39 @@ const ContactUs = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from("support_messages").insert([formData]);
+      if (user) {
+        // Route to new support ticketing system for authenticated users
+        const { data: ticket, error: ticketError } = await supabase
+          .from("support_tickets")
+          .insert([
+            {
+              user_id: user.id,
+              subject: formData.subject || "Contact Us Inquiry",
+              category: "OTHER",
+            },
+          ])
+          .select()
+          .single();
 
-      if (error) throw error;
+        if (ticketError) throw ticketError;
+
+        const { error: messageError } = await supabase
+          .from("support_ticket_messages")
+          .insert([
+            {
+              ticket_id: ticket.id,
+              sender_id: user.id,
+              message: formData.message,
+              is_internal: false,
+            },
+          ]);
+
+        if (messageError) throw messageError;
+      } else {
+        // Legacy fallback for guests
+        const { error } = await supabase.from("support_messages").insert([formData]);
+        if (error) throw error;
+      }
 
       toast({
         title: "Message Sent!",
