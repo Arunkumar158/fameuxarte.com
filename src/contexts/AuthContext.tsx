@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +25,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Track the previous session so we can distinguish a genuine new sign-in
+  // from a silent token refresh. Supabase fires SIGNED_IN for both cases,
+  // which caused an unwanted redirect to /collector on tab focus.
+  const prevSessionRef = useRef<Session | null>(null);
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -32,14 +37,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
 
         if (event === "SIGNED_IN") {
-          const redirectPath = localStorage.getItem("authRedirect");
-          if (redirectPath) {
-            localStorage.removeItem("authRedirect");
-            navigate(redirectPath);
-          } else {
-            // Default redirect after sign-in (covers Google OAuth callback)
-            navigate("/collector");
+          const isGenuineSignIn = prevSessionRef.current === null;
+          prevSessionRef.current = session;
+
+          if (isGenuineSignIn) {
+            // Only redirect when the user was actually signed out before —
+            // i.e., this is a real login, not a silent token refresh triggered
+            // by the tab regaining focus.
+            const redirectPath = localStorage.getItem("authRedirect");
+            if (redirectPath) {
+              localStorage.removeItem("authRedirect");
+              navigate(redirectPath);
+            } else {
+              // Default redirect after sign-in (covers Google OAuth callback)
+              navigate("/collector");
+            }
           }
+        } else {
+          prevSessionRef.current = session;
         }
 
         // PostHog: identify user when a session is established
@@ -54,6 +69,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
+      // Seed the ref with the current session so the onAuthStateChange listener
+      // knows the user was already signed in on page load. Without this,
+      // a SIGNED_IN event fired shortly after would incorrectly look like a
+      // fresh login (prevSessionRef.current === null) and trigger a redirect.
+      prevSessionRef.current = session;
+
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
