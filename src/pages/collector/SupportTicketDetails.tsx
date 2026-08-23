@@ -41,7 +41,7 @@ const SupportTicketDetails = () => {
       if (!user || !id) return [];
       const { data, error } = await supabase
         .from("support_ticket_messages")
-        .select("*, profiles:sender_id(first_name, last_name, role)")
+        .select("*, profiles:sender_id(full_name, role)")
         .eq("ticket_id", id)
         .eq("is_internal", false)
         .order("created_at", { ascending: true });
@@ -185,7 +185,7 @@ const SupportTicketDetails = () => {
                   <div key={msg.id} className={`flex gap-4 ${isCustomer ? "flex-row-reverse" : ""}`}>
                     <Avatar className={`w-8 h-8 ${isAgent ? "bg-gold/20" : "bg-surface-2"}`}>
                       <AvatarFallback className={isAgent ? "text-gold" : "text-stone"}>
-                        {isAgent ? "FA" : (msg.profiles?.first_name?.[0] || "U")}
+                        {isAgent ? "FA" : (msg.profiles?.full_name?.[0] || "U")}
                       </AvatarFallback>
                     </Avatar>
                     <div className={`flex flex-col ${isCustomer ? "items-end" : "items-start"} max-w-[80%]`}>
