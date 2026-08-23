@@ -104,6 +104,12 @@ export default function AdminDashboard() {
           .select('*', { count: 'exact', head: true })
           .eq('status', 'draft');
 
+        const { count: pendingArtistVerification } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .eq('role', 'artist')
+          .in('verification_status', ['identity_submitted', 'under_review']);
+
         setStats({
           todaysRevenue,
           todaysOrders: todaysOrdersCount,
@@ -118,7 +124,7 @@ export default function AdminDashboard() {
           verifiedArtists: totalArtists || 0, // Mock for now
           publishedArticles: publishedArticles || 0,
           draftArticles: draftArticles || 0,
-          pendingArtistVerification: 0,
+          pendingArtistVerification: pendingArtistVerification || 0,
         });
 
       } catch (error) {

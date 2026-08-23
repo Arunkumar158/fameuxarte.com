@@ -59,21 +59,32 @@ export default function VerificationManagement() {
       if (listError) throw listError;
       if (!files || files.length === 0) return [];
 
+      const validFiles = files.filter(f => f.name !== '.emptyFolderPlaceholder');
+      if (validFiles.length === 0) return [];
+
       const documents = await Promise.all(
-        files.map(async (file) => {
-          const { data, error } = await supabase.storage
-            .from('identity_documents')
-            .createSignedUrl(`${selectedArtist.id}/${file.name}`, 3600); // 1 hour expiry
-            
-          if (error) throw error;
-          return {
-            name: file.name,
-            url: data.signedUrl
-          };
+        validFiles.map(async (file) => {
+          try {
+            const { data, error } = await supabase.storage
+              .from('identity_documents')
+              .createSignedUrl(`${selectedArtist.id}/${file.name}`, 3600); // 1 hour expiry
+              
+            if (error) {
+              console.error("Error creating signed URL:", error);
+              return null;
+            }
+            return {
+              name: file.name,
+              url: data.signedUrl
+            };
+          } catch (err) {
+            console.error("Caught error creating signed URL:", err);
+            return null;
+          }
         })
       );
       
-      return documents;
+      return documents.filter(Boolean);
     },
     enabled: !!selectedArtist && showDocuments
   });
