@@ -189,20 +189,20 @@ export default function InsightsEditor() {
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white p-6 rounded-lg border shadow-sm space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input className="bg-white text-slate-900 border-slate-200" id="title" name="title" value={formData.title} onChange={handleInputChange} placeholder="Enter article title" />
+              <Label className="text-slate-900 font-medium" htmlFor="title">Title</Label>
+              <Input className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400" id="title" name="title" value={formData.title} onChange={handleInputChange} placeholder="Enter article title" />
             </div>
             
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label htmlFor="slug">Slug</Label>
+                <Label className="text-slate-900 font-medium" htmlFor="slug">Slug</Label>
                 <Button variant="link" size="sm" className="h-auto p-0" onClick={generateSlug}>Generate from Title</Button>
               </div>
-              <Input className="bg-white text-slate-900 border-slate-200" id="slug" name="slug" value={formData.slug} onChange={handleInputChange} placeholder="e.g. how-to-buy-art" />
+              <Input className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400" id="slug" name="slug" value={formData.slug} onChange={handleInputChange} placeholder="e.g. how-to-buy-art" />
             </div>
 
             <div className="space-y-2">
-              <Label>Content</Label>
+              <Label className="text-slate-900 font-medium">Content</Label>
               {/* Tiptap Toolbar */}
               <div className="border rounded-t-md border-b-0 p-2 flex gap-2 bg-slate-50 flex-wrap">
                 <Button variant="outline" size="sm" onClick={() => editor?.chain().focus().toggleBold().run()} className={editor?.isActive('bold') ? 'bg-slate-200' : ''}>Bold</Button>
@@ -216,8 +216,8 @@ export default function InsightsEditor() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="excerpt">Excerpt</Label>
-              <Textarea className="bg-white text-slate-900 border-slate-200" id="excerpt" name="excerpt" value={formData.excerpt} onChange={handleInputChange} rows={3} placeholder="Brief summary of the article" />
+              <Label className="text-slate-900 font-medium" htmlFor="excerpt">Excerpt</Label>
+              <Textarea className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400" id="excerpt" name="excerpt" value={formData.excerpt} onChange={handleInputChange} rows={3} placeholder="Brief summary of the article" />
             </div>
           </div>
           
@@ -232,37 +232,37 @@ export default function InsightsEditor() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="meta_title">Meta Title</Label>
-                <Input className="bg-white text-slate-900 border-slate-200" id="meta_title" name="meta_title" value={formData.meta_title} onChange={handleInputChange} />
+                <Label className="text-slate-900 font-medium" htmlFor="meta_title">Meta Title</Label>
+                <Input className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400" id="meta_title" name="meta_title" value={formData.meta_title} onChange={handleInputChange} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="canonical_url">Canonical URL</Label>
-                <Input className="bg-white text-slate-900 border-slate-200" id="canonical_url" name="canonical_url" value={formData.canonical_url} onChange={handleInputChange} />
+                <Label className="text-slate-900 font-medium" htmlFor="canonical_url">Canonical URL</Label>
+                <Input className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400" id="canonical_url" name="canonical_url" value={formData.canonical_url} onChange={handleInputChange} />
               </div>
             </div>
             
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label htmlFor="meta_description">Meta Description</Label>
+                <Label className="text-slate-900 font-medium" htmlFor="meta_description">Meta Description</Label>
                 <Button variant="link" size="sm" className="h-auto p-0" disabled>Generate (Soon)</Button>
               </div>
-              <Textarea className="bg-white text-slate-900 border-slate-200" id="meta_description" name="meta_description" value={formData.meta_description} onChange={handleInputChange} rows={2} />
+              <Textarea className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400" id="meta_description" name="meta_description" value={formData.meta_description} onChange={handleInputChange} rows={2} />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="keywords">Keywords (comma separated)</Label>
-              <Input className="bg-white text-slate-900 border-slate-200" id="keywords" name="keywords" value={formData.keywords} onChange={handleInputChange} placeholder="art, investment, original paintings" />
+              <Label className="text-slate-900 font-medium" htmlFor="keywords">Keywords (comma separated)</Label>
+              <Input className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400" id="keywords" name="keywords" value={formData.keywords} onChange={handleInputChange} placeholder="art, investment, original paintings" />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="og_image">Open Graph Image URL</Label>
-                <Input className="bg-white text-slate-900 border-slate-200" id="og_image" name="og_image" value={formData.og_image} onChange={handleInputChange} />
+                <Label className="text-slate-900 font-medium" htmlFor="og_image">Open Graph Image URL</Label>
+                <Input className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400" id="og_image" name="og_image" value={formData.og_image} onChange={handleInputChange} />
               </div>
               <div className="space-y-2">
-                <Label>Schema Type</Label>
+                <Label className="text-slate-900 font-medium">Schema Type</Label>
                 <Select value={formData.schema_type} onValueChange={(v) => handleSelectChange('schema_type', v)}>
-                  <SelectTrigger className="bg-white text-slate-900 border-slate-200"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Article">Article</SelectItem>
                     <SelectItem value="BlogPosting">BlogPosting</SelectItem>
@@ -280,20 +280,20 @@ export default function InsightsEditor() {
           <div className="bg-white p-6 rounded-lg border shadow-sm space-y-4">
             <h3 className="font-semibold border-b pb-2 text-slate-900">Categorization</h3>
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Input className="bg-white text-slate-900 border-slate-200" id="category" name="category" value={formData.category} onChange={handleInputChange} placeholder="e.g. Art Market" />
+              <Label className="text-slate-900 font-medium" htmlFor="category">Category</Label>
+              <Input className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400" id="category" name="category" value={formData.category} onChange={handleInputChange} placeholder="e.g. Art Market" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="tags">Tags (comma separated)</Label>
-              <Input className="bg-white text-slate-900 border-slate-200" id="tags" name="tags" value={formData.tags} onChange={handleInputChange} placeholder="e.g. guide, tips" />
+              <Label className="text-slate-900 font-medium" htmlFor="tags">Tags (comma separated)</Label>
+              <Input className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400" id="tags" name="tags" value={formData.tags} onChange={handleInputChange} placeholder="e.g. guide, tips" />
             </div>
           </div>
           
           <div className="bg-white p-6 rounded-lg border shadow-sm space-y-4">
             <h3 className="font-semibold border-b pb-2 text-slate-900">Media</h3>
             <div className="space-y-2">
-              <Label htmlFor="featured_image">Featured Image URL</Label>
-              <Input className="bg-white text-slate-900 border-slate-200" id="featured_image" name="featured_image" value={formData.featured_image} onChange={handleInputChange} />
+              <Label className="text-slate-900 font-medium" htmlFor="featured_image">Featured Image URL</Label>
+              <Input className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400" id="featured_image" name="featured_image" value={formData.featured_image} onChange={handleInputChange} />
               {formData.featured_image && (
                 <div className="mt-2 aspect-video rounded-md overflow-hidden border">
                   <img src={formData.featured_image} alt="Featured" className="w-full h-full object-cover" />
