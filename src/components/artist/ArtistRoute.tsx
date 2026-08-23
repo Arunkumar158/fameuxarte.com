@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 export const ArtistRoute = ({ children }: { children?: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const [role, setRole] = useState<'customer' | 'artist' | 'admin' | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -17,12 +18,13 @@ export const ArtistRoute = ({ children }: { children?: React.ReactNode }) => {
         try {
           const { data, error } = await supabase
             .from("profiles")
-            .select("role")
+            .select("role, verification_status")
             .eq("id", user.id)
             .single();
 
           if (!error && data) {
             setRole(data.role as 'customer' | 'artist' | 'admin');
+            setStatus(data.verification_status);
           }
         } catch (error) {
           console.error("Error fetching role:", error);
@@ -58,9 +60,17 @@ export const ArtistRoute = ({ children }: { children?: React.ReactNode }) => {
     return null;
   }
 
-  // if (role !== 'artist' && role !== 'admin') {
-  //   return <Navigate to="/for-artists" replace />;
-  // }
+  if (role === 'admin') {
+    return children ? <>{children}</> : <Outlet />;
+  }
 
-  return children ? <>{children}</> : <Outlet />;
+  if (role === 'artist' && status === 'verified') {
+    return children ? <>{children}</> : <Outlet />;
+  }
+
+  if (status && status !== 'pending') {
+    return <Navigate to="/apply" replace />;
+  }
+
+  return <Navigate to="/for-artists" replace />;
 };

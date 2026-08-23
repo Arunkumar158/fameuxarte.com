@@ -40,6 +40,7 @@ import TermsOfService from "./pages/TermsOfService";
 import CancellationsAndRefunds from "./pages/CancellationsAndRefunds";
 import ForArtists from "./pages/ForArtists";
 import CertificateVerify from "./pages/CertificateVerify";
+import ArtistOnboarding from "./pages/artist/ArtistOnboarding";
 import { Navigate, useParams } from "react-router-dom";
 import React, { Suspense } from "react";
 import { Loader2 } from "lucide-react";
@@ -137,6 +138,7 @@ const AnimatedRoutes = () => {
           <Route path="/for-artists" element={<ForArtists />} />
           <Route path="/artists" element={<Artists />} />
           <Route path="/artists/:artistId" element={<ArtistDetails />} />
+          <Route path="/apply" element={<ArtistOnboarding />} />
           <Route path="/collections" element={<Collections />} />
           <Route path="/collections/:slug" element={<CollectionPage />} />
           <Route path="/category/:slug" element={<CategoryPage />} />

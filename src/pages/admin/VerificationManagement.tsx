@@ -93,7 +93,7 @@ export default function VerificationManagement() {
     queryKey: ["trust-metrics"],
     queryFn: async () => {
       const { data: verifiedData } = await supabase.from("profiles").select('id').eq('role', 'artist').eq('verification_status', 'verified');
-      const { data: pendingData } = await supabase.from("profiles").select('id').eq('role', 'artist').in('verification_status', ['identity_submitted', 'under_review']);
+      const { data: pendingData } = await supabase.from("profiles").select('id').in('verification_status', ['identity_submitted', 'under_review']);
       const { data: certsData } = await supabase.from("certificates").select('id', { count: 'exact' });
       
       return {
@@ -110,13 +110,12 @@ export default function VerificationManagement() {
     queryFn: async () => {
       let query = supabase
         .from("profiles")
-        .select("id, full_name, verification_status, trust_score, verified_at")
-        .eq("role", "artist");
+        .select("id, full_name, verification_status, trust_score, verified_at");
 
       if (statusFilter !== "all") {
         query = query.eq("verification_status", statusFilter as any);
       } else {
-        query = query.order("verification_status", { ascending: false }); // identity_submitted comes up
+        query = query.neq("verification_status", "pending").order("verification_status", { ascending: false }); 
       }
 
       const { data, error } = await query;
@@ -130,6 +129,7 @@ export default function VerificationManagement() {
       const updateData: any = { verification_status: status, verification_notes: notes };
       if (status === 'verified') {
         updateData.verified_at = new Date().toISOString();
+        updateData.role = 'artist'; // Grant artist role upon verification
       }
       
       const { error } = await supabase

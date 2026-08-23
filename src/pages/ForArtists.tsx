@@ -31,9 +31,9 @@ const ForArtists = () => {
             </p>
             
             <div className="mb-10 flex flex-col justify-center gap-[10px] sm:flex-row">
-              <button className="rounded-[6px] bg-linen px-5 py-[11px] text-center text-[13px] font-medium text-obsidian transition-opacity hover:opacity-90">
-                Get Priority Access
-              </button>
+              <Link to="/apply" className="inline-block rounded-[6px] bg-linen px-5 py-[11px] text-center text-[13px] font-medium text-obsidian transition-opacity hover:opacity-90">
+                Apply Now
+              </Link>
             </div>
           </div>
         </section>

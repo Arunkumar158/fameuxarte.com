@@ -723,9 +723,36 @@ const Account = () => {
                 </Button>
               </div>
             )}
-          </SectionShell>
-
-          <UploadArtworkSection />
+          {profile?.role === 'artist' && profile?.verification_status === 'verified' ? (
+            <UploadArtworkSection />
+          ) : (
+            <SectionShell icon={<User className="h-5 w-5" aria-hidden="true" />} eyebrow="Artist Platform" title="Artist Application">
+              <div className="rounded-[8px] border border-border-subtle bg-obsidian px-5 py-8 text-center">
+                {profile?.verification_status === 'pending' || !profile?.verification_status ? (
+                  <>
+                    <p className="mb-4 text-[14px] text-stone">Join Fameuxarte as a verified artist to build your legacy and connect with collectors worldwide.</p>
+                    <Button asChild className="h-10 rounded-[6px] bg-gold px-5 text-[12px] font-medium text-obsidian hover:bg-linen">
+                      <Link to="/apply">Become an Artist</Link>
+                    </Button>
+                  </>
+                ) : profile?.verification_status === 'rejected' ? (
+                  <>
+                    <p className="mb-4 text-[14px] text-red-400">Your previous application was rejected.</p>
+                    <Button asChild className="h-10 rounded-[6px] bg-gold px-5 text-[12px] font-medium text-obsidian hover:bg-linen">
+                      <Link to="/apply">Reapply Now</Link>
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <p className="mb-4 text-[14px] text-stone">You have an ongoing artist application.</p>
+                    <Button asChild variant="outline" className="h-10 rounded-[6px] border-border-subtle bg-transparent px-5 text-[12px] text-stone hover:bg-surface-3 hover:text-linen">
+                      <Link to="/apply">Check Status</Link>
+                    </Button>
+                  </>
+                )}
+              </div>
+            </SectionShell>
+          )}
         </main>
       </div>
     </MainLayout>
