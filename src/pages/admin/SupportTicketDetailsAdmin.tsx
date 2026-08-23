@@ -65,8 +65,8 @@ const SupportTicketDetailsAdmin = () => {
       case "IN_PROGRESS": return "bg-gold/10 text-gold border-gold/20";
       case "WAITING_FOR_CUSTOMER": return "bg-orange-500/10 text-orange-500 border-orange-500/20";
       case "RESOLVED": return "bg-green-500/10 text-green-500 border-green-500/20";
-      case "CLOSED": return "bg-stone/10 text-stone border-stone/20";
-      default: return "bg-stone/10 text-stone border-stone/20";
+      case "CLOSED": return "bg-stone/10 text-slate-500 border-stone/20";
+      default: return "bg-stone/10 text-slate-500 border-stone/20";
     }
   };
 
@@ -193,8 +193,8 @@ const SupportTicketDetailsAdmin = () => {
 
   if (!ticket) {
     return (
-      <div className="text-center p-12 bg-surface rounded-xl border border-border-subtle">
-        <h3 className="text-lg font-medium text-linen mb-2">Ticket not found</h3>
+      <div className="text-center p-12 bg-white rounded-xl border border-slate-200">
+        <h3 className="text-lg font-medium text-slate-900 mb-2">Ticket not found</h3>
         <Link to="/admin/support">
           <Button className="bg-gold text-obsidian hover:bg-gold-light">Back to Support Center</Button>
         </Link>
@@ -205,7 +205,7 @@ const SupportTicketDetailsAdmin = () => {
   return (
     <div className="space-y-6 pb-20">
       <div>
-        <Link to="/admin/support" className="inline-flex items-center text-sm text-stone hover:text-gold mb-4 transition-colors">
+        <Link to="/admin/support" className="inline-flex items-center text-sm text-slate-500 hover:text-gold mb-4 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-1" />
           Back to Tickets
         </Link>
@@ -220,20 +220,20 @@ const SupportTicketDetailsAdmin = () => {
                 ticket.priority === 'URGENT' ? 'bg-red-500/10 text-red-500' :
                 ticket.priority === 'HIGH' ? 'bg-orange-500/10 text-orange-500' :
                 ticket.priority === 'NORMAL' ? 'bg-blue-500/10 text-blue-500' :
-                'bg-stone/10 text-stone'
+                'bg-stone/10 text-slate-500'
               }`}>
                 {ticket.priority} Priority
               </span>
             </div>
-            <h1 className="text-2xl font-serif text-linen">{ticket.subject}</h1>
+            <h1 className="text-2xl font-serif text-slate-900">{ticket.subject}</h1>
           </div>
           
           <div className="flex items-center gap-3">
             <Select value={ticket.status} onValueChange={handleStatusChange}>
-              <SelectTrigger className="w-[180px] bg-surface border-border-subtle text-linen focus:ring-gold">
+              <SelectTrigger className="w-[180px] bg-white border-slate-200 text-slate-900 focus:ring-gold">
                 <SelectValue placeholder="Change status" />
               </SelectTrigger>
-              <SelectContent className="bg-surface border-border-subtle text-linen">
+              <SelectContent className="bg-white border-slate-200 text-slate-900">
                 <SelectItem value="OPEN">Open</SelectItem>
                 <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
                 <SelectItem value="WAITING_FOR_CUSTOMER">Waiting for Customer</SelectItem>
@@ -243,10 +243,10 @@ const SupportTicketDetailsAdmin = () => {
             </Select>
 
             <Select value={ticket.priority} onValueChange={handlePriorityChange}>
-              <SelectTrigger className="w-[140px] bg-surface border-border-subtle text-linen focus:ring-gold">
+              <SelectTrigger className="w-[140px] bg-white border-slate-200 text-slate-900 focus:ring-gold">
                 <SelectValue placeholder="Change priority" />
               </SelectTrigger>
-              <SelectContent className="bg-surface border-border-subtle text-linen">
+              <SelectContent className="bg-white border-slate-200 text-slate-900">
                 <SelectItem value="LOW">Low</SelectItem>
                 <SelectItem value="NORMAL">Normal</SelectItem>
                 <SelectItem value="HIGH">High</SelectItem>
@@ -259,7 +259,7 @@ const SupportTicketDetailsAdmin = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
-          <div className="bg-surface rounded-xl border border-border-subtle overflow-hidden flex flex-col">
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col">
             <div className="p-4 sm:p-6 space-y-6 max-h-[60vh] overflow-y-auto">
               {messages?.map((msg: any) => {
                 const isCustomer = msg.profiles?.role !== "admin" && msg.profiles?.role !== "support";
@@ -267,13 +267,13 @@ const SupportTicketDetailsAdmin = () => {
                 
                 return (
                   <div key={msg.id} className={`flex gap-4 ${isCustomer ? "flex-row-reverse" : ""}`}>
-                    <Avatar className={`w-8 h-8 ${isInternalNote ? "bg-amber-500/20" : isCustomer ? "bg-surface-2" : "bg-gold/20"}`}>
-                      <AvatarFallback className={isInternalNote ? "text-amber-500" : isCustomer ? "text-stone" : "text-gold"}>
+                    <Avatar className={`w-8 h-8 ${isInternalNote ? "bg-amber-500/20" : isCustomer ? "bg-slate-50" : "bg-gold/20"}`}>
+                      <AvatarFallback className={isInternalNote ? "text-amber-500" : isCustomer ? "text-slate-500" : "text-gold"}>
                         {isInternalNote ? <Lock className="w-4 h-4" /> : isCustomer ? (msg.profiles?.full_name?.[0] || "U") : "FA"}
                       </AvatarFallback>
                     </Avatar>
                     <div className={`flex flex-col ${isCustomer ? "items-end" : "items-start"} max-w-[80%]`}>
-                      <span className="text-xs text-stone mb-1 flex items-center gap-2">
+                      <span className="text-xs text-slate-500 mb-1 flex items-center gap-2">
                         {isInternalNote ? "Internal Note" : isCustomer ? "Customer" : "Agent"}
                         <span className="opacity-50">•</span>
                         {msg.profiles?.full_name || "Unknown"}
@@ -284,7 +284,7 @@ const SupportTicketDetailsAdmin = () => {
                         isInternalNote
                           ? "bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-tl-none"
                           : isCustomer 
-                            ? "bg-surface-2 text-linen border border-border-subtle rounded-tr-none" 
+                            ? "bg-slate-50 text-slate-900 border border-slate-200 rounded-tr-none" 
                             : "bg-gold text-obsidian rounded-tl-none"
                       }`}>
                         {msg.message}
@@ -295,7 +295,7 @@ const SupportTicketDetailsAdmin = () => {
               })}
             </div>
             
-            <div className={`p-4 border-t ${isInternal ? "border-amber-500/30 bg-amber-500/5" : "border-border-subtle bg-obsidian"}`}>
+            <div className={`p-4 border-t ${isInternal ? "border-amber-500/30 bg-amber-500/5" : "border-slate-200 bg-slate-100"}`}>
               <form onSubmit={handleReply} className="space-y-3">
                 <div className="flex items-center space-x-2 px-1">
                   <Checkbox 
@@ -306,7 +306,7 @@ const SupportTicketDetailsAdmin = () => {
                   />
                   <Label 
                     htmlFor="internal-note" 
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-stone flex items-center gap-1 cursor-pointer"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-500 flex items-center gap-1 cursor-pointer"
                   >
                     <Lock className="w-3 h-3" />
                     Internal Note (Hidden from Customer)
@@ -318,8 +318,8 @@ const SupportTicketDetailsAdmin = () => {
                     value={replyMessage}
                     onChange={(e) => setReplyMessage(e.target.value)}
                     placeholder={isInternal ? "Write a private note for staff..." : "Write a reply to the customer..."} 
-                    className={`min-h-[100px] text-linen focus-visible:ring-gold resize-y ${
-                      isInternal ? "bg-amber-500/10 border-amber-500/30 placeholder:text-amber-500/50" : "bg-surface border-border-subtle"
+                    className={`min-h-[100px] text-slate-900 focus-visible:ring-gold resize-y ${
+                      isInternal ? "bg-amber-500/10 border-amber-500/30 placeholder:text-amber-500/50" : "bg-white border-slate-200"
                     }`}
                   />
                 </div>
@@ -340,17 +340,17 @@ const SupportTicketDetailsAdmin = () => {
         </div>
 
         <div className="space-y-4">
-          <div className="bg-surface rounded-xl border border-border-subtle p-5">
-            <h3 className="text-sm font-medium uppercase tracking-wider text-stone mb-4">Customer Info</h3>
+          <div className="bg-white rounded-xl border border-slate-200 p-5">
+            <h3 className="text-sm font-medium uppercase tracking-wider text-slate-500 mb-4">Customer Info</h3>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <Avatar className="w-10 h-10 bg-surface-2 border border-border-subtle">
-                  <AvatarFallback className="text-stone">
+                <Avatar className="w-10 h-10 bg-slate-50 border border-slate-200">
+                  <AvatarFallback className="text-slate-500">
                     <UserIcon className="w-5 h-5" />
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <div className="text-sm font-medium text-linen">
+                  <div className="text-sm font-medium text-slate-900">
                     {ticket.profiles?.full_name || "Unknown"}
                   </div>
                   <div className="text-xs text-gold capitalize mt-0.5">{ticket.profiles?.role}</div>
@@ -359,44 +359,44 @@ const SupportTicketDetailsAdmin = () => {
             </div>
           </div>
           
-          <div className="bg-surface rounded-xl border border-border-subtle p-5">
-            <h3 className="text-sm font-medium uppercase tracking-wider text-stone mb-4">Ticket Details</h3>
+          <div className="bg-white rounded-xl border border-slate-200 p-5">
+            <h3 className="text-sm font-medium uppercase tracking-wider text-slate-500 mb-4">Ticket Details</h3>
             <dl className="space-y-3 text-sm">
               <div>
-                <dt className="text-stone">Created</dt>
-                <dd className="text-linen">{format(new Date(ticket.created_at), "MMM d, yyyy HH:mm")}</dd>
+                <dt className="text-slate-500">Created</dt>
+                <dd className="text-slate-900">{format(new Date(ticket.created_at), "MMM d, yyyy HH:mm")}</dd>
               </div>
               <div>
-                <dt className="text-stone">Category</dt>
-                <dd className="text-linen">{ticket.category}</dd>
+                <dt className="text-slate-500">Category</dt>
+                <dd className="text-slate-900">{ticket.category}</dd>
               </div>
             </dl>
           </div>
 
           {(ticket.order_id || ticket.artwork_id || ticket.certificate_id) && (
-            <div className="bg-surface rounded-xl border border-border-subtle p-5">
-              <h3 className="text-sm font-medium uppercase tracking-wider text-stone mb-4">Related Context</h3>
+            <div className="bg-white rounded-xl border border-slate-200 p-5">
+              <h3 className="text-sm font-medium uppercase tracking-wider text-slate-500 mb-4">Related Context</h3>
               <div className="space-y-4 text-sm">
                 {ticket.order_id && ticket.orders && (
                   <div>
-                    <dt className="flex items-center gap-2 text-stone mb-1">
+                    <dt className="flex items-center gap-2 text-slate-500 mb-1">
                       <ShoppingBag className="w-3 h-3" /> Order
                     </dt>
-                    <dd className="text-linen">
+                    <dd className="text-slate-900">
                       <Link to={`/admin/orders/${ticket.order_id}`} className="text-gold hover:underline font-mono text-xs">
                         {ticket.order_id.substring(0, 8)}...
                       </Link>
-                      <div className="text-xs text-stone mt-1">Status: {ticket.orders.status}</div>
+                      <div className="text-xs text-slate-500 mt-1">Status: {ticket.orders.status}</div>
                     </dd>
                   </div>
                 )}
                 
                 {ticket.artwork_id && ticket.artworks && (
                   <div>
-                    <dt className="flex items-center gap-2 text-stone mb-1">
+                    <dt className="flex items-center gap-2 text-slate-500 mb-1">
                       <ImageIcon className="w-3 h-3" /> Artwork
                     </dt>
-                    <dd className="text-linen">
+                    <dd className="text-slate-900">
                       <span className="font-medium">{ticket.artworks.title}</span>
                     </dd>
                   </div>
@@ -404,10 +404,10 @@ const SupportTicketDetailsAdmin = () => {
                 
                 {ticket.certificate_id && ticket.certificates && (
                   <div>
-                    <dt className="flex items-center gap-2 text-stone mb-1">
+                    <dt className="flex items-center gap-2 text-slate-500 mb-1">
                       <ShieldCheck className="w-3 h-3" /> Certificate
                     </dt>
-                    <dd className="text-linen font-mono text-xs text-gold">
+                    <dd className="text-slate-900 font-mono text-xs text-gold">
                       {ticket.certificates.certificate_number}
                     </dd>
                   </div>

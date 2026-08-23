@@ -46,8 +46,8 @@ const SupportTicketsAdmin = () => {
       case "IN_PROGRESS": return "bg-gold/10 text-gold border-gold/20";
       case "WAITING_FOR_CUSTOMER": return "bg-orange-500/10 text-orange-500 border-orange-500/20";
       case "RESOLVED": return "bg-green-500/10 text-green-500 border-green-500/20";
-      case "CLOSED": return "bg-stone/10 text-stone border-stone/20";
-      default: return "bg-stone/10 text-stone border-stone/20";
+      case "CLOSED": return "bg-stone/10 text-slate-500 border-stone/20";
+      default: return "bg-stone/10 text-slate-500 border-stone/20";
     }
   };
 
@@ -71,57 +71,57 @@ const SupportTicketsAdmin = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-serif text-linen">Support Center</h1>
-        <p className="text-sm text-stone mt-1">Manage customer support tickets.</p>
+        <h1 className="text-2xl font-serif text-slate-900">Support Center</h1>
+        <p className="text-sm text-slate-500 mt-1">Manage customer support tickets.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-surface rounded-xl border border-border-subtle p-5">
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
           <div className="flex items-center justify-between">
-            <h3 className="text-stone text-sm font-medium">Open</h3>
+            <h3 className="text-slate-500 text-sm font-medium">Open</h3>
             <AlertCircle className="w-4 h-4 text-blue-500" />
           </div>
-          <p className="text-2xl font-semibold text-linen mt-2">{openCount}</p>
+          <p className="text-2xl font-semibold text-slate-900 mt-2">{openCount}</p>
         </div>
-        <div className="bg-surface rounded-xl border border-border-subtle p-5">
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
           <div className="flex items-center justify-between">
-            <h3 className="text-stone text-sm font-medium">In Progress</h3>
+            <h3 className="text-slate-500 text-sm font-medium">In Progress</h3>
             <Clock className="w-4 h-4 text-gold" />
           </div>
-          <p className="text-2xl font-semibold text-linen mt-2">{inProgressCount}</p>
+          <p className="text-2xl font-semibold text-slate-900 mt-2">{inProgressCount}</p>
         </div>
-        <div className="bg-surface rounded-xl border border-border-subtle p-5">
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
           <div className="flex items-center justify-between">
-            <h3 className="text-stone text-sm font-medium">Urgent</h3>
+            <h3 className="text-slate-500 text-sm font-medium">Urgent</h3>
             <AlertCircle className="w-4 h-4 text-red-500" />
           </div>
-          <p className="text-2xl font-semibold text-linen mt-2">{urgentCount}</p>
+          <p className="text-2xl font-semibold text-slate-900 mt-2">{urgentCount}</p>
         </div>
-        <div className="bg-surface rounded-xl border border-border-subtle p-5">
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
           <div className="flex items-center justify-between">
-            <h3 className="text-stone text-sm font-medium">Resolved</h3>
+            <h3 className="text-slate-500 text-sm font-medium">Resolved</h3>
             <CheckCircle className="w-4 h-4 text-green-500" />
           </div>
-          <p className="text-2xl font-semibold text-linen mt-2">{resolvedCount}</p>
+          <p className="text-2xl font-semibold text-slate-900 mt-2">{resolvedCount}</p>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 items-center bg-surface p-4 rounded-xl border border-border-subtle">
+      <div className="flex flex-col sm:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200">
         <div className="flex-1 w-full relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
           <Input 
             placeholder="Search by ticket #, subject, or email..." 
-            className="pl-9 bg-surface-2 border-border-subtle text-linen focus-visible:ring-gold w-full"
+            className="pl-9 bg-slate-50 border-slate-200 text-slate-900 focus-visible:ring-gold w-full"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <div className="w-full sm:w-48">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="bg-surface-2 border-border-subtle text-linen focus:ring-gold">
+            <SelectTrigger className="bg-slate-50 border-slate-200 text-slate-900 focus:ring-gold">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
-            <SelectContent className="bg-surface border-border-subtle text-linen">
+            <SelectContent className="bg-white border-slate-200 text-slate-900">
               <SelectItem value="ALL">All Statuses</SelectItem>
               <SelectItem value="OPEN">Open</SelectItem>
               <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
@@ -133,18 +133,18 @@ const SupportTicketsAdmin = () => {
         </div>
       </div>
 
-      <div className="bg-surface rounded-xl border border-border-subtle overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-surface-2 border-b border-border-subtle">
+            <TableHeader className="bg-slate-50 border-b border-slate-200">
               <TableRow className="hover:bg-transparent border-none">
-                <TableHead className="text-stone font-medium">Ticket</TableHead>
-                <TableHead className="text-stone font-medium">Customer</TableHead>
-                <TableHead className="text-stone font-medium">Category</TableHead>
-                <TableHead className="text-stone font-medium">Status</TableHead>
-                <TableHead className="text-stone font-medium">Priority</TableHead>
-                <TableHead className="text-stone font-medium">Last Updated</TableHead>
-                <TableHead className="text-stone font-medium text-right">Actions</TableHead>
+                <TableHead className="text-slate-500 font-medium">Ticket</TableHead>
+                <TableHead className="text-slate-500 font-medium">Customer</TableHead>
+                <TableHead className="text-slate-500 font-medium">Category</TableHead>
+                <TableHead className="text-slate-500 font-medium">Status</TableHead>
+                <TableHead className="text-slate-500 font-medium">Priority</TableHead>
+                <TableHead className="text-slate-500 font-medium">Last Updated</TableHead>
+                <TableHead className="text-slate-500 font-medium text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -158,30 +158,30 @@ const SupportTicketsAdmin = () => {
                 </TableRow>
               ) : filteredTickets?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-32 text-center text-stone">
+                  <TableCell colSpan={7} className="h-32 text-center text-slate-500">
                     No tickets found matching your criteria.
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredTickets?.map((ticket) => (
-                  <TableRow key={ticket.id} className="border-border-subtle hover:bg-surface-2">
+                  <TableRow key={ticket.id} className="border-slate-200 hover:bg-slate-50">
                     <TableCell>
                       <div className="flex flex-col">
                         <span className="font-mono text-gold text-xs">{ticket.ticket_number}</span>
-                        <span className="text-linen font-medium truncate max-w-[200px]" title={ticket.subject}>
+                        <span className="text-slate-900 font-medium truncate max-w-[200px]" title={ticket.subject}>
                           {ticket.subject}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="text-linen">
+                        <span className="text-slate-900">
                           {ticket.profiles?.full_name || "Unknown"}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="text-stone text-sm">{ticket.category}</span>
+                      <span className="text-slate-500 text-sm">{ticket.category}</span>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className={getStatusColor(ticket.status)}>
@@ -193,12 +193,12 @@ const SupportTicketsAdmin = () => {
                         ticket.priority === 'URGENT' ? 'bg-red-500/10 text-red-500' :
                         ticket.priority === 'HIGH' ? 'bg-orange-500/10 text-orange-500' :
                         ticket.priority === 'NORMAL' ? 'bg-blue-500/10 text-blue-500' :
-                        'bg-stone/10 text-stone'
+                        'bg-stone/10 text-slate-500'
                       }`}>
                         {ticket.priority}
                       </span>
                     </TableCell>
-                    <TableCell className="text-stone text-sm">
+                    <TableCell className="text-slate-500 text-sm">
                       {format(new Date(ticket.last_message_at), "MMM d, h:mm a")}
                     </TableCell>
                     <TableCell className="text-right">
