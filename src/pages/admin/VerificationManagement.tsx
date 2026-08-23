@@ -341,24 +341,45 @@ export default function VerificationManagement() {
               </div>
 
               {showDocuments && (
-                <div className="pt-3 border-t border-border-faint space-y-2">
+                <div className="pt-3 border-t border-border-faint space-y-4">
                   {isDocumentsLoading ? (
                     <div className="flex items-center gap-2 text-sm text-stone py-2">
                       <Loader2 className="w-4 h-4 animate-spin" /> Fetching documents...
                     </div>
                   ) : identityDocuments && identityDocuments.length > 0 ? (
-                    identityDocuments.map((doc, i) => (
-                      <div key={i} className="flex items-center justify-between bg-obsidian p-2 rounded border border-border-subtle">
-                        <span className="text-xs text-linen truncate max-w-[200px]">{doc.name}</span>
-                        <Button asChild variant="ghost" size="sm" className="h-6 px-2 text-[10px] text-gold hover:text-gold hover:bg-gold/10">
-                          <a href={doc.url} target="_blank" rel="noreferrer">
-                            <ExternalLink className="w-3 h-3 mr-1" /> View
-                          </a>
-                        </Button>
-                      </div>
-                    ))
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {identityDocuments.map((doc, i) => {
+                        const isImage = doc.name.match(/\.(jpeg|jpg|gif|png)$/i) != null;
+                        return (
+                          <div key={i} className="flex flex-col gap-2 bg-obsidian p-3 rounded-lg border border-border-subtle">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-linen truncate max-w-[150px] font-medium" title={doc.name}>
+                                {doc.name.split('_')[0] === 'gov' ? 'Government ID' : doc.name.split('_')[0] === 'selfie' ? 'Selfie' : 'Document'}
+                              </span>
+                              <Button asChild variant="ghost" size="sm" className="h-6 px-2 text-[10px] text-gold hover:text-gold hover:bg-gold/10">
+                                <a href={doc.url} target="_blank" rel="noreferrer">
+                                  <ExternalLink className="w-3 h-3 mr-1" /> Open
+                                </a>
+                              </Button>
+                            </div>
+                            {isImage ? (
+                              <div className="relative aspect-video w-full overflow-hidden rounded-md border border-border-strong bg-surface-1">
+                                <img src={doc.url} alt={doc.name} className="object-cover w-full h-full" />
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-center aspect-video w-full rounded-md border border-border-strong bg-surface-1">
+                                <FileText className="w-8 h-8 text-stone" />
+                                <span className="text-xs text-stone mt-2">PDF Document</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   ) : (
-                    <div className="text-sm text-stone py-2">No documents found for this artist.</div>
+                    <div className="text-sm text-stone py-4 text-center border border-dashed border-border-strong rounded-lg">
+                      No documents found for this artist.
+                    </div>
                   )}
                 </div>
               )}
