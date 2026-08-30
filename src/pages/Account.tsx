@@ -75,6 +75,9 @@ const LikedItemCard = ({ item }: { item: {
     image_path: string | null;
     category: string | null;
     slug?: string | null;
+    artist?: {
+      full_name: string | null;
+    } | null;
   } | null;
 } }) => {
   const { imageUrl } = useArtworkImage(item.artworks?.image_path);
@@ -86,7 +89,7 @@ const LikedItemCard = ({ item }: { item: {
         id: item.artworks?.id || item.artwork_id,
         slug: item.artworks?.slug,
         title: item.artworks?.title || "Unknown Title",
-        artist: item.artworks?.artist_id || "Unknown Artist",
+        artist: item.artworks?.artist?.full_name || "Unknown Artist",
         price: item.artworks?.price || 0,
         image: imageUrl,
         category: item.artworks?.category || "Uncategorized",
@@ -421,7 +424,10 @@ const Account = () => {
             price,
             category,
             image_path,
-            slug
+            slug,
+            artist:profiles!artworks_artist_id_fkey (
+              full_name
+            )
           )
         `)
         .eq("user_id", user.id);

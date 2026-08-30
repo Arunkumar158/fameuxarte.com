@@ -19,18 +19,21 @@ const LikedItemCard = ({ item }: { item: {
     image_path: string | null;
     category: string | null;
     slug: string | null;
+    artist?: {
+      full_name: string | null;
+    } | null;
   } | null;
 } }) => {
   const { imageUrl } = useArtworkImage(item.artworks?.image_path);
   
   return (
     <ArtworkCard
-      key={item.artworks?.id}
+      key={item.artworks?.id || item.artwork_id}
       artwork={{
         id: item.artwork_id,
         slug: item.artworks?.slug,
         title: item.artworks?.title || "Unknown Title",
-        artist: item.artworks?.artist_id || "Unknown Artist",
+        artist: item.artworks?.artist?.full_name || "Unknown Artist",
         price: item.artworks?.price || 0,
         image: imageUrl,
         category: item.artworks?.category || "Uncategorized"

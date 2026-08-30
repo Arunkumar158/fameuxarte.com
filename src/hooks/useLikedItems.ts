@@ -29,7 +29,10 @@ export const useLikedItems = () => {
             price,
             category,
             image_path,
-            slug
+            slug,
+            artist:profiles!artworks_artist_id_fkey (
+              full_name
+            )
           )
         `)
         .eq("user_id", user.id);
