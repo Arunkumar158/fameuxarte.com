@@ -8,14 +8,12 @@ import ArtistsSection from "@/components/home/ArtistsSection";
 import WhySection from "@/components/home/WhySection";
 import JournalSection from "@/components/home/JournalSection";
 import FooterCTA from "@/components/home/FooterCTA";
-import ScrollLogo from "@/components/ScrollLogo";
 
 const Index = () => {
   const structuredData = generateOrganizationStructuredData();
 
   return (
     <div className="relative min-h-screen">
-      <ScrollLogo />
       
       <div className="relative z-10 bg-transparent">
         <SEO
