@@ -8,10 +8,15 @@ type Artwork = React.ComponentProps<typeof ArtworkCard>['artwork'];
 
 const getDisplayImage = (imagePath?: string | null) => {
   if (!imagePath) return "/placeholder.svg";
-  if (imagePath.startsWith("/") || imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
-    return imagePath;
+  const clean = imagePath.trim();
+  if (clean.startsWith("http://") || clean.startsWith("https://")) {
+    return clean;
   }
-  return "/placeholder.svg";
+  if (clean.startsWith("/")) {
+    return clean;
+  }
+  const relativePath = clean.replace(/^artworks\//, "");
+  return `https://oqslvwynlppuacdrhlxl.supabase.co/storage/v1/object/public/artworks/${relativePath}`;
 };
 
 export const useDiscoveryArtworks = (entity?: DiscoveryEntity) => {

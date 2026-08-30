@@ -72,21 +72,29 @@ export const DiscoveryHub = ({ insightId, tags = [], keywords = [], category }: 
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {artworks.map((artwork: any) => (
-                <Link key={artwork.id} to={`/artworks/${artwork.slug || artwork.id}`} className="group block">
-                  <div className="aspect-[3/4] overflow-hidden rounded-lg mb-3 bg-surface-2">
-                    <img 
-                      src={artwork.image_path || "/placeholder.svg"} 
-                      alt={artwork.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                      loading="lazy"
-                    />
-                  </div>
-                  <h4 className="text-linen font-medium truncate">{artwork.title}</h4>
-                  <p className="text-sm text-[#888] truncate">{artwork.category}</p>
-                  <p className="text-sm text-gold mt-1">${artwork.price?.toLocaleString()}</p>
-                </Link>
-              ))}
+              {artworks.map((artwork: any) => {
+                const imgUrl = artwork.image_path
+                  ? (artwork.image_path.startsWith("http") || artwork.image_path.startsWith("/")
+                      ? artwork.image_path
+                      : `https://oqslvwynlppuacdrhlxl.supabase.co/storage/v1/object/public/artworks/${artwork.image_path.replace(/^artworks\//, "")}`)
+                  : "/placeholder.svg";
+
+                return (
+                  <Link key={artwork.id} to={`/artworks/${artwork.slug || artwork.id}`} className="group block">
+                    <div className="aspect-[3/4] overflow-hidden rounded-lg mb-3 bg-surface-2">
+                      <img 
+                        src={imgUrl} 
+                        alt={artwork.title} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                        loading="lazy"
+                      />
+                    </div>
+                    <h4 className="text-linen font-medium truncate">{artwork.title}</h4>
+                    <p className="text-sm text-[#888] truncate">{artwork.category}</p>
+                    <p className="text-sm text-gold mt-1">${artwork.price?.toLocaleString()}</p>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}

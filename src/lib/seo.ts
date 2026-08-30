@@ -123,39 +123,18 @@ export const generateOrganizationStructuredData = () => {
     name: 'Fameuxarte',
     url: APP_URL,
     logo: `${APP_URL}/logo.png`,
-    description: 'A trusted platform connecting art enthusiasts with authentic physical and digital artworks from talented artists worldwide.',
+    description: 'A trusted platform connecting art enthusiasts with authentic original artworks from talented artists worldwide.',
     sameAs: [
-      'https://facebook.com/fameuxarte',
-      'https://twitter.com/fameuxarte',
-      'https://instagram.com/fameuxarte',
-      'https://pinterest.com/fameuxarte',
+      'https://www.instagram.com/fameuxarte',
     ],
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: '+1-555-555-5555',
       contactType: 'customer service',
-      availableLanguage: ['English', 'French', 'Spanish'],
+      availableLanguage: ['English'],
       email: 'support@fameuxarte.com'
     },
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: '123 Art Street',
-      addressLocality: 'Art City',
-      addressRegion: 'AC',
-      postalCode: '12345',
-      addressCountry: 'US'
-    },
     foundingDate: '2024',
-    founder: {
-      '@type': 'Person',
-      name: 'Art Enthusiast'
-    },
     areaServed: 'Worldwide',
-    hasOfferCatalog: {
-      '@type': 'OfferCatalog',
-      name: 'Art Collection',
-      itemListElement: []
-    }
   };
 };
 

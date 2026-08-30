@@ -7,22 +7,23 @@ import { supabase } from "@/integrations/supabase/client";
 
 const BlogInsights = () => {
   const { data: posts, isLoading } = useQuery({
-    queryKey: ["featured-blogs"],
+    queryKey: ["featured-blogs-unified"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("blogs")
         .select(`
-          *,
-          profiles:author_id (
-            full_name,
-            avatar_url
-          )
+          id,
+          title,
+          Slug,
+          image_url,
+          content,
+          published_at
         `)
-        .order('published_at', { ascending: false })
+        .order("published_at", { ascending: false })
         .limit(3);
       
       if (error) throw error;
-      return data;
+      return data || [];
     }
   });
 

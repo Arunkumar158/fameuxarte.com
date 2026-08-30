@@ -75,7 +75,7 @@ export function useKnowledgeGraph(
       
       let query = supabase
         .from("blogs")
-        .select("id, title, Slug, image_url, content, published_at, category")
+        .select("id, title, Slug, image_url, content, published_at")
         .order("published_at", { ascending: false })
         .limit(3);
         

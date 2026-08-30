@@ -4,7 +4,7 @@
  */
 
 export class SchemaRegistry {
-  private static SITE_URL = 'https://gallery-canvas-commerce.vercel.app';
+  private static SITE_URL = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_PUBLIC_APP_URL) || 'https://fameuxarte.com';
 
   /**
    * Generates Organization Schema
@@ -183,10 +183,13 @@ export class SchemaRegistry {
     datePublished: string;
     dateModified?: string;
     url?: string;
+    wordCount?: number;
+    keywords?: string[];
+    schemaType?: string;
   }) {
     return {
       '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
+      '@type': article.schemaType || 'BlogPosting',
       headline: article.headline,
       description: article.description,
       image: article.image.startsWith('http') ? article.image : `${this.SITE_URL}${article.image}`,
@@ -206,8 +209,12 @@ export class SchemaRegistry {
       dateModified: article.dateModified || article.datePublished,
       mainEntityOfPage: {
         '@type': 'WebPage',
-        '@id': article.url || this.SITE_URL
-      }
+        '@id': article.url ? (article.url.startsWith('http') ? article.url : `${this.SITE_URL}${article.url}`) : this.SITE_URL
+      },
+      wordCount: article.wordCount,
+      keywords: article.keywords?.join(', '),
+      inLanguage: 'en',
+      isAccessibleForFree: true
     };
   }
 

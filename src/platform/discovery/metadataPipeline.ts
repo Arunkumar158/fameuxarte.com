@@ -131,8 +131,19 @@ export class MetadataPipeline {
           description,
           image: input.image || '/og-image.jpg',
           author: input.author || 'Fameuxarte',
-          datePublished: input.publishedTime || new Date().toISOString()
+          datePublished: input.publishedTime || new Date().toISOString(),
+          dateModified: input.modifiedTime || input.publishedTime,
+          url: input.canonicalUrl || input.url,
+          wordCount: input.rawEntity?.wordCount,
+          keywords: input.keywords,
+          schemaType: input.rawEntity?.schema_type || 'BlogPosting',
         }));
+
+        // Inject FAQPage schema only when article has visible FAQ content
+        const faqs = input.rawEntity?.faq as Array<{ question: string; answer: string }> | undefined;
+        if (faqs && faqs.length > 0) {
+          structuredData.push(SchemaRegistry.buildFAQSchema(faqs));
+        }
       }
     }
 

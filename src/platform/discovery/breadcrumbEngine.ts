@@ -7,7 +7,7 @@ import { BreadcrumbItem, EntityType } from './types';
 import { getEntityConfig } from './marketplaceRegistry';
 
 export class BreadcrumbEngine {
-  private static DEFAULT_SITE_URL = 'https://gallery-canvas-commerce.vercel.app';
+  private static DEFAULT_SITE_URL = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_PUBLIC_APP_URL) || 'https://fameuxarte.com';
 
   /**
    * Calculates breadcrumb lineage array for any entity or route path
