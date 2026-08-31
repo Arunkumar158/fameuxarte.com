@@ -2,7 +2,7 @@ import HeroSection from "@/components/home/HeroSection";
 import { SEO } from "@/components/SEO";
 import { generateOrganizationStructuredData } from "@/lib/seo";
 import HomeNav from "@/components/home/HomeNav";
-import TrustBar from "@/components/home/TrustBar";
+import CategoryStrip from "@/components/home/CategoryStrip";
 import FeaturedArtworks from "@/components/home/FeaturedArtworks";
 import ArtistsSection from "@/components/home/ArtistsSection";
 import WhySection from "@/components/home/WhySection";
@@ -13,11 +13,10 @@ const Index = () => {
   const structuredData = generateOrganizationStructuredData();
 
   return (
-    <div className="relative min-h-screen">
-      
-      <div className="relative z-10 bg-transparent">
+    <div className="relative min-h-screen bg-black text-white selection:bg-white selection:text-black">
+      <div className="relative z-10">
         <SEO
-          title="Fameuxarte | Curated Art for Collectors &amp; Investors"
+          title="Fameuxarte | Curated Art for Collectors & Investors"
           description="Premium marketplace for authentic, investment-grade artworks. Discover custom-curated paintings, sculptures, and digital art from established and emerging artists worldwide."
           canonicalUrl="/"
           ogImage="/og-image.jpg"
@@ -26,7 +25,7 @@ const Index = () => {
         />
         <HomeNav />
         <HeroSection />
-        <TrustBar />
+        <CategoryStrip />
         <FeaturedArtworks />
         <ArtistsSection />
         <WhySection />

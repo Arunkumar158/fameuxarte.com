@@ -23,16 +23,39 @@ export default function InsightsList() {
 
   const fetchInsights = async () => {
     setIsLoading(true);
-    const { data, error } = await supabase
-      .from('insights')
-      .select('id, title, status, created_at, author_id')
-      .order('created_at', { ascending: false });
-      
-    if (error) {
-      console.error("Error fetching insights:", error);
-    } else {
-      setInsights(data || []);
+    let allArticles: InsightSummary[] = [];
+
+    try {
+      const { data: insightRows, error: insightErr } = await supabase
+        .from('insights')
+        .select('id, title, status, created_at, author_id')
+        .order('created_at', { ascending: false });
+
+      if (!insightErr && insightRows && insightRows.length > 0) {
+        allArticles = insightRows as InsightSummary[];
+      }
+    } catch {}
+
+    if (allArticles.length === 0) {
+      try {
+        const { data: blogRows } = await supabase
+          .from('blogs')
+          .select('id, title, published_at, created_at, author_id')
+          .order('created_at', { ascending: false });
+
+        if (blogRows && blogRows.length > 0) {
+          allArticles = blogRows.map((b: any) => ({
+            id: b.id,
+            title: b.title || 'Untitled Blog',
+            status: 'published',
+            created_at: b.published_at || b.created_at,
+            author_id: b.author_id,
+          }));
+        }
+      } catch {}
     }
+
+    setInsights(allArticles);
     setIsLoading(false);
   };
 

@@ -46,11 +46,6 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
           />
 
           <div className="absolute left-3 top-3 flex gap-2">
-            {artwork.verified && (
-              <span className="rounded-full border border-[rgba(74,157,111,0.3)] bg-[rgba(74,157,111,0.9)] px-2 py-1 text-[9px] uppercase tracking-[0.08em] text-white backdrop-blur-sm">
-                Verified
-              </span>
-            )}
             {!available && !isSold && (
               <span className="rounded-full border border-[#2a2a2a] bg-[rgba(0,0,0,0.8)] px-2 py-1 text-[9px] uppercase tracking-[0.08em] text-[#888] backdrop-blur-sm">
                 Acquired

@@ -163,11 +163,6 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
             <span>Collected</span>
           </div>
         )}
-        
-        <div className={`absolute ${isSold ? 'top-12 right-3' : 'top-3 right-3'} bg-black/60 backdrop-blur-md px-2.5 py-1 flex items-center gap-1.5 rounded-full border border-white/10 text-[10px] uppercase tracking-wider font-semibold text-brand-gold transition-all`}>
-          <ShieldCheck className="w-3 h-3" />
-          <span>AI Verified</span>
-        </div>
         {/* Multi-image gallery indicator */}
         {artwork.imageCount && artwork.imageCount > 1 && (
           <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-2 py-1 flex items-center gap-1 rounded-full border border-white/15 text-[10px] font-semibold text-white/90">

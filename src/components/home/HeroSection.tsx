@@ -1,165 +1,188 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ShieldCheck, Cpu, Fingerprint, ArrowRight, Sparkles, Shield, UserCheck, FileText } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-interface HeroSectionProps {
-  artworkCount?: number | string;
-  artistCount?: number | string;
+interface HeroSlide {
+  id: number;
+  badge: string;
+  title: string;
+  subtitle: string;
+  primaryCtaText: string;
+  primaryCtaLink: string;
+  secondaryCtaText: string;
+  secondaryCtaLink: string;
+  image: string;
 }
 
-const trustPillars = [
+const slides: HeroSlide[] = [
   {
-    icon: ShieldCheck,
-    title: "Authenticity Verification",
-    description: "Every artwork undergoes a verification process designed to strengthen confidence in original human-created artwork.",
-    tag: "Intelligence",
-    badgeColor: "from-amber-500/20 to-yellow-500/10 text-amber-300 border-amber-500/30",
+    id: 1,
+    badge: "CURATED WITH PASSION",
+    title: "Art that Speaks to You",
+    subtitle: "Explore original artworks from talented artists around the world.",
+    primaryCtaText: "Explore Artworks",
+    primaryCtaLink: "/artworks",
+    secondaryCtaText: "Shop Collections",
+    secondaryCtaLink: "/collections",
+    image: "/images/hero/gallery-wall.jpg",
   },
   {
-    icon: UserCheck,
-    title: "Verified Artists",
-    description: "Artists complete identity and portfolio verification before earning trusted recognition on Fameuxarte.",
-    tag: "Authentication",
-    badgeColor: "from-emerald-500/20 to-teal-500/10 text-emerald-300 border-emerald-500/30",
+    id: 2,
+    badge: "AUTHENTIC & VERIFIED",
+    title: "Timeless Masterpieces for Modern Spaces",
+    subtitle: "Every piece verified with digital provenance and physical certificate.",
+    primaryCtaText: "Discover New Arrivals",
+    primaryCtaLink: "/artworks",
+    secondaryCtaText: "Meet the Artists",
+    secondaryCtaLink: "/artists",
+    image: "/images/hero/gallery-wall.jpg",
   },
   {
-    icon: FileText,
-    title: "Certificates & Provenance",
-    description: "Every purchase includes a Certificate of Authenticity and a documented ownership record to preserve the artwork's history.",
-    tag: "Provenance",
-    badgeColor: "from-blue-500/20 to-indigo-500/10 text-blue-300 border-blue-500/30",
+    id: 3,
+    badge: "INVESTMENT GRADE",
+    title: "Collect Exceptional Contemporary Art",
+    subtitle: "Direct acquisition from world-class painters, sculptors, and printmakers.",
+    primaryCtaText: "View Featured Works",
+    primaryCtaLink: "/artworks",
+    secondaryCtaText: "Explore Editions",
+    secondaryCtaLink: "/collections",
+    image: "/images/hero/gallery-wall.jpg",
+  },
+  {
+    id: 4,
+    badge: "GLOBAL FINE ART",
+    title: "Transform Your Living & Work Spaces",
+    subtitle: "Museum quality curation with white-glove secure international delivery.",
+    primaryCtaText: "Browse Collection",
+    primaryCtaLink: "/artworks",
+    secondaryCtaText: "About Fameuxarte",
+    secondaryCtaLink: "/our-story",
+    image: "/images/hero/gallery-wall.jpg",
   },
 ];
 
-const HeroSection = ({ artworkCount: _artworkCount, artistCount: _artistCount }: HeroSectionProps) => {
+const HeroSection = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto slide rotation every 8 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 8000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  const slide = slides[currentSlide];
+
   return (
-    <section className="relative overflow-hidden bg-transparent px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-24 border-b border-white/[0.06]">
-      {/* Ambient background glow effects (Linear / Vercel style) */}
-      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-[#8C2131]/20 via-[#1A3A8F]/10 to-transparent blur-[120px] rounded-full opacity-60" />
-      <div className="pointer-events-none absolute right-1/4 top-1/3 w-[400px] h-[300px] bg-gradient-to-bl from-emerald-500/10 via-transparent to-transparent blur-[100px] rounded-full opacity-40" />
+    <section className="relative w-full overflow-hidden bg-[#faf8f5]">
+      {/* Hero Banner Container with natural gallery background */}
+      <div className="relative min-h-[460px] sm:min-h-[540px] md:min-h-[580px] lg:min-h-[640px] flex items-center">
+        {/* Background Image with subtle gradient wash for text legibility */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={slide.image}
+            alt="Fameuxarte Art Gallery Interior"
+            className="w-full h-full object-cover object-center md:object-right transition-all duration-1000"
+          />
+          {/* Subtle light gradient on the left side to guarantee high contrast typography */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#faf8f5]/90 via-[#faf8f5]/65 to-transparent md:to-transparent" />
+        </div>
 
-      {/* Grid Pattern Overlay */}
-      <div 
-        className="pointer-events-none absolute inset-0 opacity-[0.03]" 
-        style={{ 
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.8) 1px, transparent 0)`,
-          backgroundSize: '32px 32px'
-        }} 
-      />
-
-      <div className="relative mx-auto max-w-[1080px] text-center">
-        {/* Eyebrow Badge */}
-        <motion.div 
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.5)] transition-colors hover:border-[#1A3A8F]/40"
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-          </span>
-          <span className="text-[11px] font-medium tracking-[0.14em] uppercase text-stone-300">
-            TRUST • AUTHENTICITY • VERIFIED ARTISTS
-          </span>
-          <Sparkles className="h-3 w-3 text-gold opacity-80" />
-        </motion.div>
-
-        {/* Hero Headline */}
-        <motion.h1 
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-          className="mb-6 text-[36px] sm:text-[54px] md:text-[62px] font-semibold leading-[1.06] tracking-[-0.03em] text-linen"
-        >
-          Trust Original Art.
-          <br />
-          <span className="bg-gradient-to-r from-white via-[#8C2131] to-[#1A3A8F] bg-clip-text text-transparent">
-            In the Age of AI.
-          </span>
-        </motion.h1>
-
-        {/* Subheadline */}
-        <motion.p 
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-          className="mx-auto mb-9 max-w-[660px] text-[15px] sm:text-[17px] leading-[1.7] text-stone-400 font-normal"
-        >
-          As AI-generated content becomes increasingly common, trust has never mattered more. Every artwork on Fameuxarte is supported by artist verification, authenticity checks, provenance records, and certificates of authenticity—helping collectors purchase original art with confidence while protecting genuine artists.
-        </motion.p>
-
-        {/* CTA Buttons */}
-        <motion.div 
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-          className="mb-14 flex flex-col justify-center gap-3.5 sm:flex-row items-center"
-        >
-          <Link 
-            to="/artworks" 
-            className="group relative inline-flex items-center justify-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.02] px-6 py-3 text-[14px] font-medium text-white backdrop-blur-md transition-all duration-500 hover:border-white/0 hover:shadow-[0_0_30px_rgba(123,63,228,0.25)] active:scale-[0.99] w-full sm:w-auto overflow-hidden z-10"
-          >
-            {/* Smooth glowing gradient background that fades in on hover */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#8C2131]/90 via-[#7B3FE4]/80 to-[#1A3A8F]/90 opacity-0 transition-opacity duration-500 group-hover:opacity-100 -z-10" />
-
-            <Shield className="h-4 w-4 fill-white/20" />
-            <span>Explore Verified Artworks</span>
-            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-          </Link>
-          
-          <a 
-            href="#trust" 
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-6 py-3 text-[14px] font-medium text-stone-300 backdrop-blur-md transition-all duration-300 hover:bg-white/[0.08] hover:border-white/20 hover:text-white active:scale-[0.99] w-full sm:w-auto"
-          >
-            <span>How We Build Trust</span>
-          </a>
-        </motion.div>
-
-        {/* Trust Pillars Cards (Replacing Fake Statistics) */}
-        <motion.div 
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4, ease: "easeOut" }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4 text-left"
-        >
-          {trustPillars.map((pillar, idx) => {
-            const Icon = pillar.icon;
-            return (
-              <div 
-                key={pillar.title} 
-                className="group relative rounded-xl border border-white/[0.06] bg-[#0A0A0A]/50 p-6 backdrop-blur-md transition-all duration-500 hover:border-white/10 hover:bg-[#111111]/80 hover:shadow-[0_10_40px_rgba(123,63,228,0.08)] hover:-translate-y-1 overflow-hidden"
+        {/* Content Floating Container */}
+        <div className="relative z-10 max-w-[1400px] w-full mx-auto px-6 sm:px-12 md:px-16 py-12">
+          <div className="max-w-[560px]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={slide.id}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="flex flex-col items-start"
               >
-                {/* Subtle gradient wash that appears on hover */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#8C2131]/[0.03] to-[#1A3A8F]/[0.05] opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none" />
+                {/* Overline Badge */}
+                <span className="text-[11px] sm:text-[12px] font-semibold tracking-[0.2em] text-[#b28247] uppercase mb-3">
+                  {slide.badge}
+                </span>
 
-                <div className="mb-4 flex items-center justify-between relative z-10">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/5 bg-white/[0.02] text-stone-400 transition-all duration-500 group-hover:border-[#8C2131]/30 group-hover:bg-[#8C2131]/10 group-hover:text-white group-hover:shadow-[0_0_15px_rgba(200,16,46,0.2)]">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider bg-gradient-to-r ${pillar.badgeColor}`}>
-                    {pillar.tag}
-                  </span>
-                </div>
+                {/* Main Headline */}
+                <h1 className="font-serif text-[36px] sm:text-[46px] md:text-[54px] lg:text-[60px] font-medium leading-[1.08] text-[#111111] tracking-[-0.02em] mb-4">
+                  {slide.title}
+                </h1>
 
-                <h3 className="mb-2 text-[17px] font-semibold tracking-[-0.01em] text-linen group-hover:text-white transition-colors relative z-10">
-                  {pillar.title}
-                </h3>
-                
-                <p className="text-[13px] leading-[1.65] text-stone-400 font-normal relative z-10">
-                  {pillar.description}
+                {/* Subtitle */}
+                <p className="text-[14px] sm:text-[16px] text-[#4a4a4a] leading-relaxed mb-7 max-w-[480px]">
+                  {slide.subtitle}
                 </p>
 
-                {/* Bottom card highlight border - purple glow merging red and blue */}
-                <div className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-[#7B3FE4]/50 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-              </div>
-            );
-          })}
-        </motion.div>
+                {/* Action Buttons */}
+                <div className="flex flex-wrap items-center gap-3.5">
+                  <Link
+                    to={slide.primaryCtaLink}
+                    className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-[#111111] text-white text-[13px] font-medium hover:bg-black transition-all hover:gap-3 shadow-sm hover:shadow"
+                  >
+                    <span>{slide.primaryCtaText}</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+
+                  <Link
+                    to={slide.secondaryCtaLink}
+                    className="inline-flex items-center justify-center h-11 px-6 rounded-full bg-white/80 backdrop-blur-sm border border-[#222222] text-[#111111] text-[13px] font-medium hover:bg-white transition-all shadow-xs"
+                  >
+                    {slide.secondaryCtaText}
+                  </Link>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Carousel Navigation Arrow - Left */}
+        <button
+          type="button"
+          onClick={prevSlide}
+          aria-label="Previous slide"
+          className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white/90 backdrop-blur-md border border-[#e5e5e5] text-[#222222] shadow-sm flex items-center justify-center hover:bg-white hover:scale-105 active:scale-95 transition-all"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+
+        {/* Carousel Navigation Arrow - Right */}
+        <button
+          type="button"
+          onClick={nextSlide}
+          aria-label="Next slide"
+          className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white/90 backdrop-blur-md border border-[#e5e5e5] text-[#222222] shadow-sm flex items-center justify-center hover:bg-white hover:scale-105 active:scale-95 transition-all"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+
+        {/* Carousel Pagination Dots */}
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              aria-label={`Go to slide ${index + 1}`}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                currentSlide === index ? "w-6 bg-[#111111]" : "w-2 bg-[#cccccc] hover:bg-[#999999]"
+              }`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
 };
 
 export default HeroSection;
-

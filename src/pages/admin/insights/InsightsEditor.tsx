@@ -95,8 +95,10 @@ export default function InsightsEditor() {
     content: "",
     editorProps: {
       attributes: {
+        "data-admin": "true",
         class:
-          "prose prose-sm max-w-none focus:outline-none min-h-[400px] p-4 rounded-md border border-slate-200 bg-white text-slate-900 leading-relaxed",
+          "prose prose-slate max-w-none focus:outline-none min-h-[400px] p-4 rounded-md border border-slate-200 bg-white text-slate-900 leading-relaxed font-sans",
+        style: "color: #0f172a !important;",
       },
     },
   });
@@ -113,13 +115,42 @@ export default function InsightsEditor() {
 
   const fetchInsight = async (insightId: string) => {
     setIsLoading(true);
-    const { data, error } = await supabase
-      .from("insights")
-      .select("*")
-      .eq("id", insightId)
-      .single();
+    let data: any = null;
 
-    if (error) {
+    try {
+      const { data: insightData } = await supabase
+        .from("insights")
+        .select("*")
+        .eq("id", insightId)
+        .maybeSingle();
+
+      data = insightData;
+    } catch {}
+
+    if (!data) {
+      try {
+        const { data: blogData } = await supabase
+          .from("blogs")
+          .select("*")
+          .eq("id", insightId)
+          .maybeSingle();
+
+        if (blogData) {
+          data = {
+            id: blogData.id,
+            title: blogData.title,
+            slug: blogData.Slug || blogData.slug,
+            content: blogData.content,
+            featured_image: blogData.image_url,
+            status: "published",
+            excerpt: blogData.content?.replace(/<[^>]+>/g, " ").substring(0, 160) + "...",
+            meta_title: blogData.title,
+          };
+        }
+      } catch {}
+    }
+
+    if (!data) {
       toast.error("Failed to load article");
       navigate("/admin/insights");
       return;
@@ -257,7 +288,7 @@ export default function InsightsEditor() {
       excerpt: excerpt.trim(),
       content: contentHtml,
       featured_image: featuredImage.trim() || null,
-      category: category.trim(),
+      category: category.trim() || "Art Intelligence",
       tags: tags.split(",").map(t => t.trim()).filter(Boolean),
       status: finalStatus,
       meta_title: metaTitle.trim() || null,
@@ -277,26 +308,61 @@ export default function InsightsEditor() {
       read_time: Math.max(4, Math.ceil(wordCount / 180)),
     };
 
-    let result;
-    if (isNew) {
-      result = await supabase.from("insights").insert([payload]).select().single();
-    } else {
-      result = await supabase
-        .from("insights")
-        .update(payload)
-        .eq("id", id)
-        .select()
-        .single();
-    }
+    let saved = false;
 
-    if (result.error) {
-      toast.error(result.error.message);
-    } else {
-      toast.success(
-        finalStatus === "published" ? "Article published!" : "Draft saved."
-      );
-      if (isNew && result.data) {
-        navigate(`/admin/insights/${result.data.id}`, { replace: true });
+    // 1. Try saving to insights table
+    try {
+      let result;
+      if (isNew) {
+        result = await supabase.from("insights").insert([payload]).select().single();
+      } else {
+        result = await supabase
+          .from("insights")
+          .update(payload)
+          .eq("id", id)
+          .select()
+          .single();
+      }
+
+      if (!result.error) {
+        saved = true;
+        toast.success(finalStatus === "published" ? "Article published to Journal!" : "Draft saved.");
+        if (isNew && result.data) {
+          navigate(`/admin/insights/${result.data.id}`, { replace: true });
+        }
+      }
+    } catch {}
+
+    // 2. Fallback to blogs table if insights table is not yet deployed
+    if (!saved) {
+      try {
+        const blogPayload: Record<string, any> = {
+          title: title.trim(),
+          Slug: slug.trim(),
+          content: contentHtml,
+          image_url: featuredImage.trim() || null,
+          author_id: user?.id,
+          published_at: new Date().toISOString(),
+        };
+
+        let bResult;
+        if (isNew) {
+          bResult = await supabase.from("blogs").insert([blogPayload]).select().single();
+        } else {
+          bResult = await supabase.from("blogs").update(blogPayload).eq("id", id).select().single();
+        }
+
+        if (!bResult.error) {
+          saved = true;
+          toast.success(finalStatus === "published" ? "Article published to Journal!" : "Draft saved.");
+          if (isNew && bResult.data) {
+            navigate(`/admin/insights/${bResult.data.id}`, { replace: true });
+          }
+        } else {
+          toast.error(bResult.error.message);
+        }
+      } catch (err: any) {
+        toast.error("Failed to save article. Please check database permissions.");
       }
     }
 
@@ -465,7 +531,7 @@ export default function InsightsEditor() {
                   </ToolbarButton>
                   <ToolbarButton active={editor?.isActive("code")} onClick={() => editor?.chain().focus().toggleCode().run()}>Code</ToolbarButton>
                 </div>
-                <EditorContent editor={editor} />
+                <EditorContent editor={editor} className="admin-editor text-slate-900" />
                 <div className="text-xs text-slate-400 text-right">
                   H2/H3 headings will be picked up by the automatic Table of Contents.
                 </div>

@@ -85,6 +85,37 @@
   .prose p {
     @apply mb-4;
   }
+
+  /* Admin Tiptap / ProseMirror Editor typography fix for light backgrounds */
+  .admin-editor .ProseMirror,
+  .ProseMirror.text-slate-900,
+  .ProseMirror[data-admin="true"] {
+    color: #0f172a !important;
+  }
+
+  .admin-editor .ProseMirror p,
+  .admin-editor .ProseMirror h1,
+  .admin-editor .ProseMirror h2,
+  .admin-editor .ProseMirror h3,
+  .admin-editor .ProseMirror h4,
+  .admin-editor .ProseMirror h5,
+  .admin-editor .ProseMirror h6,
+  .admin-editor .ProseMirror li,
+  .admin-editor .ProseMirror ul,
+  .admin-editor .ProseMirror ol,
+  .admin-editor .ProseMirror blockquote,
+  .admin-editor .ProseMirror span,
+  .admin-editor .ProseMirror strong,
+  .admin-editor .ProseMirror em {
+    color: #0f172a !important;
+  }
+
+  .admin-editor .ProseMirror blockquote {
+    border-left: 3px solid #cbd5e1;
+    padding-left: 1rem;
+    font-style: italic;
+    color: #334155 !important;
+  }
 }
 
 @layer components {

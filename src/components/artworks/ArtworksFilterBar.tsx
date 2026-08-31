@@ -19,10 +19,6 @@ const ArtworksFilterBar = () => {
             <button className="rounded-full border border-[#2a2a2a] bg-transparent px-3 py-[6px] text-[12px] text-[#666] transition-colors hover:text-[#888]">
               Sculpture
             </button>
-            <button className="inline-flex items-center gap-1 rounded-full border border-verified/20 bg-verified/10 px-3 py-[6px] text-[12px] text-verified">
-              <i className="ti ti-shield-check text-[11px]" aria-hidden="true" />
-              Verified only
-            </button>
           </div>
 
           <select className="rounded-md border border-border-subtle bg-surface-2 px-3 py-[6px] text-[12px] text-[#888]">

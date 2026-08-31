@@ -58,6 +58,7 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
       capture_pageview:    false,          // we fire $pageview manually below
       capture_pageleave:   true,           // track when users leave
       persistence:         'localStorage', // survive page refreshes
+      on_xhr_error:        () => {},       // Silently handle ad-blocker blocks without spamming console
       loaded: (ph) => {
         // Console confirmation once PostHog is ready
         console.log('[PostHog] Analytics initialised ✅', ph.get_distinct_id());
