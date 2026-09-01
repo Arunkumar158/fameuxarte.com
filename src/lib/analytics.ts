@@ -198,3 +198,53 @@ export const recordProfileView = async (artistId: string, artistName: string | n
     console.error("Error calling increment_profile_view:", err);
   }
 };
+
+// ---------------------------------------------------------------------------
+// Social Sharing Analytics (Artwork Share System)
+// ---------------------------------------------------------------------------
+
+/**
+ * Fired when the user clicks the Share Artwork button.
+ * Only fired for publicly-visible artworks (status check is enforced in UI).
+ */
+export const trackArtworkShareClicked = (props: {
+  artwork_id: string;
+  title?: string;
+  status?: string;
+  device?: string;
+}) => trackEvent('artwork_share_clicked', props);
+
+/**
+ * Fired when the 1080×1920 branded image is successfully generated.
+ * cors_blocked: true means the artwork image was inaccessible; branded card was still generated.
+ */
+export const trackArtworkShareImageGenerated = (props: {
+  artwork_id: string;
+  cors_blocked?: boolean;
+}) => trackEvent('artwork_share_image_generated', props);
+
+/**
+ * Fired immediately before navigator.share() is called.
+ * share_method: 'native_file' | 'native_text' depending on file-sharing support.
+ */
+export const trackArtworkShareNativeOpened = (props: {
+  artwork_id: string;
+  share_method?: string;
+  device?: string;
+}) => trackEvent('artwork_share_native_opened', props);
+
+/**
+ * Fired when the user downloads the branded share image.
+ */
+export const trackArtworkShareDownloaded = (props: {
+  artwork_id: string;
+  device?: string;
+}) => trackEvent('artwork_share_downloaded', props);
+
+/**
+ * Fired when the user copies the artwork page link to clipboard.
+ */
+export const trackArtworkShareLinkCopied = (props: {
+  artwork_id: string;
+  device?: string;
+}) => trackEvent('artwork_share_link_copied', props);

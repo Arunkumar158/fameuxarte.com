@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Award, CheckCircle2, ChevronLeft, ChevronRight, Heart, ShieldCheck, X, ZoomIn, Eye } from "lucide-react";
+import { ArrowLeft, Award, CheckCircle2, ChevronLeft, ChevronRight, Heart, ShieldCheck, X, ZoomIn, Eye, Share2 } from "lucide-react";
 import HomeNav from "@/components/home/HomeNav";
 import MainLayout from "@/components/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { DiscoveryHead } from "@/platform/discovery/DiscoveryHead";
 import { DiscoveryBreadcrumbs } from "@/components/discovery/DiscoveryBreadcrumbs";
 import { getGalleryImages } from "@/lib/utils";
-import { trackPageViewed, recordArtworkView, trackEvent } from "@/lib/analytics";
+import { trackPageViewed, recordArtworkView, trackEvent, trackArtworkShareClicked } from "@/lib/analytics";
 import ArtworkGrid from "@/components/ArtworkGrid";
+import ArtworkShareDialog from "@/components/share/ArtworkShareDialog";
 
 interface ArtworkData {
   id: string;
@@ -152,6 +153,7 @@ const ArtworkDetails = () => {
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const { data: artwork, isLoading, error } = useQuery({
     queryKey: ["artwork", slug],
@@ -336,6 +338,21 @@ const ArtworkDetails = () => {
   
   const handleToggleLike = () => toggleLike(artwork.id).catch(console.error);
 
+  // Share is only available for publicly-visible artworks (available or sold)
+  // Draft/hidden/reserved artworks must not be exposed through sharing
+  const isShareable = artwork.status === 'available' || artwork.status === 'sold';
+
+  const handleShareClick = () => {
+    if (!isShareable) return;
+    setShareOpen(true);
+    trackArtworkShareClicked({
+      artwork_id: artwork.id,
+      title: artwork.title,
+      status: artwork.status,
+      device: window.matchMedia('(max-width: 768px)').matches ? 'mobile' : 'desktop',
+    });
+  };
+
   return (
     <MainLayout>
       <DiscoveryHead
@@ -360,6 +377,24 @@ const ArtworkDetails = () => {
           }
         }}
       />
+
+      {/* Artwork Share Dialog — only mounted when shareable */}
+      {isShareable && (
+        <ArtworkShareDialog
+          artwork={{
+            id: artwork.id,
+            title: artwork.title,
+            artistName,
+            imageUrl: activeImage,
+            slug: artwork.slug,
+            medium: artwork.medium,
+            creation_year: artwork.creation_year,
+            status: artwork.status,
+          }}
+          open={shareOpen}
+          onOpenChange={setShareOpen}
+        />
+      )}
 
       <AnimatePresence>
         {lightboxOpen && (
@@ -593,6 +628,18 @@ const ArtworkDetails = () => {
                     <div className="text-center text-[13px] text-[#777]">
                       This original artwork has found its collector.
                     </div>
+                    {/* Share button — available for sold artworks too */}
+                    <Button
+                      id="share-artwork-button-desktop"
+                      size="lg"
+                      variant="outline"
+                      className="h-12 w-full rounded-[6px] border-border-subtle bg-transparent text-[13px] text-[#aaa] hover:border-gold/40 hover:bg-transparent hover:text-gold"
+                      onClick={handleShareClick}
+                      aria-label="Share artwork"
+                    >
+                      <Share2 className="mr-2 h-4 w-4" aria-hidden="true" />
+                      Share Artwork
+                    </Button>
                   </div>
                 ) : (
                   <>
@@ -627,6 +674,17 @@ const ArtworkDetails = () => {
                     >
                       Add to collection
                     </Button>
+                    <Button
+                      id="share-artwork-button-desktop"
+                      size="lg"
+                      variant="outline"
+                      className="h-12 w-full rounded-[6px] border-border-subtle bg-transparent text-[13px] text-[#aaa] hover:border-gold/40 hover:bg-transparent hover:text-gold"
+                      onClick={handleShareClick}
+                      aria-label="Share artwork"
+                    >
+                      <Share2 className="mr-2 h-4 w-4" aria-hidden="true" />
+                      Share Artwork
+                    </Button>
                   </>
                 )}
               </div>
@@ -641,7 +699,7 @@ const ArtworkDetails = () => {
         >
           {artwork?.status === 'sold' ? (
             <>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <Button
                   size="lg"
                   disabled
@@ -660,13 +718,25 @@ const ArtworkDetails = () => {
                 >
                   <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} aria-hidden="true" />
                 </Button>
+                {isShareable && (
+                  <Button
+                    id="share-artwork-button-mobile"
+                    size="lg"
+                    variant="outline"
+                    className="h-12 w-12 shrink-0 rounded-[6px] border-border-subtle bg-surface-2 transition-colors hover:border-gold/40 hover:text-gold text-[#888]"
+                    onClick={handleShareClick}
+                    aria-label="Share artwork"
+                  >
+                    <Share2 className="h-5 w-5" aria-hidden="true" />
+                  </Button>
+                )}
               </div>
               <div className="text-center text-[12px] text-[#777] mt-1">
                 This original artwork has found its collector.
               </div>
             </>
           ) : (
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <Button
                 size="lg"
                 className="h-12 flex-1 rounded-[6px] bg-linen text-[13px] font-medium text-obsidian hover:bg-gold"
@@ -688,6 +758,18 @@ const ArtworkDetails = () => {
               >
                 <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} aria-hidden="true" />
               </Button>
+              {isShareable && (
+                <Button
+                  id="share-artwork-button-mobile"
+                  size="lg"
+                  variant="outline"
+                  className="h-12 w-12 shrink-0 rounded-[6px] border-border-subtle bg-surface-2 transition-colors hover:border-gold/40 hover:text-gold text-[#888]"
+                  onClick={handleShareClick}
+                  aria-label="Share artwork"
+                >
+                  <Share2 className="h-5 w-5" aria-hidden="true" />
+                </Button>
+              )}
             </div>
           )}
         </div>
