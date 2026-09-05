@@ -38,10 +38,11 @@ serve(async (req: Request) => {
       auth: { persistSession: false },
     });
 
-    const { data: { user }, error: userError } = await callerClient.auth.getUser();
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await callerClient.auth.getUser(token);
     if (userError || !user) {
       return new Response(
-        JSON.stringify({ error: "Not authenticated" }),
+        JSON.stringify({ error: "Not authenticated", details: userError?.message || "User not found" }),
         { status: 401, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
       );
     }
