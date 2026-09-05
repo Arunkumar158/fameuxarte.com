@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ShieldCheck, TrendingUp, Globe, ServerCrash, Cpu, Database, Bug, Paintbrush, Code2 } from "lucide-react";
+import { ShieldCheck, TrendingUp, Globe, ServerCrash, Cpu, Database, Bug, Paintbrush, Code2, Instagram } from "lucide-react";
 import HomeNav from "@/components/home/HomeNav";
 import { SEO } from "@/components/SEO";
 
@@ -44,9 +44,17 @@ const OurStory = () => {
               </div>
               <div className="text-center">
                 <h3 className="text-2xl font-serif mb-1 text-linen">Arun Kumar</h3>
-                <p className="text-stone-300 font-medium flex items-center justify-center gap-2 text-sm tracking-wide uppercase">
+                <p className="text-stone-300 font-medium flex items-center justify-center gap-2 text-sm tracking-wide uppercase mb-4">
                   <Code2 className="w-4 h-4 text-gold" /> Technology, Product & Vision
                 </p>
+                <a 
+                  href="https://www.instagram.com/_arunn?stkn=d3JmZ2p2dHk0MzJ4" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.05] border border-white/[0.08] hover:bg-gold/10 hover:border-gold/30 hover:text-gold text-stone-300 transition-all duration-300 group/social"
+                >
+                  <Instagram className="w-5 h-5 transition-transform group-hover/social:scale-110" />
+                </a>
               </div>
             </div>
           </motion.div>
@@ -65,9 +73,17 @@ const OurStory = () => {
               </div>
               <div className="text-center">
                 <h3 className="text-2xl font-serif mb-1 text-linen">Praveen Krishnan</h3>
-                <p className="text-stone-300 font-medium flex items-center justify-center gap-2 text-sm tracking-wide uppercase">
+                <p className="text-stone-300 font-medium flex items-center justify-center gap-2 text-sm tracking-wide uppercase mb-4">
                   <Paintbrush className="w-4 h-4 text-gold" /> Artist, Creative Direction
                 </p>
+                <a 
+                  href="https://www.instagram.com/i_praveenkrishnan_?stkn=dGlpZnF2MHIyMTY2" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.05] border border-white/[0.08] hover:bg-gold/10 hover:border-gold/30 hover:text-gold text-stone-300 transition-all duration-300 group/social"
+                >
+                  <Instagram className="w-5 h-5 transition-transform group-hover/social:scale-110" />
+                </a>
               </div>
             </div>
           </motion.div>
