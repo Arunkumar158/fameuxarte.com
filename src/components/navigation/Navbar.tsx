@@ -7,6 +7,7 @@ import { useCart } from "@/contexts/CartContext";
 import MobileMenu from "./MobileMenu";
 import { useLikedItems } from "@/hooks/useLikedItems";
 import CurrencySelector from "@/components/shared/CurrencySelector";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 const Navbar = () => {
   const { user, signOut } = useAuth();
@@ -110,6 +111,9 @@ const Navbar = () => {
                     )}
                   </Button>
                 </Link>
+
+                {/* Notification Bell */}
+                <NotificationBell className={textColor} />
               </>
             )}
 

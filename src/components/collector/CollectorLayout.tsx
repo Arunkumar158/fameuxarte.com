@@ -18,6 +18,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SEO } from "@/components/SEO";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 const NAV_GROUPS = [
   {
@@ -162,9 +163,7 @@ export const CollectorLayout = ({ children }: { children?: React.ReactNode }) =>
           </button>
 
           <div className="flex items-center gap-4">
-            <Link to="/collector/notifications" className="relative text-stone hover:text-linen">
-              <Bell className="h-5 w-5" />
-            </Link>
+            <NotificationBell />
             <Link to="/" className="text-[12px] font-medium text-stone hover:text-linen hidden sm:block">
               FA Marketplace
             </Link>

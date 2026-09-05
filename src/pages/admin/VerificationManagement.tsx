@@ -37,6 +37,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { TrustBadge, TrustBadgeType } from "@/components/ui/trust-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { notifyUser } from "@/lib/notifications";
 
 export default function VerificationManagement() {
   const queryClient = useQueryClient();
@@ -125,7 +126,7 @@ export default function VerificationManagement() {
   });
 
   const { mutate: updateVerification, isPending: isUpdating } = useMutation({
-    mutationFn: async ({ id, status, notes }: { id: string, status: string, notes: string }) => {
+    mutationFn: async ({ id, status, notes, artistName }: { id: string, status: string, notes: string, artistName?: string }) => {
       const updateData: any = { verification_status: status, verification_notes: notes };
       if (status === 'verified') {
         updateData.verified_at = new Date().toISOString();
@@ -138,6 +139,40 @@ export default function VerificationManagement() {
         .eq("id", id);
       
       if (error) throw error;
+
+      // Send artist verification notification
+      if (status === 'verified') {
+        await notifyUser({
+          userId: id,
+          type: 'ARTIST_APPLICATION_APPROVED',
+          title: 'Your Artist Application is Approved!',
+          message: 'Congratulations! Your identity has been verified. You can now publish artworks and sell on Fameuxarte.',
+          priority: 'important',
+          metadata: { url: '/artist/verification', event_id: `artist-approved-${id}` },
+        });
+      } else if (status === 'rejected') {
+        await notifyUser({
+          userId: id,
+          type: 'ARTIST_APPLICATION_REJECTED',
+          title: 'Artist Application Update',
+          message: notes
+            ? `Your application requires attention: ${notes}`
+            : 'Your artist application could not be verified at this time. Please contact support for more information.',
+          priority: 'important',
+          metadata: { url: '/artist/verification', event_id: `artist-rejected-${id}` },
+        });
+      } else if (status === 'suspended') {
+        await notifyUser({
+          userId: id,
+          type: 'ARTIST_APPLICATION_SUSPENDED',
+          title: 'Account Suspended',
+          message: notes
+            ? `Your artist account has been suspended: ${notes}`
+            : 'Your artist account has been suspended. Please contact support.',
+          priority: 'urgent',
+          metadata: { url: '/artist/verification', event_id: `artist-suspended-${id}` },
+        });
+      }
     },
     onSuccess: () => {
       toast.success("Verification status updated.");

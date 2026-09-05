@@ -248,3 +248,35 @@ export const trackArtworkShareLinkCopied = (props: {
   artwork_id: string;
   device?: string;
 }) => trackEvent('artwork_share_link_copied', props);
+
+// ---------------------------------------------------------------------------
+// Notification Analytics (V1)
+// ---------------------------------------------------------------------------
+
+/** Fired when the notification panel bell is opened. */
+export const trackNotificationPanelOpened = (props?: { unread_count?: number }) =>
+  trackEvent('notification_panel_opened', props);
+
+/** Fired when a user clicks a notification (panel or full page). */
+export const trackNotificationClicked = (props?: {
+  notification_id?: string;
+  type?: string;
+  source?: 'panel' | 'notifications_page';
+}) => trackEvent('notification_clicked', props);
+
+/** Fired when a single notification is marked as read. */
+export const trackNotificationMarkedRead = (props?: {
+  notification_id?: string;
+}) => trackEvent('notification_marked_read', props);
+
+/** Fired when mark-all-as-read is triggered. */
+export const trackNotificationMarkedAllRead = (props?: {
+  source?: 'panel' | 'notifications_page';
+}) => trackEvent('notification_marked_all_read', props);
+
+/** Fired when an admin sends a broadcast notification. */
+export const trackNotificationBroadcastCreated = (props?: {
+  audience?: 'all' | 'artists' | 'customers';
+  admin_id?: string;
+}) => trackEvent('notification_broadcast_created', props);
+

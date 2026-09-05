@@ -30,15 +30,13 @@ const NAV_ITEMS = [
   { name: "Artworks", href: "/admin/artworks", icon: ImageIcon },
   { name: "Verification", href: "/admin/verification", icon: ShieldCheck },
   { name: "Collections", href: "/admin/collections", icon: Layers },
+  { name: "Notifications", href: "/admin/notifications", icon: Bell },
   { name: "Insights", href: "/admin/insights", icon: FileText },
   { name: "SEO", href: "/admin/seo", icon: Search },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart },
 ];
 
-const COMING_SOON_ITEMS = [
-  { name: "Notifications", icon: Bell },
-  { name: "AI Features", icon: Sparkles },
-];
+
 
 export function AdminLayout({ children }: { children?: React.ReactNode }) {
   const { signOut } = useAuth();
@@ -84,16 +82,13 @@ export function AdminLayout({ children }: { children?: React.ReactNode }) {
           </p>
         </div>
         
-        {COMING_SOON_ITEMS.map((item) => (
-          <div
-            key={item.name}
-            className="flex items-center px-3 py-2 text-sm font-medium text-slate-900 cursor-not-allowed opacity-60"
-          >
-            <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-            {item.name}
-            <span className="ml-auto text-[10px] bg-slate-200 px-1.5 py-0.5 rounded text-slate-900 font-bold">SOON</span>
-          </div>
-        ))}
+        <div
+          className="flex items-center px-3 py-2 text-sm font-medium text-slate-900 cursor-not-allowed opacity-60"
+        >
+          <Sparkles className="mr-3 h-5 w-5 flex-shrink-0" />
+          AI Features
+          <span className="ml-auto text-[10px] bg-slate-200 px-1.5 py-0.5 rounded text-slate-900 font-bold">SOON</span>
+        </div>
       </nav>
 
       <div className="pt-4 border-t border-slate-200 space-y-1">

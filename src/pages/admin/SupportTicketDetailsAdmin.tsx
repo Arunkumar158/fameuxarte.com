@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { notifyUser } from "@/lib/notifications";
 
 const SupportTicketDetailsAdmin = () => {
   const { id } = useParams();
@@ -96,13 +97,18 @@ const SupportTicketDetailsAdmin = () => {
 
       // Send notification to customer if it's a public reply
       if (!isInternal && ticket?.user_id) {
-        await supabase.from("notifications").insert([{
-          user_id: ticket.user_id,
-          title: "New Reply to Support Ticket",
+        await notifyUser({
+          userId: ticket.user_id,
+          type: 'SUPPORT_REPLY',
+          title: 'New Reply to Your Support Ticket',
           message: `An agent has replied to your ticket: ${ticket.subject}`,
-          type: "support_update",
-          metadata: { ticket_id: ticket.id, ticket_number: ticket.ticket_number }
-        }]);
+          priority: 'normal',
+          metadata: {
+            ticket_id: ticket.id,
+            ticket_number: ticket.ticket_number,
+            url: `/collector/support/${ticket.id}`,
+          },
+        });
       }
 
       toast({
@@ -136,13 +142,18 @@ const SupportTicketDetailsAdmin = () => {
       if (error) throw error;
       
       if (ticket?.user_id && newStatus !== ticket.status) {
-        await supabase.from("notifications").insert([{
-          user_id: ticket.user_id,
-          title: "Ticket Status Updated",
+        await notifyUser({
+          userId: ticket.user_id,
+          type: 'SUPPORT_STATUS',
+          title: 'Ticket Status Updated',
           message: `Your ticket ${ticket.ticket_number} has been marked as ${newStatus.replace(/_/g, ' ')}.`,
-          type: "support_status",
-          metadata: { ticket_id: id, ticket_number: ticket.ticket_number, status: newStatus }
-        }]);
+          priority: 'normal',
+          metadata: {
+            ticket_id: id,
+            ticket_number: ticket.ticket_number,
+            url: `/collector/support/${id}`,
+          },
+        });
       }
       
       toast({

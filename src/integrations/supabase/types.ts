@@ -582,6 +582,8 @@ export type Database = {
           message: string
           type: string
           read: boolean
+          read_at: string | null
+          priority: string
           metadata: Json | null
           created_at: string
         }
@@ -592,6 +594,8 @@ export type Database = {
           message: string
           type: string
           read?: boolean
+          read_at?: string | null
+          priority?: string
           metadata?: Json | null
           created_at?: string
         }
@@ -602,6 +606,8 @@ export type Database = {
           message?: string
           type?: string
           read?: boolean
+          read_at?: string | null
+          priority?: string
           metadata?: Json | null
           created_at?: string
         }
@@ -615,6 +621,7 @@ export type Database = {
           },
         ]
       }
+
 
       order_items: {
         Row: {

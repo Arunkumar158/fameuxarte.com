@@ -93,6 +93,7 @@ import InsightsList from "./pages/admin/insights/InsightsList";
 import InsightsEditor from "./pages/admin/insights/InsightsEditor";
 const AdminSupportTickets = React.lazy(() => import("./pages/admin/SupportTicketsAdmin"));
 const AdminSupportTicketDetails = React.lazy(() => import("./pages/admin/SupportTicketDetailsAdmin"));
+const AdminNotifications = React.lazy(() => import("./pages/admin/Notifications"));
 
 // Artist Imports
 import { ArtistRoute } from "./components/artist/ArtistRoute";
@@ -183,6 +184,7 @@ const AnimatedRoutes = () => {
             <Route path="settings" element={<SettingsAdmin />} />
             <Route path="support" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><AdminSupportTickets /></Suspense>} />
             <Route path="support/:id" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><AdminSupportTicketDetails /></Suspense>} />
+            <Route path="notifications" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><AdminNotifications /></Suspense>} />
             <Route path="insights" element={<InsightsList />} />
             <Route path="insights/:id" element={<InsightsEditor />} />
           </Route>

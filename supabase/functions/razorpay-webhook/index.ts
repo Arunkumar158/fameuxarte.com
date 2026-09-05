@@ -158,6 +158,42 @@ serve(async (req: Request) => {
           }
         }
       }
+
+      // Send ORDER_CONFIRMED + PAYMENT_SUCCESS notifications to collector
+      // Idempotent: order.status === 'paid' guard above prevents duplicate processing
+      if (order.user_id) {
+        const now = new Date().toISOString();
+        await supabase.from("notifications").insert([
+          {
+            user_id: order.user_id,
+            title: "Order Confirmed",
+            message: "Your payment was successful and your order has been confirmed. The artist will begin preparing your artwork.",
+            type: "ORDER_CONFIRMED",
+            priority: "normal",
+            metadata: {
+              order_id: order.id,
+              url: "/collector/orders",
+              event_id: `order-confirmed-${order.id}`,
+            },
+            created_at: now,
+          },
+          {
+            user_id: order.user_id,
+            title: "Payment Successful",
+            message: `Payment of ₹${paymentEntity.amount ? (paymentEntity.amount / 100).toLocaleString() : "—"} received successfully.`,
+            type: "PAYMENT_SUCCESS",
+            priority: "normal",
+            metadata: {
+              order_id: order.id,
+              payment_id: razorpay_payment_id,
+              url: "/collector/orders",
+              event_id: `payment-success-${razorpay_payment_id}`,
+            },
+            created_at: now,
+          },
+        ]);
+        console.log(`🔔 ORDER_CONFIRMED + PAYMENT_SUCCESS notifications sent to ${order.user_id}`);
+      }
     }
 
     return new Response("Webhook processed", { status: 200 });

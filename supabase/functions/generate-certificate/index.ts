@@ -171,6 +171,28 @@ serve(async (req: Request) => {
 
     if (dbError) throw dbError;
 
+    // Send CERTIFICATE_READY notification to collector
+    try {
+      await supabaseAdmin.from("notifications").insert({
+        user_id: collector_id,
+        title: "Certificate of Authenticity Ready",
+        message: `Your certificate for "${artwork.title}" is now available. Download it from your Certificates page.`,
+        type: "CERTIFICATE_READY",
+        priority: "normal",
+        metadata: {
+          certificate_id: certData?.id,
+          certificate_number: certNumber,
+          artwork_id: artwork_id,
+          url: "/collector/certificates",
+          event_id: `cert-ready-${certNumber}`,
+        },
+      });
+      console.log(`🔔 CERTIFICATE_READY notification sent to collector ${collector_id}`);
+    } catch (notifErr: any) {
+      // Non-fatal: certificate was generated successfully even if notification fails
+      console.error("Failed to send CERTIFICATE_READY notification:", notifErr.message);
+    }
+
     return new Response(JSON.stringify({ success: true, certificate: certData }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200
