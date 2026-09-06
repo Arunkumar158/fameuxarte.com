@@ -40,6 +40,7 @@ export function ArtistAgreementModal({ open, onOpenChange, onAccept }: ArtistAgr
         .from('legal_documents')
         .select('*')
         .eq('document_type', 'artist_agreement')
+        .eq('status', 'published')
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();

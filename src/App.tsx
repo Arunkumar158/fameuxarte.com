@@ -35,9 +35,15 @@ import ArtworkDetails from "./pages/ArtworkDetails";
 import ContactUs from "./pages/ContactUs";
 import FAQ from "./pages/FAQ";
 import OurStory from "./pages/OurStory";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import CancellationsAndRefunds from "./pages/CancellationsAndRefunds";
+import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
+import TermsOfService from "./pages/legal/Terms";
+import CancellationsAndRefunds from "./pages/legal/Refunds";
+import ArtistTerms from "./pages/legal/ArtistTerms";
+import BuyerTerms from "./pages/legal/BuyerTerms";
+import Shipping from "./pages/legal/Shipping";
+import Cookies from "./pages/legal/Cookies";
+import TrustCenter from "./pages/trust/TrustCenter";
+import TrustPage from "./pages/trust/TrustPage";
 import ForArtists from "./pages/ForArtists";
 import CertificateVerify from "./pages/CertificateVerify";
 import ArtistOnboarding from "./pages/artist/ArtistOnboarding";
@@ -167,9 +173,23 @@ const AnimatedRoutes = () => {
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/our-story" element={<OurStory />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
-          <Route path="/cancellations-and-refunds" element={<CancellationsAndRefunds />} />
+          {/* Legacy redirects */}
+          <Route path="/privacy-policy" element={<Navigate to="/legal/privacy" replace />} />
+          <Route path="/terms-of-service" element={<Navigate to="/legal/terms" replace />} />
+          <Route path="/cancellations-and-refunds" element={<Navigate to="/legal/refunds" replace />} />
+
+          {/* New Legal Routes */}
+          <Route path="/legal/privacy" element={<PrivacyPolicy />} />
+          <Route path="/legal/terms" element={<TermsOfService />} />
+          <Route path="/legal/artist-terms" element={<ArtistTerms />} />
+          <Route path="/legal/buyer-terms" element={<BuyerTerms />} />
+          <Route path="/legal/refunds" element={<CancellationsAndRefunds />} />
+          <Route path="/legal/shipping" element={<Shipping />} />
+          <Route path="/legal/cookies" element={<Cookies />} />
+          
+          {/* Trust Center Routes */}
+          <Route path="/trust" element={<TrustCenter />} />
+          <Route path="/trust/:topic" element={<TrustPage />} />
           
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>

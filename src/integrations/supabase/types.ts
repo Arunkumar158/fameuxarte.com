@@ -385,29 +385,73 @@ export type Database = {
       legal_documents: {
         Row: {
           id: string
-          document_type: "artist_agreement" | "terms_conditions" | "privacy_policy" | "shipping_policy" | "return_policy"
+          document_type: "artist_agreement" | "terms_conditions" | "privacy_policy" | "shipping_policy" | "return_policy" | "buyer_terms" | "cookie_policy"
+          title: string | null
           version: string
           content: string
+          status: string
+          effective_at: string | null
           updated_at: string | null
           created_at: string | null
         }
         Insert: {
           id?: string
-          document_type: "artist_agreement" | "terms_conditions" | "privacy_policy" | "shipping_policy" | "return_policy"
+          document_type: "artist_agreement" | "terms_conditions" | "privacy_policy" | "shipping_policy" | "return_policy" | "buyer_terms" | "cookie_policy"
+          title?: string | null
           version: string
           content: string
+          status?: string
+          effective_at?: string | null
           updated_at?: string | null
           created_at?: string | null
         }
         Update: {
           id?: string
-          document_type?: "artist_agreement" | "terms_conditions" | "privacy_policy" | "shipping_policy" | "return_policy"
+          document_type?: "artist_agreement" | "terms_conditions" | "privacy_policy" | "shipping_policy" | "return_policy" | "buyer_terms" | "cookie_policy"
+          title?: string | null
           version?: string
           content?: string
+          status?: string
+          effective_at?: string | null
           updated_at?: string | null
           created_at?: string | null
         }
         Relationships: []
+      }
+      legal_acceptances: {
+        Row: {
+          id: string
+          user_id: string
+          document_type: string
+          document_version: string
+          accepted_at: string | null
+          acceptance_context: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          document_type: string
+          document_version: string
+          accepted_at?: string | null
+          acceptance_context?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          document_type?: string
+          document_version?: string
+          accepted_at?: string | null
+          acceptance_context?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_acceptances_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       certificates: {
         Row: {

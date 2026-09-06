@@ -15,10 +15,20 @@ const footerSections = [
     title: "Fameuxarte",
     links: [
       { label: "Our story", to: "/our-story" },
+      { label: "Trust Center", to: "/trust" },
       { label: "Help Centre & Tickets", to: "/collector/support" },
       { label: "Contact", to: "/contact" },
       { label: "FAQ", to: "/faq" },
-      { label: "Cancellations & refunds", to: "/cancellations-and-refunds" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { label: "Privacy Policy", to: "/legal/privacy" },
+      { label: "Terms & Conditions", to: "/legal/terms" },
+      { label: "Buyer Terms", to: "/legal/buyer-terms" },
+      { label: "Refunds & Cancellations", to: "/legal/refunds" },
+      { label: "Shipping Policy", to: "/legal/shipping" },
     ],
   },
 ];
@@ -90,7 +100,7 @@ const Footer = () => {
         </div>
 
         {/* Footer Navigation Columns */}
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.35fr_1fr_1fr_1.2fr]">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.35fr_1fr_1fr_1fr_1.2fr]">
           <div>
             <Link to="/" className="mb-4 inline-flex text-[18px] font-medium tracking-[-0.02em] text-linen">
               Fameuxarte

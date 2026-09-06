@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/utils";
 import HomeNav from "@/components/home/HomeNav";
 import { trackEvent, trackPageViewed } from "@/lib/analytics";
-
+import { useQuery } from "@tanstack/react-query";
 // Razorpay payment response interface
 interface RazorpayPaymentResponse {
   razorpay_order_id: string;
@@ -67,8 +67,26 @@ const Checkout = () => {
   const { items, removeFromCart } = useCart();
   const { session } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  const { data: legalVersions } = useQuery({
+    queryKey: ['legal-versions-checkout'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('legal_documents')
+        .select('document_type, version')
+        .in('document_type', ['buyer_terms', 'return_policy'])
+        .eq('status', 'published');
+        
+      const versions: Record<string, string> = { buyer_terms: '1.0', return_policy: '1.0' };
+      if (data) {
+        data.forEach(d => { versions[d.document_type] = d.version; });
+      }
+      return versions;
+    }
+  });
 
   // Calculate total amount in rupees (NOT paise)
   const totalAmount = items.reduce((sum, item) => sum + (item.artwork.price * item.quantity), 0);
@@ -506,9 +524,35 @@ const Checkout = () => {
             }
             console.log('✅ Cart cleared successfully');
 
+            // Record legal acceptance
+            if (session?.user?.id) {
+              try {
+                const acceptedVersions = legalVersions || { buyer_terms: '1.0', return_policy: '1.0' };
+                await supabase.from('legal_acceptances').insert([
+                  {
+                    user_id: session.user.id,
+                    document_type: 'buyer_terms',
+                    document_version: acceptedVersions['buyer_terms'] || '1.0',
+                    acceptance_context: 'checkout',
+                    accepted_at: new Date().toISOString()
+                  },
+                  {
+                    user_id: session.user.id,
+                    document_type: 'return_policy',
+                    document_version: acceptedVersions['return_policy'] || '1.0',
+                    acceptance_context: 'checkout',
+                    accepted_at: new Date().toISOString()
+                  }
+                ]);
+                console.log('✅ Legal acceptance recorded');
+              } catch (e) {
+                console.error('⚠️ Failed to record legal acceptance:', e);
+              }
+            }
+
             toast({
-title: "Acquisition Confirmed",
-            description: "Your acquisition has been confirmed. You will receive a confirmation email shortly.",
+              title: "Acquisition Confirmed",
+              description: "Your acquisition has been confirmed. You will receive a confirmation email shortly.",
             });
 
             console.log('=== CHECKOUT PROCESS SUCCESS ===');
@@ -641,11 +685,25 @@ title: "Acquisition Cancelled",
               ))}
             </div>
 
+            {/* Legal Acceptance Checkbox */}
+            <div className="flex items-start gap-3 bg-surface-2 p-4 rounded-[8px] border border-border-subtle">
+              <input
+                type="checkbox"
+                id="terms-checkbox"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                className="mt-1 w-4 h-4 rounded border-border-strong bg-transparent text-gold focus:ring-gold focus:ring-offset-obsidian"
+              />
+              <label htmlFor="terms-checkbox" className="text-[12px] leading-[1.6] text-[#888] cursor-pointer">
+                By placing this order, you agree to the <a href="/legal/buyer-terms" target="_blank" className="text-linen hover:text-gold underline">Buyer Terms</a> and <a href="/legal/refunds" target="_blank" className="text-linen hover:text-gold underline">Refund & Cancellation Policy</a>.
+              </label>
+            </div>
+
             {/* Pay button */}
             <Button
-              className="h-12 sm:h-14 w-full rounded-[6px] bg-linen text-[13px] sm:text-[14px] font-medium text-obsidian hover:bg-gold transition-colors"
+              className="h-12 sm:h-14 w-full rounded-[6px] bg-linen text-[13px] sm:text-[14px] font-medium text-obsidian hover:bg-gold transition-colors disabled:opacity-50"
               onClick={handlePayment}
-              disabled={isProcessing || items.length === 0}
+              disabled={isProcessing || items.length === 0 || !termsAccepted}
             >
               {isProcessing
                 ? "Confirming ownership…"
@@ -653,7 +711,7 @@ title: "Acquisition Cancelled",
             </Button>
 
             <p className="text-center text-[11px] leading-[1.6] text-[#555]">
-              By proceeding you agree to Fameuxarte's Terms of Service. Payments are processed securely via Razorpay.
+              Payments are processed securely via Razorpay.
             </p>
           </div>
         </main>
