@@ -100,6 +100,8 @@ import InsightsEditor from "./pages/admin/insights/InsightsEditor";
 const AdminSupportTickets = React.lazy(() => import("./pages/admin/SupportTicketsAdmin"));
 const AdminSupportTicketDetails = React.lazy(() => import("./pages/admin/SupportTicketDetailsAdmin"));
 const AdminNotifications = React.lazy(() => import("./pages/admin/Notifications"));
+import EmailLogs from "./pages/admin/communications/EmailLogs";
+import EmailTesting from "./pages/admin/communications/EmailTesting";
 
 // Artist Imports
 import { ArtistRoute } from "./components/artist/ArtistRoute";
@@ -205,6 +207,8 @@ const AnimatedRoutes = () => {
             <Route path="support" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><AdminSupportTickets /></Suspense>} />
             <Route path="support/:id" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><AdminSupportTicketDetails /></Suspense>} />
             <Route path="notifications" element={<Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>}><AdminNotifications /></Suspense>} />
+            <Route path="communications/logs" element={<EmailLogs />} />
+            <Route path="communications/test" element={<EmailTesting />} />
             <Route path="insights" element={<InsightsList />} />
             <Route path="insights/:id" element={<InsightsEditor />} />
           </Route>

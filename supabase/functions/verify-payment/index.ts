@@ -119,11 +119,37 @@ serve(async (req: Request) => {
       console.error("❌ Signature mismatch — payment verification FAILED");
 
       // Mark this specific order as failed (lookup by razorpay_order_id + user_id for safety)
-      await supabase
+      const { data: failedOrder } = await supabase
         .from("orders")
         .update({ status: "failed", payment_status: "failed" })
         .eq("razorpay_order_id", razorpay_order_id)
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .select("id")
+        .single();
+
+      if (failedOrder && user.email) {
+        const { data: collector } = await supabase.from("profiles").select("full_name").eq("id", user.id).single();
+        await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+          },
+          body: JSON.stringify({
+            type: "payment_failed",
+            to: user.email,
+            idempotencyKey: `payment_failed:${failedOrder.id}:${Date.now()}`, // Allow multiple retries, so use Date.now() or similar, or just razorpay_order_id
+            relatedUserId: user.id,
+            relatedOrderId: failedOrder.id,
+            variables: {
+              customer_name: collector?.full_name || "Collector",
+              order_number: failedOrder.id.slice(0, 8).toUpperCase(),
+              retry_url: "https://fameuxarte.com/checkout",
+              support_url: "https://fameuxarte.com/collector/support"
+            }
+          })
+        });
+      }
 
       return jsonError("Payment verification failed – Invalid signature", 400);
     }
@@ -165,7 +191,16 @@ serve(async (req: Request) => {
     // Fetch all order_items for this order
     const { data: orderItems, error: itemsError } = await supabase
       .from("order_items")
-      .select("id, artwork_id")
+      .select(`
+        id, 
+        artwork_id, 
+        quantity, 
+        price_at_purchase,
+        artworks:artwork_id (
+          id, title, image_path,
+          profiles:artist_id (id, full_name)
+        )
+      `)
       .eq("order_id", updatedOrder.id);
 
     if (itemsError) {
@@ -213,6 +248,123 @@ serve(async (req: Request) => {
             }
           } catch (certError: any) {
             console.error(`❌ Error calling generate-certificate:`, certError.message);
+          }
+        }
+
+        // Send Success Emails
+        if (user.email) {
+          const { data: collector } = await supabase.from("profiles").select("full_name").eq("id", user.id).single();
+          const collectorName = collector?.full_name || "Collector";
+          const formattedItems = [];
+          let subtotalCents = 0;
+
+          for (const item of orderItems) {
+            const artwork = item.artworks as any;
+            const artist = artwork?.profiles;
+            formattedItems.push({
+              artwork_title: artwork?.title || "Unknown Artwork",
+              artist_name: artist?.full_name || "Unknown Artist",
+              quantity: item.quantity || 1,
+              price: `₹${(item.price_at_purchase || 0).toLocaleString()}`,
+              image_url: artwork?.image_path ? `${SUPABASE_URL}/storage/v1/object/public/artworks/${artwork.image_path}` : undefined,
+            });
+            subtotalCents += (item.price_at_purchase || 0) * (item.quantity || 1);
+          }
+
+          const totalAmountStr = `₹${(updatedOrder.total_amount || 0).toLocaleString()}`;
+          const subtotalStr = `₹${subtotalCents.toLocaleString()}`;
+          const shippingFeeCents = (updatedOrder.total_amount || 0) - subtotalCents;
+          const shippingStr = shippingFeeCents > 0 ? `₹${shippingFeeCents.toLocaleString()}` : "Free";
+
+          const addr = updatedOrder.shipping_address as any;
+          let addressStr = "Address provided at checkout";
+          if (addr && typeof addr === "object") {
+            const parts = [addr.line1, addr.line2, addr.city, addr.state, addr.postal_code, addr.country].filter(Boolean);
+            if (parts.length > 0) addressStr = parts.join(", ");
+          }
+
+          // Order Confirmation Email
+          await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+            },
+            body: JSON.stringify({
+              type: "order_confirmation",
+              to: user.email,
+              idempotencyKey: `order_confirmation:${updatedOrder.id}`,
+              relatedUserId: user.id,
+              relatedOrderId: updatedOrder.id,
+              variables: {
+                customer_name: collectorName,
+                order_number: updatedOrder.id.slice(0, 8).toUpperCase(),
+                order_date: new Date().toLocaleDateString('en-IN'),
+                order_url: "https://fameuxarte.com/collector/orders",
+                order_total: totalAmountStr,
+                subtotal: subtotalStr,
+                shipping_fee: shippingStr,
+                payment_status: "Paid",
+                artworks: formattedItems,
+                shipping_address: addressStr
+              }
+            })
+          });
+
+          // Payment Success Email
+          await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+            },
+            body: JSON.stringify({
+              type: "payment_success",
+              to: user.email,
+              idempotencyKey: `payment_success:${razorpay_payment_id}`,
+              relatedUserId: user.id,
+              relatedOrderId: updatedOrder.id,
+              variables: {
+                customer_name: collectorName,
+                order_number: updatedOrder.id.slice(0, 8).toUpperCase(),
+                amount_paid: totalAmountStr,
+                payment_date: new Date().toLocaleDateString('en-IN'),
+                order_url: "https://fameuxarte.com/collector/orders"
+              }
+            })
+          });
+
+          // Artwork Sold Email (To Artists)
+          for (const item of orderItems) {
+            const artwork = item.artworks as any;
+            const artist = artwork?.profiles;
+            if (artist && artist.id) {
+              const { data: { user: artistUser } } = await supabase.auth.admin.getUserById(artist.id);
+              if (artistUser?.email) {
+                await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+                  },
+                  body: JSON.stringify({
+                    type: "artwork_sold",
+                    to: artistUser.email,
+                    idempotencyKey: `artwork_sold:${updatedOrder.id}:${item.id}`,
+                    relatedUserId: artist.id,
+                    relatedOrderId: updatedOrder.id,
+                    variables: {
+                      artist_name: artist.full_name || "Artist",
+                      artwork_title: artwork.title || "Unknown Artwork",
+                      artwork_image_url: artwork.image_path ? `${SUPABASE_URL}/storage/v1/object/public/artworks/${artwork.image_path}` : undefined,
+                      order_reference: updatedOrder.id.slice(0, 8).toUpperCase(),
+                      sale_amount: `₹${(item.price_at_purchase || 0).toLocaleString()}`,
+                      dashboard_url: "https://fameuxarte.com/artist/orders"
+                    }
+                  })
+                });
+              }
+            }
           }
         }
       }

@@ -193,6 +193,47 @@ serve(async (req: Request) => {
       console.error("Failed to send CERTIFICATE_READY notification:", notifErr.message);
     }
 
+    // Send CERTIFICATE_GENERATED email to collector
+    try {
+      const { data: collector } = await supabaseAdmin
+        .from('profiles')
+        .select('full_name')
+        .eq('id', collector_id)
+        .single();
+        
+      const { data: { user: authUser } } = await supabaseAdmin.auth.getUserById(collector_id);
+      
+      if (authUser?.email) {
+        const publicPdfUrl = `${SUPABASE_URL}/storage/v1/object/public/certificates/${filePath}`;
+        
+        await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+          },
+          body: JSON.stringify({
+            type: "certificate_generated",
+            to: authUser.email,
+            idempotencyKey: `certificate_generated:${certData?.id}`,
+            relatedUserId: collector_id,
+            variables: {
+              customer_name: collector?.full_name || "Collector",
+              artwork_title: artwork.title || "Unknown Artwork",
+              artist_name: artist.full_name || "Unknown Artist",
+              certificate_number: certNumber,
+              certificate_url: publicPdfUrl,
+              issued_at: new Date().toLocaleDateString('en-IN'),
+              verification_url: `https://fameuxarte.com/verify/${certNumber}`
+            }
+          })
+        });
+        console.log(`📧 CERTIFICATE_GENERATED email triggered for collector ${collector_id}`);
+      }
+    } catch (emailErr: any) {
+      console.error("Failed to trigger CERTIFICATE_GENERATED email:", emailErr.message);
+    }
+
     return new Response(JSON.stringify({ success: true, certificate: certData }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200

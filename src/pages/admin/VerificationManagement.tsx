@@ -140,7 +140,7 @@ export default function VerificationManagement() {
       
       if (error) throw error;
 
-      // Send artist verification notification
+      // Send artist verification notification and email
       if (status === 'verified') {
         await notifyUser({
           userId: id,
@@ -150,6 +150,26 @@ export default function VerificationManagement() {
           priority: 'important',
           metadata: { url: '/artist/verification', event_id: `artist-approved-${id}` },
         });
+        
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.access_token) {
+            await supabase.functions.invoke('send-email', {
+              body: {
+                type: "artist_verification_approved",
+                // 'to' is intentionally omitted; send-email will auto-resolve it using relatedUserId
+                idempotencyKey: `artist_verified:${id}:${Date.now()}`,
+                relatedUserId: id,
+                variables: {
+                  artist_name: artistName || "Artist",
+                  dashboard_url: "https://fameuxarte.com/artist"
+                }
+              }
+            });
+          }
+        } catch (e) {
+          console.error("Failed to trigger verification approved email", e);
+        }
       } else if (status === 'rejected') {
         await notifyUser({
           userId: id,
@@ -161,6 +181,27 @@ export default function VerificationManagement() {
           priority: 'important',
           metadata: { url: '/artist/verification', event_id: `artist-rejected-${id}` },
         });
+
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.access_token) {
+            await supabase.functions.invoke('send-email', {
+              body: {
+                type: "artist_verification_rejected",
+                idempotencyKey: `artist_rejected:${id}:${Date.now()}`,
+                relatedUserId: id,
+                variables: {
+                  artist_name: artistName || "Artist",
+                  reason: notes || "Identity documents could not be verified.",
+                  action_required: "Please check your artist dashboard and resubmit clear, high-resolution documents.",
+                  dashboard_url: "https://fameuxarte.com/artist/verification"
+                }
+              }
+            });
+          }
+        } catch (e) {
+          console.error("Failed to trigger verification rejected email", e);
+        }
       } else if (status === 'suspended') {
         await notifyUser({
           userId: id,
@@ -435,14 +476,14 @@ export default function VerificationManagement() {
             <Button 
               variant="outline" 
               className="border-red-900/50 text-red-500 hover:bg-red-900/20"
-              onClick={() => updateVerification({ id: selectedArtist.id, status: 'pending', notes: reviewNotes })}
+              onClick={() => updateVerification({ id: selectedArtist.id, status: 'pending', notes: reviewNotes, artistName: selectedArtist.full_name })}
               disabled={isUpdating}
             >
               <XCircle className="w-4 h-4 mr-2" /> Reject / Request Changes
             </Button>
             <Button 
               className="bg-emerald-600 hover:bg-emerald-500 text-white"
-              onClick={() => updateVerification({ id: selectedArtist.id, status: 'verified', notes: reviewNotes })}
+              onClick={() => updateVerification({ id: selectedArtist.id, status: 'verified', notes: reviewNotes, artistName: selectedArtist.full_name })}
               disabled={isUpdating}
             >
               <CheckCircle2 className="w-4 h-4 mr-2" /> Approve & Verify

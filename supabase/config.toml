@@ -1,6 +1,16 @@
 
 project_id = "oqslvwynlppuacdrhlxl"
+
 [functions.create-order]
 verify_jwt = true
+
 [functions.verify-payment]
 verify_jwt = true
+
+# Email delivery function — accepts both service-to-service (X-Service-Auth) and admin JWT
+[functions.send-email]
+verify_jwt = false
+
+# Resend webhook — public endpoint; security via Svix HMAC-SHA256 signature
+[functions.resend-webhook]
+verify_jwt = false

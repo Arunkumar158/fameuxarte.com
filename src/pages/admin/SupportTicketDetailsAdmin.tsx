@@ -109,6 +109,31 @@ const SupportTicketDetailsAdmin = () => {
             url: `/collector/support/${ticket.id}`,
           },
         });
+
+        // Trigger email
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.access_token) {
+            await supabase.functions.invoke('send-email', {
+              body: {
+                type: "support_reply",
+                // to is auto-resolved
+                idempotencyKey: `support_reply:${id}:${Date.now()}`,
+                relatedUserId: ticket.user_id,
+                relatedTicketId: ticket.id,
+                variables: {
+                  customer_name: ticket.profiles?.full_name || "Customer",
+                  ticket_number: ticket.ticket_number,
+                  ticket_subject: ticket.subject,
+                  reply_snippet: replyMessage.trim().substring(0, 100) + (replyMessage.length > 100 ? "..." : ""),
+                  ticket_url: `https://fameuxarte.com/collector/support/${ticket.id}`
+                }
+              }
+            });
+          }
+        } catch (e) {
+          console.error("Failed to send support_reply email:", e);
+        }
       }
 
       toast({
@@ -154,6 +179,32 @@ const SupportTicketDetailsAdmin = () => {
             url: `/collector/support/${id}`,
           },
         });
+
+        // Trigger email if resolved/closed
+        if (newStatus === "RESOLVED" || newStatus === "CLOSED") {
+          try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.access_token) {
+              await supabase.functions.invoke('send-email', {
+                body: {
+                  type: "support_ticket_resolved",
+                  // to is auto-resolved
+                  idempotencyKey: `support_resolved:${id}:${Date.now()}`,
+                  relatedUserId: ticket.user_id,
+                  relatedTicketId: ticket.id,
+                  variables: {
+                    customer_name: ticket.profiles?.full_name || "Customer",
+                    ticket_number: ticket.ticket_number,
+                    ticket_subject: ticket.subject,
+                    ticket_url: `https://fameuxarte.com/collector/support/${ticket.id}`
+                  }
+                }
+              });
+            }
+          } catch (e) {
+            console.error("Failed to send support_ticket_resolved email:", e);
+          }
+        }
       }
       
       toast({

@@ -15,7 +15,8 @@ import {
   Sparkles,
   LogOut,
   Menu,
-  ShieldCheck
+  ShieldCheck,
+  Mail
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ const NAV_ITEMS = [
   { name: "Verification", href: "/admin/verification", icon: ShieldCheck },
   { name: "Collections", href: "/admin/collections", icon: Layers },
   { name: "Notifications", href: "/admin/notifications", icon: Bell },
+  { name: "Email Logs", href: "/admin/communications/logs", icon: Mail },
   { name: "Insights", href: "/admin/insights", icon: FileText },
   { name: "SEO", href: "/admin/seo", icon: Search },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart },

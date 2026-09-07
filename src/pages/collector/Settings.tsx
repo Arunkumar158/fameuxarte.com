@@ -168,7 +168,70 @@ const Settings = () => {
             </div>
           )}
 
-          {activeTab !== "profile" && (
+          {activeTab === "notifications" && (
+            <div className="space-y-8 animate-in fade-in">
+              <div>
+                <h2 className="text-[20px] font-medium text-linen mb-1">Email Preferences</h2>
+                <p className="text-[13px] text-stone">Manage what emails you receive from Fameuxarte.</p>
+              </div>
+
+              <div className="space-y-6 max-w-2xl">
+                <div className="bg-surface-2 p-4 rounded-xl border border-border-faint flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-sm font-medium text-linen">Marketing & Newsletters</h3>
+                    <p className="text-xs text-stone mt-1">Receive updates on new collections, artist spotlights, and platform news.</p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="border-border-strong text-stone hover:text-linen"
+                    onClick={async () => {
+                      if (!user) return;
+                      try {
+                        const { data, error: fetchErr } = await supabase.from('email_preferences').select('marketing_enabled').eq('user_id', user.id).single();
+                        
+                        let currentStatus = true;
+                        if (data) currentStatus = data.marketing_enabled;
+                        else if (fetchErr && fetchErr.code !== 'PGRST116') throw fetchErr; // PGRST116 is no rows
+                        
+                        const newStatus = !currentStatus;
+                        
+                        const { error } = await supabase.from('email_preferences').upsert({
+                          user_id: user.id,
+                          marketing_enabled: newStatus
+                        });
+                        
+                        if (error) throw error;
+                        
+                        toast({
+                          title: newStatus ? "Subscribed" : "Unsubscribed",
+                          description: newStatus ? "You will now receive marketing emails." : "You have been unsubscribed from marketing emails.",
+                        });
+                      } catch (err: any) {
+                        toast({ variant: "destructive", title: "Error", description: err.message });
+                      }
+                    }}
+                  >
+                    Toggle Preference
+                  </Button>
+                </div>
+
+                <div className="bg-surface-2 p-4 rounded-xl border border-border-faint flex items-start justify-between gap-4 opacity-70">
+                  <div>
+                    <h3 className="text-sm font-medium text-linen flex items-center gap-2">
+                      Transactional Emails <Lock className="w-3 h-3 text-stone" />
+                    </h3>
+                    <p className="text-xs text-stone mt-1">Order confirmations, shipping updates, and security alerts cannot be disabled.</p>
+                  </div>
+                  <Button disabled variant="outline" size="sm" className="border-border-strong text-stone">
+                    Required
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab !== "profile" && activeTab !== "notifications" && (
             <div className="flex flex-col items-center justify-center py-16 text-center animate-in fade-in">
               <SettingsIcon className="w-12 h-12 text-stone opacity-20 mb-4" />
               <h2 className="text-[20px] font-medium text-linen mb-2">Coming Soon</h2>

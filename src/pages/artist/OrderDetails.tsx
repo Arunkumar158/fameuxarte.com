@@ -117,6 +117,48 @@ export default function ArtistOrderDetails() {
             type,
             metadata: { order_item_id: id }
           });
+          
+          // Trigger emails for shipped and delivered statuses
+          const buyerEmail = orderItem.orders?.profiles?.email;
+          if (buyerEmail && (status === 'shipped' || status === 'delivered')) {
+            try {
+              const { data: { session } } = await supabase.auth.getSession();
+              if (session?.access_token) {
+                const emailType = status === 'shipped' ? 'order_shipped' : 'order_delivered';
+                
+                // Construct required variables
+                const vars: any = {
+                  customer_name: orderItem.orders.profiles?.full_name || 'Collector',
+                  order_number: orderItem.orders.id.slice(0, 8).toUpperCase(),
+                  order_url: "https://fameuxarte.com/collector/orders",
+                  artwork_title: orderItem.artworks?.title || 'Unknown Artwork',
+                };
+                
+                if (status === 'shipped') {
+                  vars.carrier = extraData.shipping_provider || 'Courier';
+                  vars.tracking_number = extraData.tracking_number || 'Not provided';
+                  vars.tracking_url = extraData.tracking_url || '';
+                  vars.estimated_delivery = 'Available on tracking link';
+                } else if (status === 'delivered') {
+                  vars.delivered_at = new Date().toLocaleDateString('en-IN');
+                }
+                
+                await supabase.functions.invoke('send-email', {
+                  body: {
+                    type: emailType,
+                    to: buyerEmail,
+                    idempotencyKey: `${emailType}:${id}:${Date.now()}`,
+                    relatedUserId: orderItem.orders.user_id,
+                    relatedOrderId: orderItem.orders.id,
+                    variables: vars
+                  }
+                });
+                console.log(`📧 Triggered ${emailType} email to ${buyerEmail}`);
+              }
+            } catch (err) {
+              console.error("Failed to trigger email notification:", err);
+            }
+          }
         }
       }
       

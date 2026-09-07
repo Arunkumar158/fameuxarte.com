@@ -41,6 +41,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           prevSessionRef.current = session;
 
           if (isGenuineSignIn) {
+            // Check if this is a brand new user (first login within 2 minutes of account creation)
+            const isNewUser = session?.user?.created_at && 
+              (new Date().getTime() - new Date(session.user.created_at).getTime()) < 120000;
+              
+            if (isNewUser && session?.user?.email) {
+              // Trigger welcome email
+              try {
+                supabase.functions.invoke('send-email', {
+                  body: {
+                    type: "welcome",
+                    to: session.user.email,
+                    idempotencyKey: `welcome:${session.user.id}`,
+                    relatedUserId: session.user.id,
+                    variables: {
+                      customer_name: session.user.user_metadata?.full_name || "Art Lover",
+                      dashboard_url: "https://fameuxarte.com/collector",
+                      explore_url: "https://fameuxarte.com/artworks"
+                    }
+                  }
+                }).catch(err => console.error("Welcome email trigger failed", err));
+              } catch (e) {
+                // Ignore errors
+              }
+            }
+
             // Only redirect when the user was actually signed out before —
             // i.e., this is a real login, not a silent token refresh triggered
             // by the tab regaining focus.
