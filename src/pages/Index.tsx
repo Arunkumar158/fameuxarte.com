@@ -5,6 +5,8 @@ import HomeNav from "@/components/home/HomeNav";
 import CategoryStrip from "@/components/home/CategoryStrip";
 import FeaturedArtworks from "@/components/home/FeaturedArtworks";
 import ArtistsSection from "@/components/home/ArtistsSection";
+import InteriorShowcase from "@/components/home/InteriorShowcase";
+import HomeSeoContent from "@/components/home/HomeSeoContent";
 import WhySection from "@/components/home/WhySection";
 import JournalSection from "@/components/home/JournalSection";
 import FooterCTA from "@/components/home/FooterCTA";
@@ -27,6 +29,8 @@ const Index = () => {
         <HeroSection />
         <CategoryStrip />
         <FeaturedArtworks />
+        <InteriorShowcase />
+        <HomeSeoContent />
         <ArtistsSection />
         <WhySection />
         <JournalSection />

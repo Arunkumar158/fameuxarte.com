@@ -1,11 +1,10 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import HomeNav from "@/components/home/HomeNav";
 import ArtistsHeader from "@/components/artists/ArtistsHeader";
 import ArtistsFilterBar from "@/components/artists/ArtistsFilterBar";
 import ArtistsGrid from "@/components/artists/ArtistsGrid";
-import ArtistsLoadMoreButton from "@/components/artists/LoadMoreButton";
+import Pagination from "@/components/shared/Pagination";
 import { Artist as DisplayArtist } from "@/components/artists/ArtistCard";
 import { usePagination } from "@/hooks/usePagination";
 
@@ -20,6 +19,7 @@ const Artists = () => {
     goToPage,
     calculateRange,
     limit,
+    totalPages,
   } = usePagination({ initialLimit: 12 });
 
   const { data: artists, isLoading: initialLoading } = useQuery({
@@ -131,11 +131,15 @@ const Artists = () => {
       ) : (
         <>
           <ArtistsGrid artists={displayArtists} />
-          <ArtistsLoadMoreButton
-            onLoadMore={() => goToPage(page + 1)}
-            loading={isLoading}
-            hasMore={hasMore}
-          />
+          {totalPages > 1 && (
+            <div className="py-8">
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+              />
+            </div>
+          )}
         </>
       )}
     </div>

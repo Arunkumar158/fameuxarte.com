@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePagination } from "@/hooks/usePagination";
+import Pagination from "@/components/shared/Pagination";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -138,6 +140,19 @@ const CollectionCard = ({ summary, isActive, onClick }: CollectionCardProps) => 
 const Collections = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  const {
+    page,
+    setPage,
+    hasMore,
+    setHasMore,
+    setIsLoading,
+    setTotalItems,
+    goToPage,
+    calculateRange,
+    limit,
+    totalPages,
+  } = usePagination({ initialLimit: 12 });
+
   // ── Phase 1: Fetch distinct categories with counts & cover images ──────────
   const { data: categories = [], isLoading: categoriesLoading } = useQuery<CategorySummary[]>({
     queryKey: ["collection-categories"],
@@ -173,27 +188,42 @@ const Collections = () => {
 
   // ── Phase 2: Fetch artworks for selected category ──────────────────────────
   const { data: artworks = [], isLoading: artworksLoading } = useQuery<ArtworkRow[]>({
-    queryKey: ["collection-artworks", selectedCategory],
+    queryKey: ["collection-artworks", selectedCategory, page],
     enabled: !!selectedCategory,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("artworks")
-        .select(`
-          id, title, price, category, description, image_path, images, slug, artist_id, status,
-          artist:profiles!artworks_artist_id_fkey (
-            full_name
-          )
-        `)
-        .eq("category", selectedCategory!);
+      const { from, to } = calculateRange();
+      setIsLoading(true);
 
-      if (error) throw error;
-      return (data ?? []) as ArtworkRow[];
+      try {
+        const { data, error, count } = await supabase
+          .from("artworks")
+          .select(`
+            id, title, price, category, description, image_path, images, slug, artist_id, status,
+            artist:profiles!artworks_artist_id_fkey (
+              full_name
+            )
+          `, { count: "exact" })
+          .eq("category", selectedCategory!)
+          .range(from, to);
+
+        if (error) throw error;
+        
+        if (count !== null) {
+          setTotalItems(count);
+          setHasMore(from + limit < count);
+        }
+
+        return (data ?? []) as ArtworkRow[];
+      } finally {
+        setIsLoading(false);
+      }
     },
     staleTime: 1000 * 60 * 5,
   });
 
   const handleCategoryClick = (category: string) => {
     setSelectedCategory((prev) => (prev === category ? null : category));
+    setPage(1); // Reset page when category changes
   };
 
   useEffect(() => {
@@ -375,10 +405,21 @@ const Collections = () => {
                         <p className="text-[14px] text-stone">No artworks found in this collection.</p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
-                        {artworks.map((artwork) => (
-                          <ArtworkCardWithImage key={artwork.id} artwork={artwork} />
-                        ))}
+                      <div className="space-y-8">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
+                          {artworks.map((artwork) => (
+                            <ArtworkCardWithImage key={artwork.id} artwork={artwork} />
+                          ))}
+                        </div>
+                        {totalPages > 1 && (
+                          <div className="pt-4">
+                            <Pagination
+                              currentPage={page}
+                              totalPages={totalPages}
+                              onPageChange={goToPage}
+                            />
+                          </div>
+                        )}
                       </div>
                     )}
                   </motion.section>

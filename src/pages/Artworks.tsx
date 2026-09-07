@@ -5,7 +5,7 @@ import ArtworksHeader from "@/components/artworks/ArtworksHeader";
 import ArtworksFilterBar from "@/components/artworks/ArtworksFilterBar";
 import ArtworksGrid from "@/components/artworks/ArtworksGrid";
 import type { Artwork } from "@/components/artworks/ArtworkCard";
-import LoadMoreButton from "@/components/artworks/LoadMoreButton";
+import Pagination from "@/components/shared/Pagination";
 
 const getDisplayImage = (imagePath?: string | null) => {
   if (!imagePath) return "/placeholder.svg";
@@ -21,7 +21,7 @@ const getDisplayImage = (imagePath?: string | null) => {
 };
 
 const Artworks = () => {
-  const { artworks = [], isLoading, isLoadingMore, page, totalPages, goToPage } = useArtworks();
+  const { artworks = [], isLoading, page, totalPages, goToPage } = useArtworks();
 
   const mappedArtworks: Artwork[] = artworks.map((artwork) => ({
     id: artwork.slug || artwork.id,
@@ -38,7 +38,6 @@ const Artworks = () => {
   }));
 
   const artistsCount = new Set(mappedArtworks.map((artwork) => artwork.artist).filter(Boolean)).size || undefined;
-  const hasMore = totalPages > 1 && page < totalPages;
 
   return (
     <div className="min-h-screen bg-obsidian">
@@ -52,7 +51,15 @@ const Artworks = () => {
       />
       <ArtworksFilterBar />
       <ArtworksGrid artworks={mappedArtworks} loading={isLoading} />
-      <LoadMoreButton onLoadMore={() => goToPage(page + 1)} loading={isLoadingMore} hasMore={hasMore} />
+      {totalPages > 1 && (
+        <div className="py-8">
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+          />
+        </div>
+      )}
     </div>
   );
 };
