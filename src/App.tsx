@@ -77,7 +77,7 @@ const CollectorOrders = React.lazy(() => import("./pages/collector/Orders"));
 const CollectorCertificates = React.lazy(() => import("./pages/collector/Certificates"));
 const CollectorFollowing = React.lazy(() => import("./pages/collector/Following"));
 const CollectorSavedCollections = React.lazy(() => import("./pages/collector/SavedCollections"));
-const CollectorNotifications = React.lazy(() => import("./pages/collector/Notifications"));
+const CollectorNotifications = React.lazy(() => import("./pages/collector/Updates"));
 const CollectorAddresses = React.lazy(() => import("./pages/collector/Addresses"));
 const CollectorSettings = React.lazy(() => import("./pages/collector/Settings"));
 const CollectorSupportTickets = React.lazy(() => import("./pages/collector/SupportTickets"));
@@ -99,7 +99,7 @@ import InsightsList from "./pages/admin/insights/InsightsList";
 import InsightsEditor from "./pages/admin/insights/InsightsEditor";
 const AdminSupportTickets = React.lazy(() => import("./pages/admin/SupportTicketsAdmin"));
 const AdminSupportTicketDetails = React.lazy(() => import("./pages/admin/SupportTicketDetailsAdmin"));
-const AdminNotifications = React.lazy(() => import("./pages/admin/Notifications"));
+const AdminNotifications = React.lazy(() => import("./pages/admin/Updates"));
 import EmailLogs from "./pages/admin/communications/EmailLogs";
 import EmailTesting from "./pages/admin/communications/EmailTesting";
 
