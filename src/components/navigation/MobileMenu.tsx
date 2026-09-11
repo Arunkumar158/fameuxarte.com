@@ -56,6 +56,7 @@ const MobileMenu = ({ onClose }: MobileMenuProps) => {
     { label: "For Artists", to: "/for-artists" },
     { label: "ArtGuard", to: "#artguard", action: () => alert("ArtGuard AI verification is coming soon.") },
     { label: "Journal", to: "/blog" },
+    { label: "Resources", to: "/resources" },
   ];
 
   return (

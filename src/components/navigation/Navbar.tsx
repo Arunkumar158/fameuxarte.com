@@ -79,6 +79,10 @@ const Navbar = () => {
                 <span className="relative">Journal</span>
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
               </Link>
+              <Link to="/resources" className="text-sm sm:text-base relative group">
+                <span className="relative">Resources</span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-gold via-white to-brand-gold group-hover:w-full transition-all duration-300"></span>
+              </Link>
           </div>
 
           {/* Right Section - Actions */}

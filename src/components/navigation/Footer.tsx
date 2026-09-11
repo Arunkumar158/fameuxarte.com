@@ -9,6 +9,7 @@ const footerSections = [
       { label: "Verified artists", to: "/artists" },
       { label: "Collections", to: "/collections" },
       { label: "Journal", to: "/blog" },
+      { label: "Resources", to: "/resources" },
     ],
   },
   {

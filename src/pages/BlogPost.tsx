@@ -20,6 +20,7 @@ import type { BlogPost as BlogPostType, FAQItem } from "@/components/blog/types"
 import { PLACEHOLDER_FEATURED, PLACEHOLDER_POSTS } from "@/components/blog/types";
 import { useEffect } from "react";
 import { posthog } from "posthog-js";
+import { RelatedResource } from "@/components/resources/RelatedResource";
 
 // ──────────────────────────────────────────────────────────
 // Helpers
@@ -371,6 +372,11 @@ const BlogPost = () => {
             />
           )}
 
+          {/* Inline Resource CTA for mobile */}
+          <div className="lg:hidden mt-8">
+            <RelatedResource productId="art-pricing-calculator" variant="inline" />
+          </div>
+
           {/* Mobile share */}
           <MobileSocialShare
             url={post.canonical_url || `/blog/${post.slug}`}
@@ -403,6 +409,9 @@ const BlogPost = () => {
         {/* TOC — right rail */}
         <aside className="w-64 hidden lg:block flex-shrink-0">
           <TableOfContents />
+          <div className="mt-8">
+            <RelatedResource productId="art-pricing-calculator" variant="compact" />
+          </div>
         </aside>
       </div>
     </div>
