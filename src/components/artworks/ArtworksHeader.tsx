@@ -40,12 +40,6 @@ const ArtworksHeader = ({
             </div>
             <div className="text-[11px] text-[#555]">Verified artists</div>
           </div>
-          <div>
-            <div className="mb-[2px] text-[20px] font-medium tracking-[-0.02em] text-linen">
-              98%
-            </div>
-            <div className="text-[11px] text-[#555]">Authenticity rate</div>
-          </div>
         </div>
       </div>
     </header>

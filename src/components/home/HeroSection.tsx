@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface HeroSlide {
   id: number;
@@ -64,6 +66,21 @@ const slides: HeroSlide[] = [
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const { data: stats } = useQuery({
+    queryKey: ["home-stats"],
+    queryFn: async () => {
+      const [artworksResponse, artistsResponse] = await Promise.all([
+        supabase.from("artworks").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "artist"),
+      ]);
+
+      return {
+        artworks: artworksResponse.count || 0,
+        artists: artistsResponse.count || 0,
+      };
+    },
+  });
 
   // Auto slide rotation every 8 seconds
   useEffect(() => {
@@ -142,6 +159,20 @@ const HeroSection = () => {
                     {slide.secondaryCtaText}
                   </Link>
                 </div>
+
+                {/* Stats Section */}
+                {stats && (
+                  <div className="flex gap-8 mt-8 pt-6 border-t border-[#e5e5e5]/50 w-full">
+                    <div>
+                      <div className="text-[24px] font-serif font-medium text-[#111]">{stats.artworks}+</div>
+                      <div className="text-[11px] font-semibold tracking-[0.1em] text-[#666] uppercase mt-1">Artworks Uploaded</div>
+                    </div>
+                    <div>
+                      <div className="text-[24px] font-serif font-medium text-[#111]">{stats.artists}+</div>
+                      <div className="text-[11px] font-semibold tracking-[0.1em] text-[#666] uppercase mt-1">Artists Joined</div>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             </AnimatePresence>
           </div>

@@ -60,7 +60,7 @@ export const useArtworks = (limit?: number) => {
     goToPage,
     calculateRange,
     limit: paginationLimit
-  } = usePagination({ initialLimit: limit || 9 });
+  } = usePagination({ initialLimit: limit || 8 });
 
   const { data: artworks, isLoading: initialLoading } = useQuery({
     queryKey: ["artworks", page],
