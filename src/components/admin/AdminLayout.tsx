@@ -16,7 +16,8 @@ import {
   LogOut,
   Menu,
   ShieldCheck,
-  Mail
+  Mail,
+  Package
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ const NAV_ITEMS = [
   { name: "Notifications", href: "/admin/notifications", icon: Bell },
   { name: "Email Logs", href: "/admin/communications/logs", icon: Mail },
   { name: "Insights", href: "/admin/insights", icon: FileText },
+  { name: "Digital Products", href: "/admin/digital-products", icon: Package },
   { name: "SEO", href: "/admin/seo", icon: Search },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart },
 ];

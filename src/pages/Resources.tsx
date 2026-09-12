@@ -2,12 +2,15 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { DigitalProductCard } from "@/components/resources/DigitalProductCard";
-import { digitalProducts } from "@/data/resources";
+import { DigitalProductCard, type DigitalProduct } from "@/components/resources/DigitalProductCard";
+import { supabase } from "@/integrations/supabase/client";
 import { posthog } from "posthog-js";
-import { ArrowRight, Sparkles, Zap, ShieldCheck } from "lucide-react";
+import { ArrowRight, Sparkles, Zap, ShieldCheck, Loader2 } from "lucide-react";
 
 const Resources = () => {
+  const [products, setProducts] = useState<DigitalProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     try {
       posthog.capture("resources_page_view");
@@ -15,10 +18,30 @@ const Resources = () => {
     } catch (e) {
       console.warn("PostHog error", e);
     }
+    fetchProducts();
   }, []);
 
-  const featuredProduct = digitalProducts.find(p => p.featured) || digitalProducts[0];
-  const gridProducts = digitalProducts.filter(p => p.id !== featuredProduct.id);
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('digital_products')
+        .select('*')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      if (data) {
+        setProducts(data as DigitalProduct[]);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const featuredProduct = products.find(p => p.is_featured) || products[0];
+  const gridProducts = products.filter(p => p.id !== featuredProduct?.id);
 
   return (
     <div className="min-h-screen bg-obsidian text-white pt-24 pb-16">
@@ -46,7 +69,11 @@ const Resources = () => {
       </section>
 
       {/* Featured Resource */}
-      {featuredProduct && (
+      {isLoading ? (
+        <div className="flex justify-center py-20">
+          <Loader2 className="w-8 h-8 text-brand-gold animate-spin" />
+        </div>
+      ) : featuredProduct ? (
         <section className="px-6 mb-24 max-w-7xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-[10px] uppercase tracking-widest text-white/50 font-semibold mb-2">Featured</h2>
@@ -57,7 +84,7 @@ const Resources = () => {
             <DigitalProductCard product={featuredProduct} featured={true} />
           </div>
         </section>
-      )}
+      ) : null}
 
       {/* All Resources Grid */}
       <section className="px-6 mb-24 max-w-7xl mx-auto">
@@ -69,7 +96,7 @@ const Resources = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {gridProducts.map(product => (
+          {!isLoading && gridProducts.map(product => (
             <DigitalProductCard key={product.id} product={product} />
           ))}
         </div>

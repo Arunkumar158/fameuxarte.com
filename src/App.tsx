@@ -98,6 +98,8 @@ import AnalyticsAdmin from "./pages/admin/Analytics";
 import SettingsAdmin from "./pages/admin/Settings";
 import InsightsList from "./pages/admin/insights/InsightsList";
 import InsightsEditor from "./pages/admin/insights/InsightsEditor";
+import DigitalProductsList from "./pages/admin/digital-products/DigitalProductsList";
+import DigitalProductEditor from "./pages/admin/digital-products/DigitalProductEditor";
 const AdminSupportTickets = React.lazy(() => import("./pages/admin/SupportTicketsAdmin"));
 const AdminSupportTicketDetails = React.lazy(() => import("./pages/admin/SupportTicketDetailsAdmin"));
 const AdminNotifications = React.lazy(() => import("./pages/admin/Updates"));
@@ -213,6 +215,8 @@ const AnimatedRoutes = () => {
             <Route path="communications/test" element={<EmailTesting />} />
             <Route path="insights" element={<InsightsList />} />
             <Route path="insights/:id" element={<InsightsEditor />} />
+            <Route path="digital-products" element={<DigitalProductsList />} />
+            <Route path="digital-products/:id" element={<DigitalProductEditor />} />
           </Route>
 
           {/* Collector Routes */}

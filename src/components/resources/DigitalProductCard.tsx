@@ -4,14 +4,33 @@ import { ExternalLink, Check, ShoppingBag } from "lucide-react";
 import type { DigitalProduct } from "@/data/resources";
 import { posthog } from "posthog-js";
 
+export interface DigitalProduct {
+  id: string;
+  title: string;
+  short_description: string;
+  price: number;
+  currency: string;
+  cover_image_url: string;
+  category: string;
+  gumroad_url: string;
+  is_featured: boolean;
+}
+
 interface DigitalProductCardProps {
   product: DigitalProduct;
   featured?: boolean;
 }
 
 export const DigitalProductCard = ({ product, featured = false }: DigitalProductCardProps) => {
-  const { id, title, shortDescription, price, category, badge, externalUrl, image } = product;
-  const isComingSoon = !externalUrl;
+  const { id, title, short_description, price, currency, category, gumroad_url, cover_image_url, is_featured } = product;
+  const isComingSoon = !gumroad_url;
+  
+  // Format price
+  const formattedPrice = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: currency || 'INR',
+    maximumFractionDigits: 0
+  }).format(price || 0);
 
   const handleActionClick = () => {
     if (isComingSoon) return;
@@ -45,15 +64,15 @@ export const DigitalProductCard = ({ product, featured = false }: DigitalProduct
     >
       {/* Visual / Image Placeholder */}
       <div className={`relative ${featured ? 'h-64 sm:h-80' : 'h-48'} bg-white/5 overflow-hidden flex items-center justify-center p-6`}>
-        {badge && (
+        {is_featured && !featured && (
           <div className="absolute top-4 right-4 z-10 bg-brand-gold text-black text-xs font-bold px-3 py-1 rounded-full">
-            {badge}
+            Featured
           </div>
         )}
         
-        {image ? (
+        {cover_image_url ? (
           <img 
-            src={image} 
+            src={cover_image_url} 
             alt={title} 
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
@@ -67,8 +86,8 @@ export const DigitalProductCard = ({ product, featured = false }: DigitalProduct
         {/* Subtle overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
         
-        {/* Category label on image if no badge */}
-        {!badge && (
+        {/* Category label on image if not featured */}
+        {(!is_featured || featured) && (
           <div className="absolute top-4 right-4 z-10 bg-white/10 backdrop-blur-md text-white border border-white/20 text-[10px] uppercase tracking-wider font-semibold px-3 py-1 rounded-full">
             {category}
           </div>
@@ -82,12 +101,12 @@ export const DigitalProductCard = ({ product, featured = false }: DigitalProduct
         </h3>
         
         <p className="text-white/70 text-sm leading-relaxed mb-6 flex-grow">
-          {shortDescription}
+          {short_description}
         </p>
         
         <div className="flex items-center justify-between mt-auto pt-6 border-t border-white/10">
           <div className="font-heading font-medium text-lg text-white">
-            {price}
+            {formattedPrice}
           </div>
           
           {isComingSoon ? (
@@ -100,7 +119,7 @@ export const DigitalProductCard = ({ product, featured = false }: DigitalProduct
             </Button>
           ) : (
             <a 
-              href={externalUrl} 
+              href={gumroad_url} 
               target="_blank" 
               rel="noopener noreferrer"
               onClick={handleActionClick}
