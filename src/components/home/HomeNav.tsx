@@ -12,6 +12,7 @@ const navItems = [
   { label: "Artists", to: "/artists" },
   { label: "Collections", to: "/collections" },
   { label: "Blog", to: "/blog" },
+  { label: "Community", to: "/community" },
   { label: "About Us", to: "/our-story" },
 ];
 

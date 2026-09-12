@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
+import HomeNav from "@/components/home/HomeNav";
 import { Button } from "@/components/ui/button";
 import { DigitalProductCard, type DigitalProduct } from "@/components/resources/DigitalProductCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,7 +45,8 @@ const Resources = () => {
   const gridProducts = products.filter(p => p.id !== featuredProduct?.id);
 
   return (
-    <div className="min-h-screen bg-obsidian text-white pt-24 pb-16">
+    <div className="min-h-screen bg-obsidian text-white pb-16">
+      <HomeNav />
       <SEO 
         title="Resources | Fameuxarte"
         description="Practical digital resources for artists, collectors and art businesses — including tools, templates, ebooks and creative resources."

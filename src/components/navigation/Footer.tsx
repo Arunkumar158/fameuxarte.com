@@ -10,6 +10,7 @@ const footerSections = [
       { label: "Collections", to: "/collections" },
       { label: "Journal", to: "/blog" },
       { label: "Resources", to: "/resources" },
+      { label: "Community", to: "/community" },
     ],
   },
   {

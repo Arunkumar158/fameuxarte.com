@@ -43,6 +43,7 @@ import BuyerTerms from "./pages/legal/BuyerTerms";
 import Shipping from "./pages/legal/Shipping";
 import Cookies from "./pages/legal/Cookies";
 import Resources from "./pages/Resources";
+import Community from "./pages/Community";
 import TrustCenter from "./pages/trust/TrustCenter";
 import TrustPage from "./pages/trust/TrustPage";
 import ForArtists from "./pages/ForArtists";
@@ -169,6 +170,7 @@ const AnimatedRoutes = () => {
           {/* Redirect root-level slugs (old Google-indexed URLs) → /blog/:slug */}
           <Route path="/:slug" element={<BlogSlugRedirect />} />
           <Route path="/resources" element={<Resources />} />
+          <Route path="/community" element={<Community />} />
           <Route path="/liked-items" element={<LikedItems />} />
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />

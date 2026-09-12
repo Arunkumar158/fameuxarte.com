@@ -160,6 +160,17 @@ const HeroSection = () => {
                   </Link>
                 </div>
 
+                {/* Community Subtle CTA */}
+                <div className="mt-5">
+                  <Link
+                    to="/community"
+                    className="inline-flex items-center gap-2 text-[13.5px] font-medium text-[#4a4a4a] hover:text-[#b28247] transition-colors group"
+                  >
+                    <span>Artists are building together. Join the Community</span>
+                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
+
                 {/* Stats Section */}
                 {stats && (
                   <div className="flex gap-8 mt-8 pt-6 border-t border-[#e5e5e5]/50 w-full">
