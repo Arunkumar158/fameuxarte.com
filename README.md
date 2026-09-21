@@ -1,453 +1,313 @@
-
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-
 # Fameuxarte
 
-**Connecting local artists with global audiences through AI-powered art discovery**
+## Technology-driven online art marketplace
 
-![Fameuxarte Logo](https://placeholder.com/logo)
+[![React](https://img.shields.io/badge/React-18.3.1-61DAFB?logo=react&logoColor=white)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Supabase](https://img.shields.io/badge/Supabase-Backend%20%26%20Auth-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
-## 📋 Table of Contents
-- [Overview](#overview)
-- [Screenshots](#screenshots)
-- [Tech Stack](#tech-stack)
-- [AI & ML Integration](#ai--ml-integration)
-- [Features](#features)
-- [Installation & Setup](#installation--setup)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+> **Fameuxarte is a technology-driven online art marketplace designed to help artists get discovered, build trust with collectors, and sell original artwork online.**
 
-## 🎨 Overview
+**Art + Technology + Discovery + Trust + Marketplace**
 
-Fameuxarte is an innovative AI-powered art eCommerce platform designed to bridge the gap between talented local artists and art enthusiasts worldwide. Our mission is to democratize art discovery and sales, making it easier for artists to showcase their work and for collectors to find unique, handmade artworks that resonate with them.
-
-In a world where mass-produced art dominates retail spaces, Fameuxarte creates a digital gallery experience that celebrates authenticity and craftsmanship. Our platform leverages artificial intelligence to connect users with artworks that match their preferences, while providing artists with tools to reach a broader audience than traditional galleries allow.
-
-Whether you're an artist looking to expand your reach or an art lover searching for that perfect piece, Fameuxarte offers a seamless, personalized experience that honors the value of genuine artistic expression.
-
-## 📸 Screenshots
-
-![Homepage](https://placeholder.com/homepage)
-*Fameuxarte homepage featuring curated collections and featured artists*
-
-![Artist Profile](https://placeholder.com/artist-profile)
-*Artist profile page showcasing portfolio and biography*
-
-![Artwork Listings](https://placeholder.com/artwork-listings)
-*Browse page with AI-powered filtering and recommendation system*
-
-![Shopping Cart](https://placeholder.com/shopping-cart)
-*Secure checkout process with multiple payment options*
-
-## 💻 Tech Stack
-
-### Frontend
-- **Next.js**: React framework for server-side rendering and static site generation
-- **React**: JavaScript library for building user interfaces
-- **Tailwind CSS**: Utility-first CSS framework for custom designs
-- **Redux**: State management for complex UI interactions
-- **Framer Motion**: Animation library for enhanced user experience
-
-### Backend
-- **Django**: High-level Python web framework
-- **Django REST Framework**: Toolkit for building Web APIs
-- **Celery**: Distributed task queue for background processing
-- **Django Channels**: WebSocket support for real-time features
-
-### Database
-- **PostgreSQL**: Primary relational database
-- **Redis**: In-memory data structure store for caching and session management
-- **Vector Database**: For storing and querying artwork embeddings
-
-### DevOps & Infrastructure
-- **Docker**: Containerization for consistent development and deployment
-- **Nginx**: Web server for static content and reverse proxy
-- **AWS/GCP**: Cloud hosting and services
-
-### Payment Processing
-
-- **PayPal**: Alternative payment method
-
-## 🧠 AI & ML Integration
-
-Fameuxarte is integrating cutting-edge AI/ML technologies to create a more personalized and visually intuitive experience for art lovers. Our AI integration focuses on three core areas:
-
-### 1. Recommendation Engine
-
-We're building a sophisticated recommendation system using a hybrid approach that combines:
-
-- **Content-Based Filtering**: Using TensorFlow to analyze artwork attributes (style, color palette, subject matter, medium) and match them with user preferences.
-
-- **Collaborative Filtering**: Implementing matrix factorization with PyTorch to identify patterns in user behavior and recommend artworks based on similar users' preferences.
-
-- **Deep Learning Models**: Utilizing neural networks to understand complex relationships between artwork features and user interactions:
-  - Convolutional Neural Networks (CNNs) for image feature extraction
-  - Recurrent Neural Networks (RNNs) for sequential user behavior analysis
-  - Transformer models for contextual understanding of art descriptions
-
-The recommendation engine processes multiple data points:
-- User browsing history
-- Purchase patterns
-- Explicit ratings and favorites
-- Time spent viewing specific artworks
-- Demographic information
-- Stated preferences from user profiles
-
-### 2. Computer Vision for Art Analysis
-
-Our computer vision pipeline leverages several technologies:
-
-- **Automatic Artwork Categorization**:
-  - Style classification (Impressionist, Abstract, Contemporary, etc.)
-  - Subject matter detection (Landscape, Portrait, Still Life, etc.)
-  - Medium identification (Oil, Acrylic, Watercolor, Digital, etc.)
-  - Color palette extraction and mood analysis
-  - Composition analysis (Rule of thirds, golden ratio, etc.)
-
-- **Visual Search Capabilities**:
-  - "Find similar artworks" functionality
-  - Search by uploading an image
-  - Color-based search
-  - Texture and pattern matching
-  - Style transfer previews ("Show me this landscape in an impressionist style")
-
-- **Authentication and Verification**:
-  - Artwork signature verification
-  - Forgery detection algorithms
-  - Provenance tracking
-
-### 3. Natural Language Processing
-
-- **Intelligent Search**:
-  - Semantic understanding of search queries
-  - Art-specific entity recognition
-  - Contextual query expansion
-
-- **Automated Content Generation**:
-  - Artwork description enhancement
-  - SEO-optimized content suggestions for artists
-  - Multilingual translation of artwork details
-
-### Technical Implementation
-
-Our AI/ML infrastructure includes:
-
-- **Model Training Pipeline**:
-  - Data collection and preprocessing workflows
-  - Feature engineering for artwork attributes
-  - Transfer learning from pre-trained art recognition models
-  - Continuous model improvement through feedback loops
-
-- **Deployment Architecture**:
-  - Model serving via TensorFlow Serving
-  - Real-time inference API endpoints
-  - Batch processing for recommendation updates
-  - A/B testing framework for algorithm optimization
-
-- **Integration Points**:
-  - Recommendation microservice with REST API
-  - Computer vision processing queue
-  - User preference learning system
-  - Artist analytics dashboard
-
-## ✨ Features
-
-### Completed Features
-- **User Authentication**
-  - Secure signup/login system
-  - Social media authentication
-  - Role-based access control (buyers, artists, admins)
-
-- **Artist Profiles**
-  - Customizable portfolio pages
-  - Artist biography and statement
-  - Exhibition history and credentials
-  - Commission availability settings
-
-- **Artwork Listings**
-  - High-resolution image galleries
-  - Detailed artwork information (medium, dimensions, year)
-  - Price and availability management
-  - Categorization and tagging system
-
-- **Shopping Experience**
-  - Intuitive shopping cart
-  - Secure checkout process
-  - Order tracking
-  - Wishlist functionality
-
-- **Content Pages**
-  - Blog with art news and features
-  - About page with platform mission
-  - Contact form for inquiries
-  - Gallery of featured collections
-
-### AI-Enhanced Features (In Development)
-- **Personalized Art Discovery**
-  - AI-curated collections based on user preferences
-  - "Art DNA" profile that learns from user interactions
-  - Style affinity detection
-  - Personalized homepage featuring recommended artworks
-  - "Weekly Discoveries" email with new art recommendations
-
-- **Visual Search and Exploration**
-  - Search by image upload ("Find art like this")
-  - Color palette-based search
-  - Style-based filtering with visual examples
-  - "Art Journey" feature that creates paths of related artworks
-  - Mood-based recommendations
-
-- **Artist Intelligence Tools**
-  - Market trend analysis for pricing guidance
-  - Audience insights dashboard
-  - Style analysis of artist's portfolio
-  - Recommendation optimization suggestions
-  - Comparative performance metrics
-
-- **Enhanced Artwork Presentation**
-  - Automatic tagging and categorization
-  - Smart cropping for optimal thumbnail generation
-  - AR preview of artwork in customer's space
-  - Style-matched framing recommendations
-  - Lighting condition simulations
-
-### Additional Upcoming Features
-- **Enhanced Artist Tools**
-  - Analytics dashboard for artists
-  - Automated pricing assistance
-  - Marketing toolkit for promotion
-
-- **Virtual Gallery Experience**
-  - 3D virtual exhibition spaces
-  - AR view to preview art in your space
-  - Virtual gallery tours
-
-- **Community Features**
-  - Artist collaboration opportunities
-  - Collector profiles and public collections
-  - Art events calendar and ticketing
-
-- **Mobile Applications**
-  - Native iOS and Android apps
-  - Mobile-optimized browsing and purchasing
-
-## 🚀 Installation & Setup
-
-### Prerequisites
-- Python 3.8+
-- Node.js 14+
-- PostgreSQL 12+
-- pip and npm package managers
-- TensorFlow 2.x and PyTorch (for AI features) coming soon
-- CUDA-compatible GPU (recommended for model training)
-
-### Backend Setup
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/fameuxarte.git
-cd fameuxarte
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Install AI/ML dependencies
-pip install -r requirements-ai.txt
-
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your configuration
-
-# Run migrations
-python manage.py migrate
-
-# Create superuser
-python manage.py createsuperuser
-
-# Start Django development server
-python manage.py runserver
-```
-
-### Frontend Setup
-```bash
-# Navigate to frontend directory
-cd frontend
-
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-```
-
-### AI Model Setup
-```bash
-# Download pre-trained models
-python scripts/download_models.py
-
-# Run initial model training (optional)
-python scripts/train_recommendation_model.py
-
-# Start model serving
-python scripts/start_model_server.py
-```
-
-### Running with Docker
-```bash
-# Build and start containers
-docker-compose up -d
-
-# Run migrations
-docker-compose exec backend python manage.py migrate
-
-# Create superuser
-docker-compose exec backend python manage.py createsuperuser
-```
-
-## 📁 Project Structure
-
-### Backend (Django)
-```
-fameuxarte/
-├── fameuxarte/          # Project settings
-├── accounts/            # User authentication and profiles
-├── artists/             # Artist profiles and portfolios
-├── artworks/            # Artwork listings and management
-├── cart/                # Shopping cart functionality
-├── checkout/            # Order processing and payment
-├── blog/                # Blog posts and articles
-├── api/                 # REST API endpoints
-├── recommendations/     # AI recommendation engine
-│   ├── models/          # ML model definitions
-│   ├── training/        # Training scripts and data pipelines
-│   ├── inference/       # Inference services
-│   └── evaluation/      # Model evaluation tools
-├── vision/              # Computer vision services
-│   ├── categorization/  # Artwork categorization models
-│   ├── search/          # Visual search implementation
-│   └── processing/      # Image processing utilities
-└── utils/               # Utility functions and helpers
-```
-
-### Frontend (Next.js)
-```
-frontend/
-├── pages/               # Application pages
-├── components/          # Reusable React components
-│   ├── ai/              # AI-powered UI components
-│   └── recommendations/ # Recommendation display components
-├── public/              # Static assets
-├── styles/              # CSS and styling
-├── lib/                 # Utility functions
-├── store/               # Redux store configuration
-├── hooks/               # Custom React hooks
-└── contexts/            # React context providers
-```
-
-### AI/ML Components
-```
-ml/
-├── models/              # Model architecture definitions
-├── data/                # Data processing and pipelines
-├── training/            # Training scripts and configurations
-├── evaluation/          # Evaluation metrics and tools
-├── serving/             # Model serving infrastructure
-└── notebooks/           # Jupyter notebooks for experimentation
-```
-
-### API Endpoints
-- `/api/auth/` - Authentication endpoints
-- `/api/artists/` - Artist profile management
-- `/api/artworks/` - Artwork CRUD operations
-- `/api/cart/` - Shopping cart operations
-- `/api/orders/` - Order management
-- `/api/blog/` - Blog content
-- `/api/recommendations/` - AI recommendation endpoints
-- `/api/vision/` - Computer vision services
-- `/api/search/` - Advanced search capabilities
-
-## 👥 Contributing
-
-We welcome contributions to Fameuxarte! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
-
-### How to Contribute
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Commit your changes**
-   ```bash
-   git commit -m 'Add some amazing feature'
-   ```
-4. **Push to the branch**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-5. **Open a Pull Request**
-
-### Development Guidelines
-- Follow PEP 8 style guide for Python code
-- Use ESLint and Prettier for JavaScript/React code
-- Write tests for new features
-- Update documentation as needed
-- For AI/ML contributions:
-  - Include model cards for new models
-  - Document training procedures and hyperparameters
-  - Provide evaluation metrics
-  - Consider model efficiency and performance
-
-### Reporting Issues
-- Use the GitHub issue tracker
-- Provide detailed reproduction steps
-- Include relevant logs and screenshots
-
-## 📄 License
-
-Fameuxarte is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Contact
-
-Project Maintainer: Your Name - [arunkumar.ai.engineer@example.com](mailto:your.email@example.com)
-
-### Social Media
-- [Twitter](https://twitter.com/fameuxarte)
-- [Instagram](https://instagram.com/fameuxarte)
-- [LinkedIn](https://linkedin.com/company/fameuxarte)
-
-### Community
-- [Discord Server](https://discord.gg/fameuxarte)
-- [Artist Forum](https://forum.fameuxarte.com)
+[Live Demo → fameuxarte.com](https://www.fameuxarte.com) · [View repository](https://github.com/Arunkumar158/fameuxarte.com)
 
 ---
 
-<p align="center">Made with ❤️ for artists and art lovers everywhere</p>
+## Product overview
+
+Fameuxarte brings together artwork discovery, artist profiles, trust workflows, and digital commerce in one web experience.
+
+The platform addresses three practical marketplace challenges:
+
+- **Discovery:** helping collectors browse artwork through collections, categories, styles, mediums, subjects, colors, and locations.
+- **Trust:** providing artist onboarding, identity-document submission, review workflows, trust statuses, certificates, and certificate verification.
+- **Access:** giving artists a digital place to manage portfolios and artwork while giving collectors a structured way to discover, save, purchase, and manage their collection.
+
+The repository contains a React/Vite web application backed by Supabase services and protected role-specific application areas for collectors, artists, and administrators.
+
+## Core capabilities
+
+### Artwork discovery
+
+- Artwork listing and detail pages
+- Search and programmatic discovery pages
+- Browsing by collection, category, style, medium, subject, location, and color
+- Artist directory and artist detail pages
+- Likes, saved collections, following, and collector collection views
+- SEO utilities, canonical metadata, structured data, and sitemap-generation scripts
+
+### Artist ecosystem
+
+- Artist application and onboarding flow
+- Artist dashboard and portfolio preview
+- Artwork and collection management
+- Artist order management
+- Artist analytics view
+- Verification center with government ID and optional selfie upload
+- Verification status, trust score, reviewer feedback, and trust badges
+
+### Commerce
+
+- Cart management
+- Authenticated checkout
+- Razorpay payment checkout
+- Supabase Edge Functions for order creation and payment verification
+- Order success and payment failure flows
+- Collector orders, addresses, certificates, and collection views
+- Legal acceptance recording during checkout
+
+### Trust and operations
+
+- Public certificate verification by certificate number
+- Admin verification-management workflow
+- Protected admin, artist, and collector routes
+- Supabase Storage for identity documents
+- Support ticketing for collectors and administrators
+- In-app notifications and email-related administrative workflows
+- Admin management for artworks, artists, orders, collections, SEO, analytics, insights, and digital products
+
+### Content and engagement
+
+- Blog and insight pages
+- Resources, community, FAQ, contact, and story pages
+- Editorial content management in the admin area
+- Artwork and artist view tracking
+- PostHog analytics and custom product events
+
+## AI and intelligent features
+
+The current repository does **not** demonstrate a meaningful implemented AI model, inference service, recommendation engine, or computer-vision pipeline.
+
+The application includes analytics events related to discovery and AI-readiness checks, but these are instrumentation—not AI functionality. Potential future directions may include semantic artwork discovery, recommendations, or pricing insights; these are not presented as current features.
+
+## Technology stack
+
+| Layer | Verified technology |
+|---|---|
+| Frontend | React 18 + Vite 5 |
+| Language | TypeScript 5.5 |
+| Styling | Tailwind CSS 3.4 |
+| UI components | shadcn/ui patterns with Radix UI primitives |
+| Routing | React Router |
+| Data fetching | TanStack React Query |
+| Backend services | Supabase |
+| Authentication | Supabase Auth, including email/password and Google OAuth flows |
+| Database | Supabase PostgreSQL |
+| File storage | Supabase Storage |
+| Server-side functions | Supabase Edge Functions |
+| Payments | Razorpay |
+| Product analytics | PostHog |
+| UI motion | Framer Motion and GSAP |
+| Charts | Recharts |
+| Deployment configuration | Vercel configuration is included in the repository |
+| Runtime | Node.js 22.x |
+
+## Architecture
+
+```mermaid
+flowchart TD
+    Visitor[Collector or Artist] --> Web[Fameuxarte Web App]
+    Web --> UI[React + TypeScript + Vite]
+    UI --> Router[React Router]
+    UI --> Auth[Supabase Auth]
+    UI --> Data[Supabase PostgreSQL]
+    UI --> Storage[Supabase Storage]
+    UI --> Functions[Supabase Edge Functions]
+    Functions --> Payments[Razorpay]
+    UI --> Analytics[PostHog]
+    Data --> Domains[Artists / Artworks / Collections / Orders / Content]
+```
+
+## Key workflows
+
+### Artist onboarding and verification
+
+```text
+Artist applies
+    ↓
+Identity documents submitted
+    ↓
+Verification status moves through review
+    ↓
+Admin reviews documents and feedback
+    ↓
+Artist is approved, rejected, or asked to resubmit
+    ↓
+Verified artist receives a trust badge and can manage marketplace content
+```
+
+### Artwork purchase
+
+```text
+Discover artwork
+    ↓
+Open artwork details
+    ↓
+Add artwork to cart
+    ↓
+Sign in and accept buyer/return terms
+    ↓
+Create order through Supabase Edge Function
+    ↓
+Pay through Razorpay
+    ↓
+Verify payment through Supabase Edge Function
+    ↓
+View order confirmation and manage the purchase in the collector area
+```
+
+## Security and trust controls
+
+The repository includes the following implemented controls:
+
+- Supabase Auth session handling and sign-out flows
+- Email/password authentication and Google OAuth
+- Protected route wrappers for admin, artist, and collector areas
+- JWT verification enabled for the `create-order` and `verify-payment` Edge Functions
+- Supabase Row Level Security policies in migrations
+- Storage policies for identity-document access
+- Signed URLs for admin review of identity documents
+- Separate artist verification statuses and reviewer notes
+- Payment verification through a backend Edge Function rather than trusting only the browser response
+- Zod and form-validation dependencies for typed input-validation workflows
+- Legal document version lookup and checkout acceptance recording
+
+These controls document repository behavior; they are not a claim of certification or enterprise security compliance.
+
+## Project structure
+
+```text
+.
+├── src/
+│   ├── components/       # Shared UI, navigation, admin, artist, and collector components
+│   ├── contexts/         # Auth, cart, and currency state
+│   ├── hooks/             # Reusable React hooks
+│   ├── integrations/     # Supabase client and generated types
+│   ├── lib/               # Analytics, SEO, notifications, and utilities
+│   ├── pages/             # Public, admin, artist, collector, legal, and discovery pages
+│   ├── providers/         # Discovery and PostHog providers
+│   ├── types/             # Application types
+│   └── App.tsx            # Application routes and providers
+├── scripts/              # Slug, artwork, and sitemap utilities
+├── supabase/
+│   ├── functions/         # Edge Functions for commerce and communications
+│   └── migrations/        # Database, RLS, storage, trust, commerce, and content migrations
+├── public/                # Public static assets
+├── package.json
+├── tailwind.config.ts
+├── vite.config.ts
+└── vercel.json
+```
+
+## Local development
+
+### Prerequisites
+
+- Node.js 22.x
+- npm, pnpm, or Bun
+- Access to the configured Supabase project for data-backed flows
+
+### Install and run
+
+```bash
+git clone https://github.com/Arunkumar158/fameuxarte.com.git
+cd fameuxarte.com
+npm install
+npm run dev
+```
+
+The Vite development server will print the local URL in the terminal.
+
+### Available commands
+
+```bash
+npm run dev                       # Start the Vite development server
+npm run build                     # Create a production build
+npm run build:dev                 # Create a development-mode build
+npm run preview                   # Preview the production build
+npm run lint                      # Run ESLint
+npm run update-slugs              # Update artwork slugs
+npm run test-slugs                # Test slug generation
+npm run debug-artworks            # Run artwork diagnostics
+npm run test-artwork-fetch        # Test artwork fetching
+npm run generate-sitemaps         # Generate sitemaps
+npm run generate-discovery-sitemaps # Generate discovery sitemap data
+```
+
+## Configuration
+
+The current frontend Supabase client is generated in `src/integrations/supabase/client.ts` and references the configured Supabase project. No `.env.example` file is present in the repository, so environment-variable names should not be inferred or added here without first standardizing the application configuration.
+
+Do not commit private keys, service-role keys, payment secrets, or other credentials to the repository. Supabase Edge Functions require their server-side payment and email configuration to be managed in the Supabase project environment.
+
+## Deployment
+
+The repository includes a `vercel.json` with:
+
+- `pnpm install --no-frozen-lockfile` as the install command
+- A rewrite from all paths to `/index.html` for the Vite SPA
+
+The documented deployment shape is therefore:
+
+```text
+GitHub repository
+      ↓
+Vercel-hosted Vite application
+      ↓
+Supabase Auth / PostgreSQL / Storage / Edge Functions
+      ↓
+Razorpay checkout and payment verification
+```
+
+The repository does not document a CI/CD workflow, monitoring setup, or infrastructure-as-code system, so those are intentionally not claimed here.
+
+## Roadmap
+
+The following directions are intentionally separated from current functionality:
+
+- **Exploring:** semantic artwork search and recommendation experiences
+- **Exploring:** AI-assisted artwork discovery and pricing insights
+- **Planned:** broader international commerce and localization support
+- **Planned:** additional collector and artist engagement tools
+- **Planned:** deeper digital provenance and trust experiences
+
+Roadmap items are not represented as implemented features.
+
+## Product vision
+
+Fameuxarte is evolving toward a digital-first art marketplace where discovery is easier, artist identity and artwork information are clearer, and buying original artwork feels more trustworthy online.
+
+The long-term product direction is centered on:
+
+- Better artist discovery
+- Digital art commerce
+- Trust and verification
+- Useful marketplace analytics
+- More intelligent discovery over time
+- Accessible art experiences across regions
+
+## Contributing
+
+When contributing:
+
+1. Create a focused feature branch.
+2. Keep changes scoped to the product area being improved.
+3. Run `npm run lint` and `npm run build` before opening a pull request.
+4. Update documentation when behavior or setup changes.
+5. Never commit secrets or private service credentials.
+
+## License
+
+No root-level `LICENSE` file was verified during the repository audit. Add and document a license before describing the project as MIT-licensed.
+
+## Links
+
+- Live website: [www.fameuxarte.com](https://www.fameuxarte.com)
+- GitHub repository: [Arunkumar158/fameuxarte.com](https://github.com/Arunkumar158/fameuxarte.com)
+
+---
+
+Built as a product and engineering platform for artists, collectors, and marketplace partners.
