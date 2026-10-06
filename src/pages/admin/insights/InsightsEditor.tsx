@@ -145,6 +145,8 @@ export default function InsightsEditor() {
             status: "published",
             excerpt: blogData.content?.replace(/<[^>]+>/g, " ").substring(0, 160) + "...",
             meta_title: blogData.title,
+            key_takeaways: blogData.key_takeaways || [],
+            faq: blogData.faq || [],
           };
         }
       } catch {}
@@ -343,6 +345,8 @@ export default function InsightsEditor() {
           image_url: featuredImage.trim() || null,
           author_id: user?.id,
           published_at: new Date().toISOString(),
+          key_takeaways: cleanTakeaways,
+          faq: cleanFaq,
         };
 
         let bResult;

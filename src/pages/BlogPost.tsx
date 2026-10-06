@@ -60,74 +60,7 @@ async function fetchAuthorProfile(authorId?: string) {
 async function fetchArticleBySlug(slug: string): Promise<BlogPostType | null> {
   const cleanSlug = (slug || "").replace(/\/+$/, "").trim();
 
-  // ── 1. Query production blogs table first (fast, active table) ──
-  try {
-    let blogData: any = null;
-
-    // Try capital-S Slug column first (database column standard on blogs table)
-    const { data: blogByCapSlug } = await supabase
-      .from("blogs")
-      .select("id, title, Slug, content, image_url, author_id, published_at, created_at")
-      .eq("Slug", cleanSlug)
-      .maybeSingle();
-
-    blogData = blogByCapSlug;
-
-    // Try lowercase slug column if capital-S didn't match
-    if (!blogData) {
-      const { data: blogBySlug } = await (supabase
-        .from("blogs")
-        .select("id, title, Slug, content, image_url, author_id, published_at, created_at") as any)
-        .eq("slug", cleanSlug)
-        .maybeSingle();
-      blogData = blogBySlug;
-    }
-
-    if (blogData) {
-      const author = await fetchAuthorProfile(blogData.author_id);
-      const slugValue = blogData.Slug || blogData.slug || cleanSlug;
-      const excerpt =
-        stripHtml(blogData.content || "").substring(0, 160) + "...";
-      const canonicalPath = `/blog/${slugValue}`;
-
-      return {
-        source: "blogs",
-        id: blogData.id,
-        title: blogData.title || "",
-        slug: slugValue,
-        category: "Art Intelligence",
-        excerpt,
-        content: blogData.content || "",
-        featured_image: blogData.image_url || null,
-        og_image: blogData.image_url || null,
-        author: {
-          id: author?.id,
-          name: author?.full_name || "Fameuxarte Team",
-          avatar: author?.avatar_url || null,
-          bio: author?.bio,
-          role: author?.role,
-        },
-        published_at: blogData.published_at || blogData.created_at,
-        updated_at: blogData.updated_at,
-        read_time: getReadTime(blogData.content || ""),
-        meta_title: blogData.title || "",
-        meta_description: excerpt,
-        canonical_url: canonicalPath,
-        keywords: [],
-        tags: [],
-        schema_type: "BlogPosting",
-        key_takeaways: [],
-        faq: [],
-        cta_label: "Explore Original Artworks",
-        cta_url: "/artworks",
-        cta_description: "Discover curated original contemporary works on Fameuxarte.",
-      } as BlogPostType;
-    }
-  } catch (e) {
-    console.warn("Blogs lookup:", e);
-  }
-
-  // ── 2. Query insights table if blogs didn't have it and insights is available ──
+  // ── 1. Query insights table first (modern, rich content table) ──
   if (isInsightsAvailable !== false) {
     try {
       const { data: insightData, error } = await supabase
@@ -192,6 +125,82 @@ async function fetchArticleBySlug(slug: string): Promise<BlogPostType | null> {
     } catch {
       isInsightsAvailable = false;
     }
+  }
+
+  // ── 2. Query legacy blogs table if insights didn't have it ──
+  try {
+    let blogData: any = null;
+
+    // Try capital-S Slug column first (database column standard on blogs table)
+    const { data: blogByCapSlug } = await supabase
+      .from("blogs")
+      .select("*")
+      .eq("Slug", cleanSlug)
+      .maybeSingle();
+
+    blogData = blogByCapSlug;
+
+    // Try lowercase slug column if capital-S didn't match
+    if (!blogData) {
+      const { data: blogBySlug } = await (supabase
+        .from("blogs")
+        .select("*") as any)
+        .eq("slug", cleanSlug)
+        .maybeSingle();
+      blogData = blogBySlug;
+    }
+
+    if (blogData) {
+      const author = await fetchAuthorProfile(blogData.author_id);
+      const slugValue = blogData.Slug || blogData.slug || cleanSlug;
+      const excerpt =
+        stripHtml(blogData.content || "").substring(0, 160) + "...";
+      const canonicalPath = `/blog/${slugValue}`;
+
+      let faq: FAQItem[] = [];
+      try {
+        if (Array.isArray(blogData.faq)) {
+          faq = (blogData.faq as any[])
+            .filter(f => f?.question && f?.answer)
+            .map(f => ({ question: String(f.question), answer: String(f.answer) }));
+        }
+      } catch {}
+
+      return {
+        source: "blogs",
+        id: blogData.id,
+        title: blogData.title || "",
+        slug: slugValue,
+        category: "Art Intelligence",
+        excerpt,
+        content: blogData.content || "",
+        featured_image: blogData.image_url || null,
+        og_image: blogData.image_url || null,
+        author: {
+          id: author?.id,
+          name: author?.full_name || "Fameuxarte Team",
+          avatar: author?.avatar_url || null,
+          bio: author?.bio,
+          role: author?.role,
+        },
+        published_at: blogData.published_at || blogData.created_at,
+        updated_at: blogData.updated_at,
+        read_time: getReadTime(blogData.content || ""),
+        meta_title: blogData.title || "",
+        meta_description: excerpt,
+        canonical_url: canonicalPath,
+        keywords: [],
+        tags: [],
+        schema_type: "BlogPosting",
+        key_takeaways: blogData.key_takeaways || [],
+        faq,
+        cta_label: "Explore Original Artworks",
+        cta_url: "/artworks",
+        cta_description: "Discover curated original contemporary works on Fameuxarte.",
+      } as BlogPostType;
+    }
+  } catch (e) {
+    console.warn("Blogs lookup:", e);
   }
 
   // ── 3. Fallback: Check placeholder/demo posts by slug ──

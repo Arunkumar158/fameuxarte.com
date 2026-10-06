@@ -13,7 +13,7 @@ import JournalShellStyles from "@/components/blog/JournalShellStyles";
 import type { BlogPost } from "@/components/blog/types";
 import { PLACEHOLDER_FEATURED, PLACEHOLDER_POSTS } from "@/components/blog/types";
 
-const BLOGS_PER_PAGE = 6;
+const BLOGS_PER_PAGE = 7;
 const JournalNav = HomeNav as React.ComponentType<{ activeLink?: string }>;
 
 // Cached flag to prevent repeated 404s if insights table is not yet deployed on remote DB
@@ -131,10 +131,13 @@ const Blog = () => {
       const allPlaceholders = [PLACEHOLDER_FEATURED, ...PLACEHOLDER_POSTS];
       
       // Combine database articles + placeholders (avoiding duplicate slugs)
-      const existingSlugs = new Set([...insightPosts, ...blogPosts].map(p => p.slug));
+      const insightSlugs = new Set(insightPosts.map(p => p.slug));
+      const nonDuplicateBlogPosts = blogPosts.filter(p => !insightSlugs.has(p.slug));
+      
+      const existingSlugs = new Set([...insightPosts, ...nonDuplicateBlogPosts].map(p => p.slug));
       const nonDuplicatePlaceholders = allPlaceholders.filter(p => !existingSlugs.has(p.slug));
 
-      let allPosts = [...insightPosts, ...blogPosts, ...nonDuplicatePlaceholders];
+      let allPosts = [...insightPosts, ...nonDuplicateBlogPosts, ...nonDuplicatePlaceholders];
 
       // Filter by category in memory (safe and fast)
       if (activeCategory && activeCategory !== "All") {

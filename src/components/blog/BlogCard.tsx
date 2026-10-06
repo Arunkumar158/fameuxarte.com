@@ -11,16 +11,18 @@ const BlogCard = ({ post, compact = false }: BlogCardProps) => {
   return (
     <Link to={`/blog/${post.slug}`} className="group block h-full">
       <article className="h-full overflow-hidden rounded-lg border border-border-subtle bg-surface-2 transition-colors hover:border-gold/30">
-        {post.featured_image ? (
-          <img
-            src={post.featured_image}
-            alt={post.title}
-            className={`${compact ? "h-[120px]" : "h-[140px]"} w-full object-cover transition-transform duration-700 group-hover:scale-105`}
-            loading="lazy"
-          />
-        ) : (
-          <div className={`${compact ? "h-[120px]" : "h-[140px]"} w-full bg-[linear-gradient(135deg,#141414,#0d0d0d)]`} />
-        )}
+        <div className={`w-full overflow-hidden ${compact ? "h-[120px]" : "h-[140px]"}`}>
+          {post.featured_image ? (
+            <img
+              src={post.featured_image}
+              alt={post.title}
+              className="block h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              loading="lazy"
+            />
+          ) : (
+            <div className="h-full w-full bg-[linear-gradient(135deg,#141414,#0d0d0d)]" />
+          )}
+        </div>
         <div className={compact ? "p-3" : "p-[14px]"}>
           <div className="mb-2 flex flex-wrap items-center gap-2 text-[12px] text-[#555]">
             <span>{post.category}</span>
