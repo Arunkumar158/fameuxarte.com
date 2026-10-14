@@ -6,13 +6,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { sendNotification } from "@/lib/notifications";
 import { trackEvent } from "@/lib/analytics";
-import { ArrowLeft, Package, Truck, CheckCircle2, AlertCircle, Clock, MapPin } from "lucide-react";
+import { ArrowLeft, Package, Truck, CheckCircle2, AlertCircle, Clock, MapPin, ExternalLink, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { CreateShipmentDialog } from "@/components/shipping/CreateShipmentDialog";
+import { LiveTrackingDialog } from "@/components/shipping/LiveTrackingDialog";
 
 export default function ArtistOrderDetails() {
   const { id } = useParams();
@@ -23,6 +26,9 @@ export default function ArtistOrderDetails() {
   const [trackingNumber, setTrackingNumber] = useState("");
   const [trackingUrl, setTrackingUrl] = useState("");
   const [shippingNotes, setShippingNotes] = useState("");
+  const [createShipmentOpen, setCreateShipmentOpen] = useState(false);
+  const [trackingOpen, setTrackingOpen] = useState(false);
+  const [showManualShipping, setShowManualShipping] = useState(false);
 
   const { data: orderItem, isLoading } = useQuery({
     queryKey: ["artist-order-details", id],
@@ -314,66 +320,210 @@ export default function ArtistOrderDetails() {
           </div>
 
           <div className="bg-surface-1 border border-border-faint rounded-xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-border-faint">
-              <h2 className="font-medium text-linen">Shipping Details</h2>
+            <div className="px-6 py-4 border-b border-border-faint flex items-center justify-between">
+              <h2 className="font-medium text-linen flex items-center gap-2">
+                <Truck className="w-4 h-4 text-gold" />
+                Shipping & Logistics (Shiprocket / Delhivery)
+              </h2>
+              {orderItem.awb_code && (
+                <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px] uppercase">
+                  AWB Active
+                </Badge>
+              )}
             </div>
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="provider" className="text-stone">Courier Company</Label>
-                  <Input 
-                    id="provider"
-                    placeholder="e.g. FedEx, DHL, UPS" 
-                    className="bg-surface-2 border-border-subtle"
-                    value={shippingProvider}
-                    onChange={(e) => setShippingProvider(e.target.value)}
-                    disabled={status === 'delivered' || status === 'completed' || status === 'cancelled'}
-                  />
+
+            <div className="p-6 space-y-5">
+              {/* If courier is already booked / AWB generated */}
+              {orderItem.awb_code || orderItem.tracking_number ? (
+                <div className="space-y-4">
+                  <div className="bg-surface-2/80 border border-border-subtle rounded-xl p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border-faint">
+                      <div>
+                        <span className="text-[11px] uppercase tracking-wider text-stone block">
+                          Assigned Courier
+                        </span>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-base font-medium text-linen">
+                            {orderItem.shipping_provider || "National Express Courier"}
+                          </span>
+                          <Badge variant="outline" className="border-gold/30 text-gold text-[10px]">
+                            ArtGuard™ Insured
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <div className="text-left sm:text-right">
+                        <span className="text-[11px] uppercase tracking-wider text-stone block">
+                          Air Waybill (AWB)
+                        </span>
+                        <span className="font-mono text-sm font-semibold text-gold bg-surface-3 px-2 py-0.5 rounded border border-border-subtle inline-block mt-0.5">
+                          {orderItem.awb_code || orderItem.tracking_number}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 text-xs">
+                      <div>
+                        <span className="text-stone">Current Location:</span>{" "}
+                        <span className="text-linen font-medium">
+                          {orderItem.current_location || "In Transit"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-stone">Estimated Delivery:</span>{" "}
+                        <span className="text-linen font-medium">
+                          {orderItem.estimated_delivery_date
+                            ? formatDate(orderItem.estimated_delivery_date)
+                            : "2-3 business days"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button
+                      onClick={() => setTrackingOpen(true)}
+                      className="bg-gold text-obsidian hover:bg-gold/90 text-xs font-medium gap-1.5"
+                    >
+                      <Truck className="w-3.5 h-3.5" /> Track Package Live
+                    </Button>
+
+                    {orderItem.tracking_url && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-border-subtle text-linen hover:bg-surface-3 text-xs gap-1"
+                        onClick={() => window.open(orderItem.tracking_url, "_blank")}
+                      >
+                        Carrier Portal <ExternalLink className="w-3 h-3" />
+                      </Button>
+                    )}
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-stone hover:text-linen text-xs ml-auto"
+                      onClick={() => setShowManualShipping(!showManualShipping)}
+                    >
+                      {showManualShipping ? "Hide Details" : "Edit / Notes"}
+                    </Button>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="tracking" className="text-stone">Tracking Number</Label>
-                  <Input 
-                    id="tracking"
-                    placeholder="Tracking Number" 
-                    className="bg-surface-2 border-border-subtle"
-                    value={trackingNumber}
-                    onChange={(e) => setTrackingNumber(e.target.value)}
-                    disabled={status === 'delivered' || status === 'completed' || status === 'cancelled'}
-                  />
+              ) : (
+                /* When courier is not yet booked */
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-br from-surface-2 to-surface-1 border border-gold/20 rounded-xl p-5">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center text-gold shrink-0">
+                        <Sparkles className="w-5 h-5" />
+                      </div>
+                      <div className="space-y-1">
+                        <h3 className="text-sm font-medium text-linen">
+                          One-Click Courier Booking (Shiprocket / Delhivery)
+                        </h3>
+                        <p className="text-xs text-stone leading-relaxed">
+                          Compare real-time rates between Blue Dart, Delhivery Air, and Shiprocket. Auto-generate official AWB tracking and schedule pickup right from your studio.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 pt-4 border-t border-border-faint flex flex-wrap items-center justify-between gap-3">
+                      <div className="text-xs text-stone flex items-center gap-2">
+                        <Badge variant="outline" className="border-border-subtle text-stone text-[10px]">
+                          Doorstep Studio Pickup
+                        </Badge>
+                        <Badge variant="outline" className="border-border-subtle text-stone text-[10px]">
+                          Fragile Art Handling
+                        </Badge>
+                      </div>
+
+                      <Button
+                        onClick={() => setCreateShipmentOpen(true)}
+                        className="bg-gold text-obsidian hover:bg-gold/90 text-xs font-medium gap-1.5"
+                      >
+                        <Truck className="w-3.5 h-3.5" /> Book Courier & Generate AWB
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="text-center pt-2">
+                    <button
+                      onClick={() => setShowManualShipping(!showManualShipping)}
+                      className="text-xs text-stone hover:text-gold transition-colors underline"
+                    >
+                      {showManualShipping
+                        ? "Hide manual tracking input"
+                        : "Or enter manual tracking details from your own courier"}
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="url" className="text-stone">Tracking URL (Optional)</Label>
-                <Input 
-                  id="url"
-                  placeholder="https://..." 
-                  className="bg-surface-2 border-border-subtle"
-                  value={trackingUrl}
-                  onChange={(e) => setTrackingUrl(e.target.value)}
-                  disabled={status === 'delivered' || status === 'completed' || status === 'cancelled'}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="notes" className="text-stone">Shipping Notes</Label>
-                <Textarea 
-                  id="notes"
-                  placeholder="Any notes for the buyer..." 
-                  className="bg-surface-2 border-border-subtle min-h-[100px]"
-                  value={shippingNotes}
-                  onChange={(e) => setShippingNotes(e.target.value)}
-                  disabled={status === 'delivered' || status === 'completed' || status === 'cancelled'}
-                />
-              </div>
-              
-              {(status === 'packed' || status === 'shipped') && (
-                <div className="pt-4 flex justify-end">
-                  <Button 
-                    onClick={handleUpdateShipping} 
-                    className="bg-gold text-obsidian hover:bg-gold/90"
-                    disabled={updateStatusMutation.isPending}
-                  >
-                    {status === 'shipped' ? 'Update Shipping Info' : 'Mark as Shipped'}
-                  </Button>
+              )}
+
+              {/* Collapsible Manual Tracking Form */}
+              {showManualShipping && (
+                <div className="pt-4 border-t border-border-faint space-y-4">
+                  <h4 className="text-xs font-medium text-stone uppercase tracking-wider">
+                    Manual Courier Entry
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="provider" className="text-stone text-xs">Courier Company</Label>
+                      <Input 
+                        id="provider"
+                        placeholder="e.g. FedEx, Blue Dart, DTDC" 
+                        className="bg-surface-2 border-border-subtle text-xs"
+                        value={shippingProvider}
+                        onChange={(e) => setShippingProvider(e.target.value)}
+                        disabled={status === 'delivered' || status === 'completed' || status === 'cancelled'}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="tracking" className="text-stone text-xs">Tracking / AWB Number</Label>
+                      <Input 
+                        id="tracking"
+                        placeholder="Tracking Number" 
+                        className="bg-surface-2 border-border-subtle text-xs"
+                        value={trackingNumber}
+                        onChange={(e) => setTrackingNumber(e.target.value)}
+                        disabled={status === 'delivered' || status === 'completed' || status === 'cancelled'}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="url" className="text-stone text-xs">Tracking URL (Optional)</Label>
+                    <Input 
+                      id="url"
+                      placeholder="https://..." 
+                      className="bg-surface-2 border-border-subtle text-xs"
+                      value={trackingUrl}
+                      onChange={(e) => setTrackingUrl(e.target.value)}
+                      disabled={status === 'delivered' || status === 'completed' || status === 'cancelled'}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes" className="text-stone text-xs">Shipping Notes</Label>
+                    <Textarea 
+                      id="notes"
+                      placeholder="Any notes for the buyer..." 
+                      className="bg-surface-2 border-border-subtle min-h-[80px] text-xs"
+                      value={shippingNotes}
+                      onChange={(e) => setShippingNotes(e.target.value)}
+                      disabled={status === 'delivered' || status === 'completed' || status === 'cancelled'}
+                    />
+                  </div>
+                  
+                  {(status === 'packed' || status === 'shipped') && (
+                    <div className="pt-2 flex justify-end">
+                      <Button 
+                        onClick={handleUpdateShipping} 
+                        className="bg-gold text-obsidian hover:bg-gold/90 text-xs"
+                        disabled={updateStatusMutation.isPending}
+                      >
+                        {status === 'shipped' ? 'Update Shipping Info' : 'Mark as Shipped'}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -437,7 +587,7 @@ export default function ArtistOrderDetails() {
                   <div className="flex gap-3">
                     <div className="mt-1"><Package className="h-4 w-4 text-amber-400" /></div>
                     <div>
-                      <p className="text-sm text-linen">Packed</p>
+                      <p className="text-sm text-linen">Packed & AWB Assigned</p>
                       <p className="text-xs text-stone">{formatDate(orderItem.packed_at)}</p>
                     </div>
                   </div>
@@ -446,7 +596,7 @@ export default function ArtistOrderDetails() {
                   <div className="flex gap-3">
                     <div className="mt-1"><Truck className="h-4 w-4 text-blue-400" /></div>
                     <div>
-                      <p className="text-sm text-linen">Shipped</p>
+                      <p className="text-sm text-linen">Shipped via {orderItem.shipping_provider || 'Courier'}</p>
                       <p className="text-xs text-stone">{formatDate(orderItem.shipped_at)}</p>
                     </div>
                   </div>
@@ -455,7 +605,7 @@ export default function ArtistOrderDetails() {
                   <div className="flex gap-3">
                     <div className="mt-1"><CheckCircle2 className="h-4 w-4 text-green-400" /></div>
                     <div>
-                      <p className="text-sm text-linen">Delivered</p>
+                      <p className="text-sm text-linen">Delivered to Collector</p>
                       <p className="text-xs text-stone">{formatDate(orderItem.delivered_at)}</p>
                     </div>
                   </div>
@@ -465,6 +615,28 @@ export default function ArtistOrderDetails() {
           </div>
         </div>
       </div>
+
+      {/* Shipping & Tracking Dialogs */}
+      <CreateShipmentDialog
+        open={createShipmentOpen}
+        onOpenChange={setCreateShipmentOpen}
+        orderItemId={orderItem.id}
+        artworkTitle={orderItem.artworks?.title || "Artwork"}
+        deliveryAddress={shippingAddress}
+        artworkPrice={orderItem.price_at_purchase}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["artist-order-details", id] });
+          queryClient.invalidateQueries({ queryKey: ["artist-orders"] });
+        }}
+      />
+
+      <LiveTrackingDialog
+        open={trackingOpen}
+        onOpenChange={setTrackingOpen}
+        orderItemId={orderItem.id}
+        awbCode={orderItem.awb_code || orderItem.tracking_number}
+        isArtistOrAdmin={true}
+      />
     </div>
   );
 }

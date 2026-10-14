@@ -1,24 +1,26 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Check, Package, Truck, CheckCircle2, Circle, ExternalLink, HelpCircle } from "lucide-react";
+import { Check, Package, Truck, CheckCircle2, Circle, ExternalLink, HelpCircle, MapPin, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { CreateTicketDialog } from "@/components/support/CreateTicketDialog";
+import { LiveTrackingDialog } from "@/components/shipping/LiveTrackingDialog";
 
 const STEPS = [
   { id: "ordered", label: "Ordered" },
   { id: "accepted", label: "Artist Accepted" },
-  { id: "packed", label: "Packed" },
-  { id: "shipped", label: "Shipped" },
+  { id: "packed", label: "Packed & AWB Assigned" },
+  { id: "shipped", label: "In Transit" },
   { id: "delivered", label: "Delivered" }
 ];
 
 const getStepIndex = (status: string) => {
   const s = (status || "").toLowerCase();
-  if (s === "delivered") return 4;
+  if (s === "delivered" || s === "completed") return 4;
   if (s === "shipped") return 3;
   if (s === "processing" || s === "packed") return 2;
   if (s === "accepted") return 1;
@@ -29,6 +31,9 @@ const Orders = () => {
   const { user } = useAuth();
   const [ticketOpen, setTicketOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | undefined>();
+  const [trackingOpen, setTrackingOpen] = useState(false);
+  const [trackingItemId, setTrackingItemId] = useState<string | null>(null);
+  const [trackingAwb, setTrackingAwb] = useState<string | undefined>();
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ["collector-orders", user?.id],
@@ -49,6 +54,9 @@ const Orders = () => {
             tracking_number,
             tracking_url,
             shipping_provider,
+            awb_code,
+            current_location,
+            estimated_delivery_date,
             artworks (
               title,
               image_path,
@@ -208,33 +216,55 @@ const Orders = () => {
                           })}
                         </div>
 
-                        {/* Tracking Info if Shipped */}
-                        {currentStepIdx >= 3 && (item.tracking_number || item.shipping_provider) && (
-                          <div className="mt-6 pt-6 border-t border-border-faint">
-                            <h5 className="text-[11px] uppercase tracking-wider text-[#666] mb-3">Shipping Details</h5>
-                            <div className="bg-surface-3 rounded-[8px] p-4 text-[13px] space-y-2">
+                        {/* Tracking Info if Packed or Shipped */}
+                        {currentStepIdx >= 2 && (item.awb_code || item.tracking_number || item.shipping_provider) && (
+                          <div className="mt-6 pt-6 border-t border-border-faint space-y-3">
+                            <div className="flex items-center justify-between">
+                              <h5 className="text-[11px] uppercase tracking-wider text-stone flex items-center gap-1.5">
+                                <Truck className="w-3.5 h-3.5 text-gold" />
+                                Courier Logistics
+                              </h5>
+                              <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                              </span>
+                            </div>
+
+                            <div className="bg-surface-3 rounded-[10px] p-4 text-[13px] space-y-3 border border-border-faint">
                               {item.shipping_provider && (
-                                <div className="flex justify-between">
-                                  <span className="text-stone">Courier</span>
-                                  <span className="text-linen">{item.shipping_provider}</span>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-stone text-xs">Carrier</span>
+                                  <span className="text-linen font-medium">{item.shipping_provider}</span>
                                 </div>
                               )}
-                              {item.tracking_number && (
-                                <div className="flex justify-between">
-                                  <span className="text-stone">Tracking</span>
-                                  <span className="text-linen font-mono">{item.tracking_number}</span>
+                              {(item.awb_code || item.tracking_number) && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-stone text-xs">AWB / Tracking</span>
+                                  <span className="text-gold font-mono font-medium text-xs bg-surface-2 px-2 py-0.5 rounded border border-border-subtle">
+                                    {item.awb_code || item.tracking_number}
+                                  </span>
                                 </div>
                               )}
-                              {item.tracking_url && (
-                                <a 
-                                  href={item.tracking_url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="mt-2 inline-flex items-center gap-1 text-[12px] text-gold hover:underline"
-                                >
-                                  Track Package <ExternalLink className="w-3 h-3" />
-                                </a>
+                              {item.current_location && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-stone text-xs">Current Hub</span>
+                                  <span className="text-linen text-xs flex items-center gap-1">
+                                    <MapPin className="w-3 h-3 text-gold" />
+                                    {item.current_location}
+                                  </span>
+                                </div>
                               )}
+
+                              <Button
+                                onClick={() => {
+                                  setTrackingItemId(item.id);
+                                  setTrackingAwb(item.awb_code || item.tracking_number || undefined);
+                                  setTrackingOpen(true);
+                                }}
+                                className="w-full mt-2 bg-gold text-obsidian hover:bg-gold/90 text-xs font-medium h-9 gap-1.5 rounded-lg shadow-sm"
+                              >
+                                <Truck className="w-3.5 h-3.5" /> Track Delivery Live
+                              </Button>
                             </div>
                           </div>
                         )}
@@ -253,6 +283,14 @@ const Orders = () => {
         open={ticketOpen}
         onOpenChange={setTicketOpen}
         orderId={selectedOrderId}
+      />
+
+      <LiveTrackingDialog
+        open={trackingOpen}
+        onOpenChange={setTrackingOpen}
+        orderItemId={trackingItemId || undefined}
+        awbCode={trackingAwb}
+        isArtistOrAdmin={false}
       />
     </div>
   );

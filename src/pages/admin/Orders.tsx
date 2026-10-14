@@ -2,16 +2,21 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { Package, Truck, CheckCircle2, AlertCircle, ArrowUpDown, Search } from "lucide-react";
+import { Package, Truck, CheckCircle2, AlertCircle, ArrowUpDown, Search, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { LiveTrackingDialog } from "@/components/shipping/LiveTrackingDialog";
 
 export default function AdminOrders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [trackingOpen, setTrackingOpen] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedAwb, setSelectedAwb] = useState<string | undefined>();
 
   const { data: orderItems, isLoading } = useQuery({
     queryKey: ["admin-orders"],
@@ -123,7 +128,8 @@ export default function AdminOrders() {
                 <TableHead>Artwork & Artist</TableHead>
                 <TableHead>Buyer</TableHead>
                 <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Fulfillment Status</TableHead>
+                <TableHead>Logistics & Courier</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -155,11 +161,33 @@ export default function AdminOrders() {
                       </div>
                     )}
                   </TableCell>
+                  <TableCell>
+                    {item.awb_code || item.tracking_number ? (
+                      <div className="space-y-1">
+                        <div className="text-xs font-medium text-slate-900">{item.shipping_provider || "Courier"}</div>
+                        <div className="font-mono text-[11px] text-slate-500">{item.awb_code || item.tracking_number}</div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-6 text-[10px] px-2 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                          onClick={() => {
+                            setSelectedItemId(item.id);
+                            setSelectedAwb(item.awb_code || item.tracking_number);
+                            setTrackingOpen(true);
+                          }}
+                        >
+                          <Truck className="w-3 h-3 mr-1" /> Live Track
+                        </Button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-400 italic">Not Dispatched</span>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
               {filteredOrders?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-slate-500">
+                  <TableCell colSpan={6} className="h-24 text-center text-slate-500">
                     No orders found matching your filters.
                   </TableCell>
                 </TableRow>
@@ -168,6 +196,14 @@ export default function AdminOrders() {
           </Table>
         </div>
       )}
+
+      <LiveTrackingDialog
+        open={trackingOpen}
+        onOpenChange={setTrackingOpen}
+        orderItemId={selectedItemId || undefined}
+        awbCode={selectedAwb}
+        isArtistOrAdmin={true}
+      />
     </div>
   );
 }

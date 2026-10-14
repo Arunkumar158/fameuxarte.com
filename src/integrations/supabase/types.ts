@@ -690,6 +690,22 @@ export type Database = {
           payout_status: string
           payout_amount: number | null
           payout_date: string | null
+          courier_provider?: string | null
+          awb_code?: string | null
+          shipment_id?: string | null
+          shipping_label_url?: string | null
+          pickup_scheduled_date?: string | null
+          estimated_delivery_date?: string | null
+          current_location?: string | null
+          current_status_description?: string | null
+          tracking_history?: any
+          package_weight_kg?: number | null
+          package_length_cm?: number | null
+          package_width_cm?: number | null
+          package_height_cm?: number | null
+          is_fragile?: boolean | null
+          insurance_covered?: boolean | null
+          pickup_token_number?: string | null
         }
         Insert: {
           artwork_id: string
@@ -713,6 +729,22 @@ export type Database = {
           payout_status?: string
           payout_amount?: number | null
           payout_date?: string | null
+          courier_provider?: string | null
+          awb_code?: string | null
+          shipment_id?: string | null
+          shipping_label_url?: string | null
+          pickup_scheduled_date?: string | null
+          estimated_delivery_date?: string | null
+          current_location?: string | null
+          current_status_description?: string | null
+          tracking_history?: any
+          package_weight_kg?: number | null
+          package_length_cm?: number | null
+          package_width_cm?: number | null
+          package_height_cm?: number | null
+          is_fragile?: boolean | null
+          insurance_covered?: boolean | null
+          pickup_token_number?: string | null
         }
         Update: {
           artwork_id?: string
@@ -736,6 +768,22 @@ export type Database = {
           payout_status?: string
           payout_amount?: number | null
           payout_date?: string | null
+          courier_provider?: string | null
+          awb_code?: string | null
+          shipment_id?: string | null
+          shipping_label_url?: string | null
+          pickup_scheduled_date?: string | null
+          estimated_delivery_date?: string | null
+          current_location?: string | null
+          current_status_description?: string | null
+          tracking_history?: any
+          package_weight_kg?: number | null
+          package_length_cm?: number | null
+          package_width_cm?: number | null
+          package_height_cm?: number | null
+          is_fragile?: boolean | null
+          insurance_covered?: boolean | null
+          pickup_token_number?: string | null
         }
         Relationships: [
           {
