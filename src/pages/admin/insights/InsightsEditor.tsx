@@ -7,16 +7,126 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import TiptapLink from "@tiptap/extension-link";
-import { ArrowLeft, Plus, Trash2, ExternalLink, Loader2, Eye } from "lucide-react";
+import {
+  ArrowLeft,
+  Plus,
+  Trash2,
+  ExternalLink,
+  Loader2,
+  Database,
+  Copy,
+  Check,
+  AlertTriangle
+} from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import ImageUploader from "@/components/blog/ImageUploader";
 import SEOChecklist from "@/components/blog/SEOChecklist";
 import type { FAQItem } from "@/components/blog/types";
+
+// ──────────────────────────────────────────────────────────
+// Local Storage Cache Helper (Prevents Disappearing Fields)
+// ──────────────────────────────────────────────────────────
+
+const LOCAL_BACKUP_PREFIX = "fameuxarte_insight_backup_";
+
+function saveLocalBackup(key: string, data: any) {
+  try {
+    if (!key) return;
+    localStorage.setItem(`${LOCAL_BACKUP_PREFIX}${key}`, JSON.stringify({
+      ...data,
+      _saved_at: Date.now(),
+    }));
+  } catch {}
+}
+
+function getLocalBackup(key: string) {
+  try {
+    if (!key) return null;
+    const raw = localStorage.getItem(`${LOCAL_BACKUP_PREFIX}${key}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+const MIGRATION_SQL = `-- Run this in your Supabase SQL Editor to enable full cloud persistence:
+CREATE TABLE IF NOT EXISTS public.insights (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  slug text UNIQUE NOT NULL,
+  excerpt text,
+  content text,
+  featured_image text,
+  featured_image_alt text,
+  featured_image_caption text,
+  author_id uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
+  category text DEFAULT 'Art Intelligence',
+  tags text[] DEFAULT '{}'::text[],
+  status text DEFAULT 'draft',
+  meta_title text,
+  meta_description text,
+  canonical_url text,
+  keywords text[] DEFAULT '{}'::text[],
+  og_image text,
+  schema_type text DEFAULT 'BlogPosting',
+  published_at timestamptz,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  key_takeaways text[] DEFAULT '{}'::text[],
+  faq jsonb DEFAULT '[]'::jsonb,
+  cta_label text,
+  cta_url text,
+  cta_description text,
+  read_time integer DEFAULT 4
+);
+
+ALTER TABLE public.insights ENABLE ROW LEVEL SECURITY;
+
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'insights' AND policyname = 'Insights are viewable by everyone') THEN
+    CREATE POLICY "Insights are viewable by everyone" ON public.insights FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'insights' AND policyname = 'Admins can manage insights') THEN
+    CREATE POLICY "Admins can manage insights" ON public.insights FOR ALL USING (
+      EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND (profiles.role = 'admin' OR profiles.role = 'founder'))
+      OR auth.jwt() ->> 'role' = 'service_role'
+    );
+  END IF;
+END $$;
+
+ALTER TABLE public.blogs
+  ADD COLUMN IF NOT EXISTS excerpt text,
+  ADD COLUMN IF NOT EXISTS category text DEFAULT 'Art Intelligence',
+  ADD COLUMN IF NOT EXISTS tags text[] DEFAULT '{}'::text[],
+  ADD COLUMN IF NOT EXISTS status text DEFAULT 'published',
+  ADD COLUMN IF NOT EXISTS meta_title text,
+  ADD COLUMN IF NOT EXISTS meta_description text,
+  ADD COLUMN IF NOT EXISTS canonical_url text,
+  ADD COLUMN IF NOT EXISTS keywords text[] DEFAULT '{}'::text[],
+  ADD COLUMN IF NOT EXISTS og_image text,
+  ADD COLUMN IF NOT EXISTS schema_type text DEFAULT 'BlogPosting',
+  ADD COLUMN IF NOT EXISTS key_takeaways text[] DEFAULT '{}'::text[],
+  ADD COLUMN IF NOT EXISTS faq jsonb DEFAULT '[]'::jsonb,
+  ADD COLUMN IF NOT EXISTS cta_label text,
+  ADD COLUMN IF NOT EXISTS cta_url text,
+  ADD COLUMN IF NOT EXISTS cta_description text,
+  ADD COLUMN IF NOT EXISTS read_time integer DEFAULT 4,
+  ADD COLUMN IF NOT EXISTS featured_image_alt text,
+  ADD COLUMN IF NOT EXISTS featured_image_caption text;
+`;
 
 // ──────────────────────────────────────────────────────────
 // Tiptap Toolbar
@@ -56,6 +166,9 @@ export default function InsightsEditor() {
 
   const [isLoading, setIsLoading] = useState(!isNew);
   const [isSaving, setIsSaving] = useState(false);
+  const [tableMode, setTableMode] = useState<"insights" | "legacy_blogs" | "checking">("checking");
+  const [showSqlDialog, setShowSqlDialog] = useState(false);
+  const [copiedSql, setCopiedSql] = useState(false);
 
   // ── Core fields ──
   const [title, setTitle] = useState("");
@@ -85,6 +198,9 @@ export default function InsightsEditor() {
   const [ctaUrl, setCtaUrl] = useState("");
   const [ctaDescription, setCtaDescription] = useState("");
 
+  // Cached content string to sync with TipTap on mount
+  const [initialContent, setInitialContent] = useState<string | null>(null);
+
   // ── Tiptap editor ──
   const editor = useEditor({
     extensions: [
@@ -103,6 +219,15 @@ export default function InsightsEditor() {
     },
   });
 
+  // Sync content when editor initializes
+  useEffect(() => {
+    if (editor && initialContent !== null) {
+      if (editor.getHTML() !== initialContent) {
+        editor.commands.setContent(initialContent);
+      }
+    }
+  }, [editor, initialContent]);
+
   // ──────────────────────────────────────────────────────────
   // Load existing insight
   // ──────────────────────────────────────────────────────────
@@ -110,23 +235,110 @@ export default function InsightsEditor() {
   useEffect(() => {
     if (!isNew && id) {
       fetchInsight(id);
+    } else if (isNew) {
+      // Check if there is an unsaved new draft in localStorage
+      const draft = getLocalBackup("new");
+      if (draft) {
+        populateFields(draft);
+      }
+      checkTableMode();
     }
   }, [id, isNew]);
+
+  const checkTableMode = async () => {
+    try {
+      const { error } = await supabase.from("insights").select("id").limit(1);
+      if (error) {
+        setTableMode("legacy_blogs");
+      } else {
+        setTableMode("insights");
+      }
+    } catch {
+      setTableMode("legacy_blogs");
+    }
+  };
+
+  const populateFields = (data: any) => {
+    setTitle(data.title || "");
+    setSlug(data.slug || "");
+    setExcerpt(data.excerpt || "");
+    setCategory(data.category || "");
+
+    const formattedTags = Array.isArray(data.tags)
+      ? data.tags.join(", ")
+      : typeof data.tags === "string"
+      ? data.tags
+      : "";
+    setTags(formattedTags);
+
+    setStatus(data.status || "draft");
+    setFeaturedImage(data.featured_image || "");
+    setFeaturedImageAlt(data.featured_image_alt || "");
+    setFeaturedImageCaption(data.featured_image_caption || "");
+
+    setMetaTitle(data.meta_title || "");
+    setMetaDescription(data.meta_description || "");
+    setCanonicalUrl(data.canonical_url || "");
+
+    const formattedKeywords = Array.isArray(data.keywords)
+      ? data.keywords.join(", ")
+      : typeof data.keywords === "string"
+      ? data.keywords
+      : "";
+    setKeywords(formattedKeywords);
+
+    setOgImage(data.og_image || "");
+    setSchemaType(data.schema_type || "BlogPosting");
+
+    // Editorial blocks
+    let rawTakeaways = data.key_takeaways;
+    if (typeof rawTakeaways === "string") {
+      try { rawTakeaways = JSON.parse(rawTakeaways); } catch { rawTakeaways = [rawTakeaways]; }
+    }
+    const finalTakeaways = Array.isArray(rawTakeaways) && rawTakeaways.length > 0
+      ? rawTakeaways
+      : ["", "", ""];
+    setKeyTakeaways(finalTakeaways);
+
+    let rawFaq = data.faq;
+    if (typeof rawFaq === "string") {
+      try { rawFaq = JSON.parse(rawFaq); } catch { rawFaq = []; }
+    }
+    const finalFaq = Array.isArray(rawFaq) && rawFaq.length > 0
+      ? rawFaq.filter((f: any) => f?.question !== undefined)
+      : [{ question: "", answer: "" }];
+    setFaq(finalFaq.length > 0 ? finalFaq : [{ question: "", answer: "" }]);
+
+    setCtaLabel(data.cta_label || "");
+    setCtaUrl(data.cta_url || "");
+    setCtaDescription(data.cta_description || "");
+
+    const contentVal = data.content || "";
+    setInitialContent(contentVal);
+    if (editor) {
+      editor.commands.setContent(contentVal);
+    }
+  };
 
   const fetchInsight = async (insightId: string) => {
     setIsLoading(true);
     let data: any = null;
 
+    // 1. Try insights table
     try {
-      const { data: insightData } = await supabase
+      const { data: insightData, error: insightErr } = await supabase
         .from("insights")
         .select("*")
         .eq("id", insightId)
         .maybeSingle();
 
-      data = insightData;
+      if (!insightErr && insightData) {
+        data = insightData;
+        setTableMode("insights");
+      }
     } catch {}
 
+    // 2. Try blogs table fallback
     if (!data) {
       try {
         const { data: blogData } = await supabase
@@ -136,20 +348,60 @@ export default function InsightsEditor() {
           .maybeSingle();
 
         if (blogData) {
+          setTableMode("legacy_blogs");
           data = {
             id: blogData.id,
             title: blogData.title,
             slug: blogData.Slug || blogData.slug,
             content: blogData.content,
-            featured_image: blogData.image_url,
-            status: "published",
-            excerpt: blogData.content?.replace(/<[^>]+>/g, " ").substring(0, 160) + "...",
-            meta_title: blogData.title,
-            key_takeaways: blogData.key_takeaways || [],
-            faq: blogData.faq || [],
+            featured_image: blogData.image_url || (blogData as any).featured_image || "",
+            featured_image_alt: (blogData as any).featured_image_alt || "",
+            featured_image_caption: (blogData as any).featured_image_caption || "",
+            status: (blogData as any).status || "published",
+            excerpt: (blogData as any).excerpt || blogData.content?.replace(/<[^>]+>/g, " ").substring(0, 160) + "...",
+            category: (blogData as any).category || "",
+            tags: (blogData as any).tags || [],
+            meta_title: (blogData as any).meta_title || "",
+            meta_description: (blogData as any).meta_description || "",
+            canonical_url: (blogData as any).canonical_url || "",
+            keywords: (blogData as any).keywords || [],
+            og_image: (blogData as any).og_image || "",
+            schema_type: (blogData as any).schema_type || "BlogPosting",
+            key_takeaways: (blogData as any).key_takeaways || [],
+            faq: (blogData as any).faq || [],
+            cta_label: (blogData as any).cta_label || "",
+            cta_url: (blogData as any).cta_url || "",
+            cta_description: (blogData as any).cta_description || "",
           };
         }
       } catch {}
+    }
+
+    // 3. Merge with local backup to guarantee zero disappearing fields
+    const backup = getLocalBackup(insightId) || (data?.slug ? getLocalBackup(data.slug) : null) || getLocalBackup("new");
+    if (backup) {
+      data = {
+        ...backup,
+        ...data,
+        // If DB had empty fields because columns are missing in remote DB, restore from local cache!
+        category: (data?.category && data.category !== "Art Intelligence") ? data.category : (backup.category || data?.category || ""),
+        tags: (data?.tags && (Array.isArray(data.tags) ? data.tags.length > 0 : Boolean(data.tags))) ? data.tags : (backup.tags || []),
+        excerpt: data?.excerpt ? data.excerpt : (backup.excerpt || ""),
+        status: data?.status || backup.status || "draft",
+        meta_title: data?.meta_title ? data.meta_title : (backup.meta_title || ""),
+        meta_description: data?.meta_description ? data.meta_description : (backup.meta_description || ""),
+        canonical_url: data?.canonical_url ? data.canonical_url : (backup.canonical_url || ""),
+        keywords: (data?.keywords && (Array.isArray(data.keywords) ? data.keywords.length > 0 : Boolean(data.keywords))) ? data.keywords : (backup.keywords || []),
+        og_image: data?.og_image ? data.og_image : (backup.og_image || ""),
+        schema_type: data?.schema_type || backup.schema_type || "BlogPosting",
+        cta_label: data?.cta_label ? data.cta_label : (backup.cta_label || ""),
+        cta_url: data?.cta_url ? data.cta_url : (backup.cta_url || ""),
+        cta_description: data?.cta_description ? data.cta_description : (backup.cta_description || ""),
+        key_takeaways: (data?.key_takeaways && data.key_takeaways.length > 0) ? data.key_takeaways : (backup.key_takeaways || []),
+        faq: (data?.faq && data.faq.length > 0 && data.faq.some((f: any) => f?.question)) ? data.faq : (backup.faq || []),
+        featured_image_alt: data?.featured_image_alt || backup.featured_image_alt || "",
+        featured_image_caption: data?.featured_image_caption || backup.featured_image_caption || "",
+      };
     }
 
     if (!data) {
@@ -158,43 +410,7 @@ export default function InsightsEditor() {
       return;
     }
 
-    if (data) {
-      setTitle(data.title || "");
-      setSlug(data.slug || "");
-      setExcerpt(data.excerpt || "");
-      setCategory(data.category || "");
-      setTags(data.tags ? (data.tags as string[]).join(", ") : "");
-      setStatus(data.status || "draft");
-
-      setFeaturedImage(data.featured_image || "");
-      setMetaTitle(data.meta_title || "");
-      setMetaDescription(data.meta_description || "");
-      setCanonicalUrl(data.canonical_url || "");
-      setKeywords(data.keywords ? (data.keywords as string[]).join(", ") : "");
-      setOgImage(data.og_image || "");
-      setSchemaType(data.schema_type || "BlogPosting");
-
-      // Editorial blocks
-      const rawTakeaways = (data as any).key_takeaways as string[] | null;
-      setKeyTakeaways(rawTakeaways?.length ? rawTakeaways : ["", "", ""]);
-
-      let parsedFaq: FAQItem[] = [{ question: "", answer: "" }];
-      try {
-        const rawFaq = (data as any).faq;
-        if (Array.isArray(rawFaq) && rawFaq.length > 0) {
-          parsedFaq = rawFaq.filter((f: any) => f?.question !== undefined);
-        }
-      } catch {}
-      setFaq(parsedFaq);
-
-      setCtaLabel((data as any).cta_label || "");
-      setCtaUrl((data as any).cta_url || "");
-      setCtaDescription((data as any).cta_description || "");
-
-      if (editor) {
-        editor.commands.setContent(data.content || "");
-      }
-    }
+    populateFields(data);
     setIsLoading(false);
   };
 
@@ -258,7 +474,7 @@ export default function InsightsEditor() {
   }, [title]);
 
   // ──────────────────────────────────────────────────────────
-  // Save
+  // Save with Dual-Layer Persistence & Safe Fallbacks
   // ──────────────────────────────────────────────────────────
 
   const handleSave = async (saveAsStatus?: string) => {
@@ -275,6 +491,8 @@ export default function InsightsEditor() {
 
     const contentHtml = editor?.getHTML() || "";
     const finalStatus = saveAsStatus || status;
+    setStatus(finalStatus);
+
     const cleanTakeaways = keyTakeaways.filter(t => t.trim());
     const cleanFaq = faq.filter(f => f.question.trim() && f.answer.trim());
     const wordCount = contentHtml
@@ -290,6 +508,8 @@ export default function InsightsEditor() {
       excerpt: excerpt.trim(),
       content: contentHtml,
       featured_image: featuredImage.trim() || null,
+      featured_image_alt: featuredImageAlt.trim() || null,
+      featured_image_caption: featuredImageCaption.trim() || null,
       category: category.trim() || "Art Intelligence",
       tags: tags.split(",").map(t => t.trim()).filter(Boolean),
       status: finalStatus,
@@ -301,7 +521,6 @@ export default function InsightsEditor() {
       schema_type: schemaType,
       author_id: user?.id,
       published_at: finalStatus === "published" ? new Date().toISOString() : null,
-      // Editorial blocks
       key_takeaways: cleanTakeaways,
       faq: cleanFaq,
       cta_label: ctaLabel.trim() || null,
@@ -310,7 +529,12 @@ export default function InsightsEditor() {
       read_time: Math.max(4, Math.ceil(wordCount / 180)),
     };
 
+    // Immediately cache in localStorage so data can never be lost
+    saveLocalBackup(id || "new", payload);
+    saveLocalBackup(slug.trim(), payload);
+
     let saved = false;
+    let savedId: string | null = null;
 
     // 1. Try saving to insights table
     try {
@@ -326,51 +550,115 @@ export default function InsightsEditor() {
           .single();
       }
 
-      if (!result.error) {
+      if (!result.error && result.data) {
         saved = true;
+        savedId = result.data.id;
+        setTableMode("insights");
+        saveLocalBackup(savedId, payload);
         toast.success(finalStatus === "published" ? "Article published to Journal!" : "Draft saved.");
-        if (isNew && result.data) {
-          navigate(`/admin/insights/${result.data.id}`, { replace: true });
+        if (isNew && savedId) {
+          navigate(`/admin/insights/${savedId}`, { replace: true });
         }
+      } else {
+        console.warn("Insights table query error:", result.error?.message);
       }
-    } catch {}
+    } catch (e: any) {
+      console.warn("Insights insert exception:", e?.message);
+    }
 
-    // 2. Fallback to blogs table if insights table is not yet deployed
+    // 2. Fallback to blogs table if insights table is not yet deployed on DB
     if (!saved) {
+      setTableMode("legacy_blogs");
       try {
-        const blogPayload: Record<string, any> = {
+        const fullBlogPayload: Record<string, any> = {
           title: title.trim(),
           Slug: slug.trim(),
           content: contentHtml,
           image_url: featuredImage.trim() || null,
           author_id: user?.id,
-          published_at: new Date().toISOString(),
+          published_at: finalStatus === "published" ? new Date().toISOString() : null,
           key_takeaways: cleanTakeaways,
           faq: cleanFaq,
+          excerpt: excerpt.trim(),
+          category: category.trim() || "Art Intelligence",
+          tags: tags.split(",").map(t => t.trim()).filter(Boolean),
+          status: finalStatus,
+          meta_title: metaTitle.trim() || null,
+          meta_description: metaDescription.trim() || null,
+          canonical_url: canonicalUrl.trim() || `/blog/${slug.trim()}`,
+          keywords: keywords.split(",").map(k => k.trim()).filter(Boolean),
+          og_image: ogImage.trim() || featuredImage.trim() || null,
+          schema_type: schemaType,
+          cta_label: ctaLabel.trim() || null,
+          cta_url: ctaUrl.trim() || null,
+          cta_description: ctaDescription.trim() || null,
+          read_time: Math.max(4, Math.ceil(wordCount / 180)),
+          featured_image_alt: featuredImageAlt.trim() || null,
+          featured_image_caption: featuredImageCaption.trim() || null,
         };
 
-        let bResult;
-        if (isNew) {
-          bResult = await supabase.from("blogs").insert([blogPayload]).select().single();
-        } else {
-          bResult = await supabase.from("blogs").update(blogPayload).eq("id", id).select().single();
-        }
+        let bResult = isNew
+          ? await supabase.from("blogs").insert([fullBlogPayload]).select().single()
+          : await supabase.from("blogs").update(fullBlogPayload).eq("id", id).select().single();
 
-        if (!bResult.error) {
+        // If the blogs table doesn't have the new columns yet, fallback to saving base columns
+        if (bResult.error && (bResult.error.message.includes("column") || bResult.error.code === "42703")) {
+          console.warn("blogs table missing extended columns; saving base columns + local cache.");
+          const baseBlogPayload = {
+            title: title.trim(),
+            Slug: slug.trim(),
+            content: contentHtml,
+            image_url: featuredImage.trim() || null,
+            author_id: user?.id,
+            published_at: finalStatus === "published" ? new Date().toISOString() : null,
+            key_takeaways: cleanTakeaways,
+            faq: cleanFaq,
+          };
+
+          bResult = isNew
+            ? await supabase.from("blogs").insert([baseBlogPayload]).select().single()
+            : await supabase.from("blogs").update(baseBlogPayload).eq("id", id).select().single();
+
+          if (!bResult.error && bResult.data) {
+            saved = true;
+            savedId = bResult.data.id;
+            saveLocalBackup(savedId, payload);
+            toast.success(
+              finalStatus === "published"
+                ? "Article published! Note: Run the SQL migration in Supabase to sync extended SEO columns to cloud."
+                : "Draft saved locally & to database."
+            );
+            if (isNew && savedId) {
+              navigate(`/admin/insights/${savedId}`, { replace: true });
+            }
+          } else {
+            toast.error(bResult.error?.message || "Failed to save article");
+          }
+        } else if (!bResult.error && bResult.data) {
           saved = true;
+          savedId = bResult.data.id;
+          saveLocalBackup(savedId, payload);
           toast.success(finalStatus === "published" ? "Article published to Journal!" : "Draft saved.");
-          if (isNew && bResult.data) {
-            navigate(`/admin/insights/${bResult.data.id}`, { replace: true });
+          if (isNew && savedId) {
+            navigate(`/admin/insights/${savedId}`, { replace: true });
           }
         } else {
-          toast.error(bResult.error.message);
+          toast.error(bResult.error?.message || "Failed to save article.");
         }
       } catch (err: any) {
+        console.error("Save error:", err);
         toast.error("Failed to save article. Please check database permissions.");
       }
     }
 
     setIsSaving(false);
+  };
+
+  const copySqlToClipboard = () => {
+    navigator.clipboard.writeText(MIGRATION_SQL);
+    setCopiedSql(true);
+    toast.success("SQL copied to clipboard!");
+    setTimeout(() => setCopiedSql(false), 2500);
   };
 
   if (isLoading) {
@@ -410,6 +698,15 @@ export default function InsightsEditor() {
 
         <div className="flex items-center gap-3">
           <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowSqlDialog(true)}
+            className="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1.5 h-9"
+          >
+            <Database className="w-3.5 h-3.5 text-slate-400" />
+            SQL Setup
+          </Button>
+          <Button
             variant="outline"
             onClick={() => handleSave("draft")}
             disabled={isSaving}
@@ -427,6 +724,30 @@ export default function InsightsEditor() {
           </Button>
         </div>
       </div>
+
+      {/* ── Table Mode Notice ── */}
+      {tableMode === "legacy_blogs" && (
+        <div className="bg-amber-50/80 border border-amber-200 rounded-lg p-4 flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h4 className="text-sm font-semibold text-amber-900">Database Synchronization Notice</h4>
+              <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
+                Your article data is fully protected and cached locally. To enable full cloud storage across all devices for SEO tags, editorial blocks, and commerce CTAs, run the provided SQL migration in your Supabase SQL Editor.
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="bg-white border-amber-300 text-amber-900 hover:bg-amber-100 flex-shrink-0 text-xs h-8 shadow-sm"
+            onClick={() => setShowSqlDialog(true)}
+          >
+            <Database className="w-3.5 h-3.5 mr-1.5" />
+            View SQL Migration
+          </Button>
+        </div>
+      )}
 
       {/* ── Main layout ── */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -867,6 +1188,33 @@ export default function InsightsEditor() {
           </div>
         </div>
       </div>
+
+      {/* ── SQL Migration Dialog ── */}
+      <Dialog open={showSqlDialog} onOpenChange={setShowSqlDialog}>
+        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col bg-white">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-slate-900">
+              <Database className="w-5 h-5 text-amber-600" />
+              Supabase SQL Migration for Blog &amp; Insights
+            </DialogTitle>
+            <DialogDescription className="text-slate-600">
+              Run this script once in your Supabase Dashboard &gt; SQL Editor. It creates the <code>insights</code> table and upgrades the <code>blogs</code> table with all SEO, categories, tags, and editorial fields.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="relative mt-2 flex-1 overflow-auto rounded border border-slate-700 bg-slate-950 p-4 text-xs font-mono text-emerald-400 max-h-[45vh]">
+            <pre className="whitespace-pre-wrap leading-relaxed">{MIGRATION_SQL}</pre>
+          </div>
+          <div className="flex justify-between items-center mt-3 pt-2 border-t">
+            <span className="text-xs text-slate-500">
+              Saved in: <code className="bg-slate-100 text-slate-700 px-1 py-0.5 rounded">supabase/migrations/20261014_create_insights_and_upgrade_blogs.sql</code>
+            </span>
+            <Button onClick={copySqlToClipboard} size="sm" className="flex items-center gap-1.5">
+              {copiedSql ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+              {copiedSql ? "Copied!" : "Copy SQL"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

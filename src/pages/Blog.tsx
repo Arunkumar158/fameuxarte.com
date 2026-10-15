@@ -101,7 +101,7 @@ const Blog = () => {
       try {
         const { data: bRows } = await supabase
           .from("blogs")
-          .select("id, title, Slug, content, image_url, published_at, created_at")
+          .select("*")
           .order("published_at", { ascending: false });
 
         if (bRows && bRows.length > 0) {
@@ -110,17 +110,19 @@ const Blog = () => {
             id: row.id,
             title: row.title || "",
             slug: row.Slug || row.slug || row.id,
-            category: "Art Intelligence",
+            category: row.category || "Art Intelligence",
             excerpt:
+              row.excerpt ||
               stripHtml(row.content || "").substring(0, 160) + "...",
             content: row.content || "",
-            featured_image: row.image_url || null,
+            featured_image: row.image_url || row.featured_image || null,
             author: {
               name: "Fameuxarte Team",
               avatar: null,
             },
             published_at: row.published_at || row.created_at,
-            read_time: getReadTime(row.content || ""),
+            read_time: row.read_time || getReadTime(row.content || ""),
+            tags: (row.tags as string[]) || [],
           }));
         }
       } catch (e) {

@@ -275,6 +275,24 @@ export type Database = {
           Slug: string
           title: string
           updated_at: string
+          excerpt?: string | null
+          category?: string | null
+          tags?: string[] | null
+          status?: string | null
+          meta_title?: string | null
+          meta_description?: string | null
+          canonical_url?: string | null
+          keywords?: string[] | null
+          og_image?: string | null
+          schema_type?: string | null
+          key_takeaways?: string[] | null
+          faq?: Json | null
+          cta_label?: string | null
+          cta_url?: string | null
+          cta_description?: string | null
+          read_time?: number | null
+          featured_image_alt?: string | null
+          featured_image_caption?: string | null
         }
         Insert: {
           author_id?: string | null
@@ -286,6 +304,24 @@ export type Database = {
           Slug?: string
           title: string
           updated_at?: string
+          excerpt?: string | null
+          category?: string | null
+          tags?: string[] | null
+          status?: string | null
+          meta_title?: string | null
+          meta_description?: string | null
+          canonical_url?: string | null
+          keywords?: string[] | null
+          og_image?: string | null
+          schema_type?: string | null
+          key_takeaways?: string[] | null
+          faq?: Json | null
+          cta_label?: string | null
+          cta_url?: string | null
+          cta_description?: string | null
+          read_time?: number | null
+          featured_image_alt?: string | null
+          featured_image_caption?: string | null
         }
         Update: {
           author_id?: string | null
@@ -297,6 +333,24 @@ export type Database = {
           Slug?: string
           title?: string
           updated_at?: string
+          excerpt?: string | null
+          category?: string | null
+          tags?: string[] | null
+          status?: string | null
+          meta_title?: string | null
+          meta_description?: string | null
+          canonical_url?: string | null
+          keywords?: string[] | null
+          og_image?: string | null
+          schema_type?: string | null
+          key_takeaways?: string[] | null
+          faq?: Json | null
+          cta_label?: string | null
+          cta_url?: string | null
+          cta_description?: string | null
+          read_time?: number | null
+          featured_image_alt?: string | null
+          featured_image_caption?: string | null
         }
         Relationships: [
           {
@@ -317,6 +371,8 @@ export type Database = {
           created_at: string | null
           excerpt: string | null
           featured_image: string | null
+          featured_image_alt: string | null
+          featured_image_caption: string | null
           id: string
           keywords: string[] | null
           meta_description: string | null
@@ -329,6 +385,12 @@ export type Database = {
           tags: string[] | null
           title: string | null
           updated_at: string | null
+          key_takeaways: string[] | null
+          faq: Json | null
+          cta_label: string | null
+          cta_url: string | null
+          cta_description: string | null
+          read_time: number | null
         }
         Insert: {
           author_id?: string | null
@@ -338,6 +400,8 @@ export type Database = {
           created_at?: string | null
           excerpt?: string | null
           featured_image?: string | null
+          featured_image_alt?: string | null
+          featured_image_caption?: string | null
           id?: string
           keywords?: string[] | null
           meta_description?: string | null
@@ -350,6 +414,12 @@ export type Database = {
           tags?: string[] | null
           title?: string | null
           updated_at?: string | null
+          key_takeaways?: string[] | null
+          faq?: Json | null
+          cta_label?: string | null
+          cta_url?: string | null
+          cta_description?: string | null
+          read_time?: number | null
         }
         Update: {
           author_id?: string | null
@@ -359,6 +429,8 @@ export type Database = {
           created_at?: string | null
           excerpt?: string | null
           featured_image?: string | null
+          featured_image_alt?: string | null
+          featured_image_caption?: string | null
           id?: string
           keywords?: string[] | null
           meta_description?: string | null
@@ -371,6 +443,12 @@ export type Database = {
           tags?: string[] | null
           title?: string | null
           updated_at?: string | null
+          key_takeaways?: string[] | null
+          faq?: Json | null
+          cta_label?: string | null
+          cta_url?: string | null
+          cta_description?: string | null
+          read_time?: number | null
         }
         Relationships: [
           {
@@ -855,6 +933,7 @@ export type Database = {
           agreement_version: string | null
           agreement_accepted_at: string | null
           profile_views_count: number
+          bio?: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -872,6 +951,7 @@ export type Database = {
           agreement_version?: string | null
           agreement_accepted_at?: string | null
           profile_views_count?: number
+          bio?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -889,6 +969,7 @@ export type Database = {
           agreement_version?: string | null
           agreement_accepted_at?: string | null
           profile_views_count?: number
+          bio?: string | null
         }
         Relationships: []
       }

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit2, Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 type InsightSummary = {
   id: string;
@@ -40,14 +41,14 @@ export default function InsightsList() {
       try {
         const { data: blogRows } = await supabase
           .from('blogs')
-          .select('id, title, published_at, created_at, author_id')
+          .select('id, title, published_at, created_at, author_id, status')
           .order('created_at', { ascending: false });
 
         if (blogRows && blogRows.length > 0) {
           allArticles = blogRows.map((b: any) => ({
             id: b.id,
             title: b.title || 'Untitled Blog',
-            status: 'published',
+            status: b.status || 'published',
             created_at: b.published_at || b.created_at,
             author_id: b.author_id,
           }));
@@ -62,11 +63,29 @@ export default function InsightsList() {
   const deleteInsight = async (id: string) => {
     if (!confirm("Are you sure you want to delete this article?")) return;
     
-    const { error } = await supabase.from('insights').delete().eq('id', id);
+    let error: any = null;
+    try {
+      const res = await supabase.from('insights').delete().eq('id', id);
+      error = res.error;
+    } catch (e) {
+      error = e;
+    }
+
+    if (error) {
+      try {
+        const bRes = await supabase.from('blogs').delete().eq('id', id);
+        error = bRes.error;
+      } catch (e) {
+        error = e;
+      }
+    }
+
     if (!error) {
-      setInsights(insights.filter(i => i.id !== id));
+      setInsights(prev => prev.filter(i => i.id !== id));
+      toast.success("Article deleted successfully");
     } else {
       console.error("Error deleting insight:", error);
+      toast.error("Failed to delete article");
     }
   };
 

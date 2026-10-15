@@ -729,6 +729,8 @@ const Account = () => {
                 </Button>
               </div>
             )}
+          </SectionShell>
+
           {profile?.role === 'artist' && profile?.verification_status === 'verified' ? (
             <UploadArtworkSection />
           ) : (
