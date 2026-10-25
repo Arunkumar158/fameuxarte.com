@@ -41,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `,
           }}
         />
+        <meta name="msvalidate.01" content="A832E1D458E5C3D47E73A6CB8F2ED7F6" />
       </head>
       <body>
         <Providers>{children}</Providers>

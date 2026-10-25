@@ -18,6 +18,7 @@ export default function Document() {
             `,
           }}
         />
+        <meta name="msvalidate.01" content="A832E1D458E5C3D47E73A6CB8F2ED7F6" />
       </Head>
       <body>
         <Main />
