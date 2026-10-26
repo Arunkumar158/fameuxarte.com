@@ -39,6 +39,9 @@ export class AIDiscoveryEngine {
     if (input.subject) keyEntities.push(input.subject);
     if (input.style) keyEntities.push(input.style);
     if (input.country) keyEntities.push(input.country);
+    if (input.title?.toLowerCase().includes('story') || input.title?.toLowerCase().includes('about')) {
+      keyEntities.push('Arun Kumar (Co-Founder)', 'Praveen Krishnan (Co-Founder)');
+    }
 
     let summary = `${input.title} is a ${input.medium || 'visual artwork'} on Fameuxarte by ${input.artistName || 'a verified global artist'}. ${input.description}`;
     

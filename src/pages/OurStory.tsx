@@ -2,8 +2,11 @@ import { motion } from "framer-motion";
 import { ShieldCheck, TrendingUp, Globe, ServerCrash, Cpu, Database, Bug, Paintbrush, Code2, Instagram } from "lucide-react";
 import HomeNav from "@/components/home/HomeNav";
 import { SEO } from "@/components/SEO";
+import { generateAboutPageStructuredData } from "@/lib/seo";
 
 const OurStory = () => {
+  const structuredData = generateAboutPageStructuredData();
+
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
@@ -17,8 +20,13 @@ const OurStory = () => {
   return (
     <div className="bg-black min-h-screen text-linen pb-20 overflow-hidden font-sans">
       <SEO 
-        title="Our Story | Fameuxarte" 
-        description="Fameuxarte began as a dream shared by an artist and a builder who believed creativity deserved a bigger stage."
+        title="Our Story | Fameuxarte - Co-Founded by Arun Kumar & Praveen Krishnan" 
+        description="Discover the story of Fameuxarte, co-founded by Arun Kumar and Praveen Krishnan to empower artists and connect collectors with authentic, verified original artworks."
+        keywords="Arun Kumar, Arun Kumar cofounder, Praveen Krishnan, Praveen Krishnan cofounder, Fameuxarte founders, Fameuxarte story, authentic art marketplace"
+        author="Arun Kumar & Praveen Krishnan"
+        canonicalUrl="/our-story"
+        ogImage="/arun.jpg"
+        structuredData={structuredData}
       />
       <HomeNav />
 

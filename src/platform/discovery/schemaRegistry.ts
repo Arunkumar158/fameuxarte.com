@@ -23,6 +23,25 @@ export class SchemaRegistry {
         'https://instagram.com/fameuxarte',
         'https://pinterest.com/fameuxarte'
       ],
+      founder: [
+        {
+          '@type': 'Person',
+          name: 'Arun Kumar',
+          jobTitle: 'Co-Founder',
+          sameAs: [
+            'https://www.instagram.com/_arunn?stkn=d3JmZ2p2dHk0MzJ4',
+            'https://github.com/Arunkumar158'
+          ]
+        },
+        {
+          '@type': 'Person',
+          name: 'Praveen Krishnan',
+          jobTitle: 'Co-Founder',
+          sameAs: [
+            'https://www.instagram.com/i_praveenkrishnan_?stkn=dGlpZnF2MHIyMTY2'
+          ]
+        }
+      ],
       contactPoint: {
         '@type': 'ContactPoint',
         contactType: 'customer service',
@@ -311,4 +330,23 @@ export class SchemaRegistry {
       }
     };
   }
+
+  /**
+   * Generates AboutPage Schema with Co-Founders
+   */
+  public static buildAboutPageSchema(about: {
+    name?: string;
+    description?: string;
+    url?: string;
+  } = {}) {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'AboutPage',
+      name: about.name || 'Our Story | Fameuxarte',
+      description: about.description || 'The journey of Fameuxarte, co-founded by Arun Kumar and Praveen Krishnan to empower artists and collectors worldwide.',
+      url: about.url ? (about.url.startsWith('http') ? about.url : `${this.SITE_URL}${about.url}`) : `${this.SITE_URL}/our-story`,
+      mainEntity: this.buildOrganizationSchema()
+    };
+  }
 }
+

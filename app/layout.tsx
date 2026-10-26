@@ -6,6 +6,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || process.env.VITE_PUBLIC_APP_URL || "https://fameuxarte.com"),
   title: "Fameuxarte - Discover Authentic Artworks",
   description: "Discover and purchase unique artworks from talented artists worldwide. Browse our curated collection of paintings, sculptures, and digital art.",
+  authors: [
+    { name: "Arun Kumar", url: "https://www.fameuxarte.com/our-story" },
+    { name: "Praveen Krishnan", url: "https://www.fameuxarte.com/our-story" },
+    { name: "Fameuxarte" }
+  ],
+  keywords: ["art marketplace", "original artwork", "paintings", "sculptures", "digital art", "Arun Kumar", "Praveen Krishnan", "Fameuxarte founders"],
   openGraph: {
     title: "Fameuxarte - Discover Authentic Artworks",
     description: "Discover and purchase unique artworks from talented artists worldwide.",

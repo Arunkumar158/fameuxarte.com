@@ -127,6 +127,25 @@ export const generateOrganizationStructuredData = () => {
     sameAs: [
       'https://www.instagram.com/fameuxarte',
     ],
+    founder: [
+      {
+        '@type': 'Person',
+        name: 'Arun Kumar',
+        jobTitle: 'Co-Founder',
+        sameAs: [
+          'https://www.instagram.com/_arunn?stkn=d3JmZ2p2dHk0MzJ4',
+          'https://github.com/Arunkumar158'
+        ]
+      },
+      {
+        '@type': 'Person',
+        name: 'Praveen Krishnan',
+        jobTitle: 'Co-Founder',
+        sameAs: [
+          'https://www.instagram.com/i_praveenkrishnan_?stkn=dGlpZnF2MHIyMTY2'
+        ]
+      }
+    ],
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer service',
@@ -135,6 +154,17 @@ export const generateOrganizationStructuredData = () => {
     },
     foundingDate: '2024',
     areaServed: 'Worldwide',
+  };
+};
+
+export const generateAboutPageStructuredData = () => {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: 'Our Story | Fameuxarte',
+    description: 'The journey of Fameuxarte, co-founded by Arun Kumar and Praveen Krishnan to empower artists and collectors worldwide.',
+    url: `${APP_URL}/our-story`,
+    mainEntity: generateOrganizationStructuredData()
   };
 };
 
