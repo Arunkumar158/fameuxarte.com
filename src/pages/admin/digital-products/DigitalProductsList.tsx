@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit2, Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 type DigitalProductSummary = {
   id: string;
@@ -47,8 +48,10 @@ export default function DigitalProductsList() {
     const { error } = await supabase.from('digital_products').delete().eq('id', id);
     if (!error) {
       setProducts(products.filter(p => p.id !== id));
+      toast.success("Product deleted successfully");
     } else {
       console.error("Error deleting product:", error);
+      toast.error(error.message || "Failed to delete product");
     }
   };
 

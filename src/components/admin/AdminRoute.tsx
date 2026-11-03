@@ -20,7 +20,8 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
       }
 
       // Check user metadata first as a fast path if we sync it there
-      if (user.user_metadata?.role === 'admin') {
+      const metaRole = user.user_metadata?.role;
+      if (metaRole === 'admin' || metaRole === 'founder') {
          setIsAdmin(true);
          return;
       }
@@ -35,7 +36,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
           
         if (error) throw error;
         
-        setIsAdmin(data?.role === 'admin');
+        setIsAdmin(data?.role === 'admin' || data?.role === 'founder');
       } catch (error) {
         console.error("Error checking admin status:", error);
         setIsAdmin(false);

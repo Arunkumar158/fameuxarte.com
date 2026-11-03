@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Upload, Loader2, X, Image as ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +38,7 @@ const ImageUploader = ({
   bucket = "blog-images",
   folder = "articles",
 }: ImageUploaderProps) => {
+  const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -58,8 +60,21 @@ const ImageUploader = ({
 
     setIsUploading(true);
     try {
+      // Resolve user ID to comply with Supabase Storage RLS policies
+      // which require the top-level folder name to be auth.uid()
+      const currentUserId = user?.id || (await supabase.auth.getUser()).data.user?.id;
+      
       const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2)}.${ext}`;
+      const cleanFolder = folder.replace(/^\/+|\/+$/g, "");
+      
+      // If we have an authenticated user and bucket requires user-scoped path (like artworks),
+      // ensure the top folder starts with user.id
+      let finalFolder = cleanFolder;
+      if (currentUserId && !cleanFolder.startsWith(currentUserId)) {
+        finalFolder = `${currentUserId}/${cleanFolder}`;
+      }
+
+      const fileName = `${finalFolder}/${Date.now()}-${Math.random().toString(36).substring(2)}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
         .from(bucket)
@@ -74,9 +89,12 @@ const ImageUploader = ({
       onChange(publicUrl);
       toast.success("Image uploaded successfully");
     } catch (err: any) {
-      // Fallback: if bucket doesn't exist yet, show URL input guidance
       console.error("Upload error:", err);
-      toast.error(`Upload failed: ${err.message || "Check Supabase Storage bucket permissions."}`);
+      if (err.message?.includes("violates row-level security policy")) {
+        toast.error("Upload failed: Storage permission denied. Please verify you are logged in.");
+      } else {
+        toast.error(`Upload failed: ${err.message || "Check Supabase Storage bucket permissions."}`);
+      }
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";

@@ -116,6 +116,54 @@
     font-style: italic;
     color: #334155 !important;
   }
+
+  /* Admin Layout Form Controls & Theming Fix:
+     The main site is dark mode (:root has --background: 0 0% 0%),
+     while AdminLayout is designed with a light theme (bg-slate-50 / bg-white).
+     This ensures all inputs, textareas, selects, and dropdown menus render
+     with clean white backgrounds and clearly legible dark text (#0f172a).
+  */
+  .admin-theme input:not([type="checkbox"]):not([type="radio"]),
+  .admin-theme textarea,
+  .admin-theme [data-radix-select-trigger] {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  .admin-theme input:not([type="checkbox"]):not([type="radio"]):focus,
+  .admin-theme textarea:focus,
+  .admin-theme [data-radix-select-trigger]:focus {
+    border-color: #8c2131 !important;
+    outline: none !important;
+  }
+
+  .admin-theme input::placeholder,
+  .admin-theme textarea::placeholder {
+    color: #94a3b8 !important;
+  }
+
+  .admin-theme [role="combobox"],
+  .admin-theme select {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  [data-radix-select-content] {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  [data-radix-select-content] [role="option"] {
+    color: #0f172a !important;
+  }
+
+  [data-radix-select-content] [role="option"]:hover,
+  [data-radix-select-content] [role="option"][data-highlighted] {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+  }
 }
 
 @layer components {

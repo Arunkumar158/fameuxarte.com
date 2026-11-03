@@ -92,21 +92,27 @@ export default function DigitalProductEditor() {
 
     setIsSaving(true);
     const finalStatus = saveAsStatus || status;
+    const currentUserId = user?.id || (await supabase.auth.getUser()).data.user?.id;
 
-    const payload = {
+    const payload: any = {
       title: title.trim(),
       slug: slug.trim(),
       short_description: shortDescription.trim() || null,
       description: description.trim() || null,
       category: category.trim(),
-      price: price ? parseFloat(price) : null,
+      price: price && !isNaN(parseFloat(price)) ? parseFloat(price) : null,
       gumroad_url: gumroadUrl.trim() || null,
       status: finalStatus,
       is_featured: isFeatured,
       cover_image_url: coverImageUrl.trim() || null,
-      updated_by: user?.id,
-      ...(isNew ? { created_by: user?.id } : {}),
     };
+
+    if (currentUserId) {
+      payload.updated_by = currentUserId;
+      if (isNew) {
+        payload.created_by = currentUserId;
+      }
+    }
 
     try {
       if (isNew) {
@@ -121,7 +127,7 @@ export default function DigitalProductEditor() {
       }
       setStatus(finalStatus);
     } catch (e: any) {
-      console.error(e);
+      console.error("Error saving digital product:", e);
       toast.error(e.message || "Failed to save product.");
     } finally {
       setIsSaving(false);
@@ -172,18 +178,19 @@ export default function DigitalProductEditor() {
         <div className="md:col-span-2 space-y-6">
           <div className="bg-white p-6 rounded-lg border shadow-sm space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Title *</Label>
+              <Label htmlFor="title" className="text-slate-900 font-medium">Title *</Label>
               <Input
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Product Title"
+                className="bg-white text-slate-900 border-slate-300 placeholder:text-slate-400 focus-visible:ring-primary"
               />
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label htmlFor="slug">Slug *</Label>
-                <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={generateSlug}>
+                <Label htmlFor="slug" className="text-slate-900 font-medium">Slug *</Label>
+                <Button variant="link" size="sm" className="h-auto p-0 text-xs text-primary hover:underline" onClick={generateSlug}>
                   Generate from title
                 </Button>
               </div>
@@ -192,26 +199,29 @@ export default function DigitalProductEditor() {
                 value={slug}
                 onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
                 placeholder="product-slug"
+                className="bg-white text-slate-900 border-slate-300 placeholder:text-slate-400 font-mono text-sm focus-visible:ring-primary"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="shortDescription">Short Description</Label>
+              <Label htmlFor="shortDescription" className="text-slate-900 font-medium">Short Description</Label>
               <Textarea
                 id="shortDescription"
                 value={shortDescription}
                 onChange={(e) => setShortDescription(e.target.value)}
                 rows={3}
                 placeholder="Brief summary for product cards..."
+                className="bg-white text-slate-900 border-slate-300 placeholder:text-slate-400 focus-visible:ring-primary"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description">Full Description</Label>
+              <Label htmlFor="description" className="text-slate-900 font-medium">Full Description</Label>
               <Textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={5}
                 placeholder="Detailed description..."
+                className="bg-white text-slate-900 border-slate-300 placeholder:text-slate-400 focus-visible:ring-primary"
               />
             </div>
           </div>
@@ -220,22 +230,24 @@ export default function DigitalProductEditor() {
             <h3 className="font-semibold text-slate-900 border-b pb-2 mb-4">Pricing & Delivery</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="price">Price (INR)</Label>
+                <Label htmlFor="price" className="text-slate-900 font-medium">Price (INR)</Label>
                 <Input
                   id="price"
                   type="number"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="499"
+                  className="bg-white text-slate-900 border-slate-300 placeholder:text-slate-400 focus-visible:ring-primary"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gumroadUrl">Gumroad URL</Label>
+                <Label htmlFor="gumroadUrl" className="text-slate-900 font-medium">Gumroad URL</Label>
                 <Input
                   id="gumroadUrl"
                   value={gumroadUrl}
                   onChange={(e) => setGumroadUrl(e.target.value)}
                   placeholder="https://gum.co/..."
+                  className="bg-white text-slate-900 border-slate-300 placeholder:text-slate-400 focus-visible:ring-primary"
                 />
               </div>
             </div>
@@ -247,30 +259,30 @@ export default function DigitalProductEditor() {
           <div className="bg-white p-5 rounded-lg border shadow-sm space-y-4">
             <h3 className="font-semibold text-slate-900 border-b pb-2">Settings</h3>
             <div className="space-y-2">
-              <Label>Status</Label>
+              <Label className="text-slate-900 font-medium">Status</Label>
               <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white text-slate-900 border-slate-300">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="published">Published</SelectItem>
-                  <SelectItem value="archived">Archived</SelectItem>
+                <SelectContent className="bg-white text-slate-900 border-slate-200 shadow-md">
+                  <SelectItem value="draft" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900 cursor-pointer">Draft</SelectItem>
+                  <SelectItem value="published" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900 cursor-pointer">Published</SelectItem>
+                  <SelectItem value="archived" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900 cursor-pointer">Archived</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2 pt-2">
-              <Label>Category *</Label>
+              <Label className="text-slate-900 font-medium">Category *</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white text-slate-900 border-slate-300">
                   <SelectValue placeholder="Select Category" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Calculator">Calculator</SelectItem>
-                  <SelectItem value="Template">Template</SelectItem>
-                  <SelectItem value="Ebook">Ebook</SelectItem>
-                  <SelectItem value="Swipe File">Swipe File</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
+                <SelectContent className="bg-white text-slate-900 border-slate-200 shadow-md">
+                  <SelectItem value="Calculator" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900 cursor-pointer">Calculator</SelectItem>
+                  <SelectItem value="Template" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900 cursor-pointer">Template</SelectItem>
+                  <SelectItem value="Ebook" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900 cursor-pointer">Ebook</SelectItem>
+                  <SelectItem value="Swipe File" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900 cursor-pointer">Swipe File</SelectItem>
+                  <SelectItem value="Other" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900 cursor-pointer">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -282,7 +294,7 @@ export default function DigitalProductEditor() {
                 onChange={(e) => setIsFeatured(e.target.checked)}
                 className="rounded border-slate-300 text-primary focus:ring-primary"
               />
-              <Label htmlFor="isFeatured">Featured Product</Label>
+              <Label htmlFor="isFeatured" className="text-slate-900 font-medium cursor-pointer">Featured Product</Label>
             </div>
           </div>
 
@@ -293,7 +305,7 @@ export default function DigitalProductEditor() {
               onChange={setCoverImageUrl}
               label="Cover"
               bucket="artworks"
-              folder="products"
+              folder={user?.id ? `${user.id}/products` : "products"}
             />
           </div>
         </div>
