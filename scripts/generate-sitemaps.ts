@@ -9,7 +9,7 @@ import { SitemapRegistry, SitemapCategory } from '../src/platform/discovery/site
 import { RobotsEngine } from '../src/platform/discovery/robotsEngine';
 
 const PUBLIC_DIR = path.resolve(process.cwd(), 'public');
-const BASE_URL = 'https://gallery-canvas-commerce.vercel.app';
+const BASE_URL = 'https://fameuxarte.com';
 
 console.log('Generating Fameuxarte Discovery Platform Sitemaps & Robots.txt...');
 

@@ -15,7 +15,7 @@ export interface DiscoveryContextValue {
 }
 
 const DiscoveryContext = createContext<DiscoveryContextValue>({
-  baseUrl: 'https://gallery-canvas-commerce.vercel.app',
+  baseUrl: 'https://fameuxarte.com',
   environment: 'production',
   locale: 'en'
 });
@@ -29,7 +29,7 @@ export interface DiscoveryProviderProps {
 
 export const DiscoveryProvider: React.FC<DiscoveryProviderProps> = ({
   children,
-  baseUrl = 'https://gallery-canvas-commerce.vercel.app',
+  baseUrl = 'https://fameuxarte.com',
   environment = 'production',
   locale = 'en'
 }) => {

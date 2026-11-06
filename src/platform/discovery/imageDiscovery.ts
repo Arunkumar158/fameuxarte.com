@@ -34,7 +34,7 @@ export class ImageDiscovery {
   /**
    * Formats image metadata into Schema.org ImageObject
    */
-  public static buildImageObjectSchema(meta: ImageDiscoveryMeta, siteUrl = 'https://gallery-canvas-commerce.vercel.app') {
+  public static buildImageObjectSchema(meta: ImageDiscoveryMeta, siteUrl = 'https://fameuxarte.com') {
     const fullUrl = meta.src.startsWith('http') ? meta.src : `${siteUrl}${meta.src}`;
     return {
       '@context': 'https://schema.org',

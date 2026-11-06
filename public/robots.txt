@@ -25,4 +25,4 @@ User-agent: Bytespider
 Allow: /
 
 # Sitemap Index
-Sitemap: https://gallery-canvas-commerce.vercel.app/sitemap-index.xml
+Sitemap: https://fameuxarte.com/sitemap-index.xml

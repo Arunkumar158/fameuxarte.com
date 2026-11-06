@@ -9,7 +9,7 @@ export class RobotsEngine {
   /**
    * Generates robots.txt rules content based on the target deployment environment
    */
-  public static generateRobotsTxt(env: Environment = 'production', siteUrl = 'https://gallery-canvas-commerce.vercel.app'): string {
+  public static generateRobotsTxt(env: Environment = 'production', siteUrl = 'https://fameuxarte.com'): string {
     if (env !== 'production') {
       return `# Fameuxarte Robots.txt - Non-Production Environment (${env})
 User-agent: *

@@ -18,14 +18,14 @@ export interface OpenGraphOptions {
 
 export class OpenGraphEngine {
   private static DEFAULT_SITE_NAME = 'Fameuxarte';
-  private static DEFAULT_IMAGE = 'https://gallery-canvas-commerce.vercel.app/og-image.jpg';
+  private static DEFAULT_IMAGE = 'https://fameuxarte.com/og-image.jpg';
 
   /**
    * Generates OpenGraph metadata object
    */
   public static generateOpenGraph(options: OpenGraphOptions): OpenGraphMetadata {
     const rawImage = options.image || this.DEFAULT_IMAGE;
-    const image = rawImage.startsWith('http') ? rawImage : `https://gallery-canvas-commerce.vercel.app${rawImage}`;
+    const image = rawImage.startsWith('http') ? rawImage : `https://fameuxarte.com${rawImage}`;
 
     return {
       title: options.title,
@@ -50,7 +50,7 @@ export class OpenGraphEngine {
     site?: string;
   }): TwitterCardMetadata {
     const rawImage = options.image || this.DEFAULT_IMAGE;
-    const image = rawImage.startsWith('http') ? rawImage : `https://gallery-canvas-commerce.vercel.app${rawImage}`;
+    const image = rawImage.startsWith('http') ? rawImage : `https://fameuxarte.com${rawImage}`;
 
     return {
       card: 'summary_large_image',
