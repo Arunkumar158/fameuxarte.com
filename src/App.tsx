@@ -216,6 +216,7 @@ const AnimatedRoutes = () => {
             <Route path="communications/logs" element={<EmailLogs />} />
             <Route path="communications/test" element={<EmailTesting />} />
             <Route path="insights" element={<InsightsList />} />
+            <Route path="insights/new" element={<InsightsEditor key="new" />} />
             <Route path="insights/:id" element={<InsightsEditor />} />
             <Route path="digital-products" element={<DigitalProductsList />} />
             <Route path="digital-products/:id" element={<DigitalProductEditor />} />

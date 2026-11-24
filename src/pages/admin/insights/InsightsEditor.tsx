@@ -243,14 +243,35 @@ export default function InsightsEditor() {
     if (!isNew && id) {
       fetchInsight(id);
     } else if (isNew) {
-      // Check if there is an unsaved new draft in localStorage
-      const draft = getLocalBackup("new");
-      if (draft) {
-        populateFields(draft);
+      // Reset all fields to blank when creating a new article
+      setTitle("");
+      setSlug("");
+      setExcerpt("");
+      setCategory("");
+      setTags("");
+      setStatus("draft");
+      setFeaturedImage("");
+      setFeaturedImageAlt("");
+      setFeaturedImageCaption("");
+      setMetaTitle("");
+      setMetaDescription("");
+      setCanonicalUrl("");
+      setKeywords("");
+      setOgImage("");
+      setSchemaType("BlogPosting");
+      setKeyTakeaways(["", "", ""]);
+      setFaq([{ question: "", answer: "" }]);
+      setCtaLabel("");
+      setCtaUrl("");
+      setCtaDescription("");
+      setInitialContent("");
+      if (editor) {
+        editor.commands.setContent("");
       }
+      setIsLoading(false);
       checkTableMode();
     }
-  }, [id, isNew]);
+  }, [id, isNew, editor]);
 
   const checkTableMode = async () => {
     try {
