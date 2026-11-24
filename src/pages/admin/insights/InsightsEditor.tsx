@@ -61,6 +61,13 @@ function getLocalBackup(key: string) {
   }
 }
 
+function clearLocalBackup(key: string) {
+  try {
+    if (!key) return;
+    localStorage.removeItem(`${LOCAL_BACKUP_PREFIX}${key}`);
+  } catch {}
+}
+
 const MIGRATION_SQL = `-- Run this in your Supabase SQL Editor to enable full cloud persistence:
 CREATE TABLE IF NOT EXISTS public.insights (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -320,6 +327,45 @@ export default function InsightsEditor() {
     }
   };
 
+  const resetFields = useCallback(() => {
+    setTitle("");
+    setSlug("");
+    setExcerpt("");
+    setCategory("");
+    setTags("");
+    setStatus("draft");
+    setFeaturedImage("");
+    setFeaturedImageAlt("");
+    setFeaturedImageCaption("");
+    setMetaTitle("");
+    setMetaDescription("");
+    setCanonicalUrl("");
+    setKeywords("");
+    setOgImage("");
+    setSchemaType("BlogPosting");
+    setKeyTakeaways(["", "", ""]);
+    setFaq([{ question: "", answer: "" }]);
+    setCtaLabel("");
+    setCtaUrl("");
+    setCtaDescription("");
+    setInitialContent("");
+    if (editor) {
+      editor.commands.setContent("");
+    }
+  }, [editor]);
+
+  const handleClearForm = () => {
+    clearLocalBackup("new");
+    if (id && id !== "new") {
+      clearLocalBackup(id);
+    }
+    if (slug) {
+      clearLocalBackup(slug);
+    }
+    resetFields();
+    toast.success("Form cleared for a new article.");
+  };
+
   const fetchInsight = async (insightId: string) => {
     setIsLoading(true);
     let data: any = null;
@@ -378,7 +424,7 @@ export default function InsightsEditor() {
     }
 
     // 3. Merge with local backup to guarantee zero disappearing fields
-    const backup = getLocalBackup(insightId) || (data?.slug ? getLocalBackup(data.slug) : null) || getLocalBackup("new");
+    const backup = getLocalBackup(insightId) || (data?.slug ? getLocalBackup(data.slug) : null);
     if (backup) {
       data = {
         ...backup,
@@ -555,6 +601,7 @@ export default function InsightsEditor() {
         savedId = result.data.id;
         setTableMode("insights");
         saveLocalBackup(savedId, payload);
+        clearLocalBackup("new");
         toast.success(finalStatus === "published" ? "Article published to Journal!" : "Draft saved.");
         if (isNew && savedId) {
           navigate(`/admin/insights/${savedId}`, { replace: true });
@@ -623,6 +670,7 @@ export default function InsightsEditor() {
             saved = true;
             savedId = bResult.data.id;
             saveLocalBackup(savedId, payload);
+            clearLocalBackup("new");
             toast.success(
               finalStatus === "published"
                 ? "Article published! Note: Run the SQL migration in Supabase to sync extended SEO columns to cloud."
@@ -638,6 +686,7 @@ export default function InsightsEditor() {
           saved = true;
           savedId = bResult.data.id;
           saveLocalBackup(savedId, payload);
+          clearLocalBackup("new");
           toast.success(finalStatus === "published" ? "Article published to Journal!" : "Draft saved.");
           if (isNew && savedId) {
             navigate(`/admin/insights/${savedId}`, { replace: true });
@@ -697,6 +746,18 @@ export default function InsightsEditor() {
         </div>
 
         <div className="flex items-center gap-3">
+          {isNew && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearForm}
+              className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 flex items-center gap-1.5 h-9"
+              title="Clear all fields and discard cached draft"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Clear Form
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
