@@ -24,7 +24,8 @@ export default function InsightsList() {
 
   const fetchInsights = async () => {
     setIsLoading(true);
-    let allArticles: InsightSummary[] = [];
+    let insightArticles: InsightSummary[] = [];
+    let blogArticles: InsightSummary[] = [];
 
     try {
       const { data: insightRows, error: insightErr } = await supabase
@@ -33,48 +34,59 @@ export default function InsightsList() {
         .order('created_at', { ascending: false });
 
       if (!insightErr && insightRows && insightRows.length > 0) {
-        allArticles = insightRows as InsightSummary[];
+        insightArticles = insightRows as InsightSummary[];
       }
     } catch {}
 
-    if (allArticles.length === 0) {
-      try {
-        const { data: blogRows } = await supabase
-          .from('blogs')
-          .select('id, title, published_at, created_at, author_id, status')
-          .order('created_at', { ascending: false });
+    try {
+      const { data: blogRows } = await supabase
+        .from('blogs')
+        .select('id, title, published_at, created_at, author_id, status')
+        .order('created_at', { ascending: false });
 
-        if (blogRows && blogRows.length > 0) {
-          allArticles = blogRows.map((b: any) => ({
-            id: b.id,
-            title: b.title || 'Untitled Blog',
-            status: b.status || 'published',
-            created_at: b.published_at || b.created_at,
-            author_id: b.author_id,
-          }));
-        }
-      } catch {}
-    }
+      if (blogRows && blogRows.length > 0) {
+        blogArticles = blogRows.map((b: any) => ({
+          id: b.id,
+          title: b.title || 'Untitled Blog',
+          status: b.status || 'published',
+          created_at: b.published_at || b.created_at,
+          author_id: b.author_id,
+        }));
+      }
+    } catch {}
 
-    setInsights(allArticles);
+    const seenIds = new Set(insightArticles.map(a => a.id));
+    const merged = [
+      ...insightArticles,
+      ...blogArticles.filter(b => !seenIds.has(b.id)),
+    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    setInsights(merged);
     setIsLoading(false);
   };
 
   const deleteInsight = async (id: string) => {
     if (!confirm("Are you sure you want to delete this article?")) return;
     
+    let deleted = false;
     let error: any = null;
     try {
-      const res = await supabase.from('insights').delete().eq('id', id);
+      const res = await supabase.from('insights').delete().eq('id', id).select('id');
       error = res.error;
+      if (!res.error && res.data && res.data.length > 0) {
+        deleted = true;
+      }
     } catch (e) {
       error = e;
     }
 
-    if (error) {
+    if (!deleted) {
       try {
-        const bRes = await supabase.from('blogs').delete().eq('id', id);
+        const bRes = await supabase.from('blogs').delete().eq('id', id).select('id');
         error = bRes.error;
+        if (!bRes.error && bRes.data && bRes.data.length > 0) {
+          deleted = true;
+        }
       } catch (e) {
         error = e;
       }

@@ -48,7 +48,7 @@ function saveLocalBackup(key: string, data: any) {
       ...data,
       _saved_at: Date.now(),
     }));
-  } catch {}
+  } catch { }
 }
 
 function getLocalBackup(key: string) {
@@ -65,7 +65,7 @@ function clearLocalBackup(key: string) {
   try {
     if (!key) return;
     localStorage.removeItem(`${LOCAL_BACKUP_PREFIX}${key}`);
-  } catch {}
+  } catch { }
 }
 
 const MIGRATION_SQL = `-- Run this in your Supabase SQL Editor to enable full cloud persistence:
@@ -151,11 +151,10 @@ const ToolbarButton = ({
   <button
     type="button"
     onClick={onClick}
-    className={`px-2.5 py-1.5 rounded text-xs font-medium transition-colors ${
-      active
-        ? "bg-slate-800 text-white"
-        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-    }`}
+    className={`px-2.5 py-1.5 rounded text-xs font-medium transition-colors ${active
+      ? "bg-slate-800 text-white"
+      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+      }`}
   >
     {children}
   </button>
@@ -295,8 +294,8 @@ export default function InsightsEditor() {
     const formattedTags = Array.isArray(data.tags)
       ? data.tags.join(", ")
       : typeof data.tags === "string"
-      ? data.tags
-      : "";
+        ? data.tags
+        : "";
     setTags(formattedTags);
 
     setStatus(data.status || "draft");
@@ -311,8 +310,8 @@ export default function InsightsEditor() {
     const formattedKeywords = Array.isArray(data.keywords)
       ? data.keywords.join(", ")
       : typeof data.keywords === "string"
-      ? data.keywords
-      : "";
+        ? data.keywords
+        : "";
     setKeywords(formattedKeywords);
 
     setOgImage(data.og_image || "");
@@ -403,7 +402,7 @@ export default function InsightsEditor() {
         data = insightData;
         setTableMode("insights");
       }
-    } catch {}
+    } catch { }
 
     // 2. Try blogs table fallback
     if (!data) {
@@ -441,7 +440,7 @@ export default function InsightsEditor() {
             cta_description: (blogData as any).cta_description || "",
           };
         }
-      } catch {}
+      } catch { }
     }
 
     // 3. Merge with local backup to guarantee zero disappearing fields
@@ -643,8 +642,8 @@ export default function InsightsEditor() {
           Slug: slug.trim(),
           content: contentHtml,
           image_url: featuredImage.trim() || null,
-          author_id: user?.id,
-          published_at: finalStatus === "published" ? new Date().toISOString() : null,
+          author_id: user?.id || null,
+          ...(finalStatus === "published" ? { published_at: new Date().toISOString() } : {}),
           key_takeaways: cleanTakeaways,
           faq: cleanFaq,
           excerpt: excerpt.trim(),
@@ -666,26 +665,41 @@ export default function InsightsEditor() {
         };
 
         let bResult = isNew
-          ? await supabase.from("blogs").insert([fullBlogPayload]).select().single()
-          : await supabase.from("blogs").update(fullBlogPayload).eq("id", id).select().single();
+          ? await supabase.from("blogs").insert([fullBlogPayload as any]).select().single()
+          : await supabase.from("blogs").update(fullBlogPayload as any).eq("id", id).select().single();
 
         // If the blogs table doesn't have the new columns yet, fallback to saving base columns
         if (bResult.error && (bResult.error.message.includes("column") || bResult.error.code === "42703")) {
           console.warn("blogs table missing extended columns; saving base columns + local cache.");
-          const baseBlogPayload = {
+          const baseBlogPayload: Record<string, any> = {
             title: title.trim(),
             Slug: slug.trim(),
             content: contentHtml,
             image_url: featuredImage.trim() || null,
-            author_id: user?.id,
-            published_at: finalStatus === "published" ? new Date().toISOString() : null,
+            author_id: user?.id || null,
+            ...(finalStatus === "published" ? { published_at: new Date().toISOString() } : {}),
             key_takeaways: cleanTakeaways,
             faq: cleanFaq,
           };
 
           bResult = isNew
-            ? await supabase.from("blogs").insert([baseBlogPayload]).select().single()
-            : await supabase.from("blogs").update(baseBlogPayload).eq("id", id).select().single();
+            ? await supabase.from("blogs").insert([baseBlogPayload as any]).select().single()
+            : await supabase.from("blogs").update(baseBlogPayload as any).eq("id", id).select().single();
+
+          // If editorial columns (key_takeaways/faq) are also missing, fallback to core columns only
+          if (bResult.error && (bResult.error.message.includes("column") || bResult.error.code === "42703")) {
+            const coreBlogPayload: Record<string, any> = {
+              title: title.trim(),
+              Slug: slug.trim(),
+              content: contentHtml,
+              image_url: featuredImage.trim() || null,
+              author_id: user?.id || null,
+              ...(finalStatus === "published" ? { published_at: new Date().toISOString() } : {}),
+            };
+            bResult = isNew
+              ? await supabase.from("blogs").insert([coreBlogPayload as any]).select().single()
+              : await supabase.from("blogs").update(coreBlogPayload as any).eq("id", id).select().single();
+          }
 
           if (!bResult.error && bResult.data) {
             saved = true;
@@ -976,13 +990,13 @@ export default function InsightsEditor() {
                 </div>
                 <div className="space-y-2">
                   {keyTakeaways.map((item, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Input
+                    <div key={index} className="flex items-start gap-2">
+                      <Textarea
                         value={item}
                         onChange={e => updateTakeaway(index, e.target.value)}
                         placeholder={`Takeaway ${index + 1}...`}
-                        className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 text-sm"
-                        maxLength={140}
+                        rows={2}
+                        className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 text-sm min-h-[60px]"
                       />
                       <Button
                         type="button"
