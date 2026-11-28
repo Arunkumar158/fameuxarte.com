@@ -33,7 +33,7 @@ const LikedItemCard = ({ item }: { item: {
         id: item.artwork_id,
         slug: item.artworks?.slug,
         title: item.artworks?.title || "Unknown Title",
-        artist: item.artworks?.artist?.full_name || "Unknown Artist",
+        artist: item.artworks?.artist?.full_name || "Praveen Krishnan",
         price: item.artworks?.price || 0,
         image: imageUrl,
         category: item.artworks?.category || "Uncategorized"

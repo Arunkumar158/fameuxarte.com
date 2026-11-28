@@ -316,7 +316,7 @@ const ArtworkDetails = () => {
   const isLiked = isItemLiked(artwork.id);
   const activeImage = imageUrls[selectedIndex] ?? "/placeholder.svg";
   const hasMultiple = imageUrls.length > 1;
-  const artistName = artwork.artist?.full_name || "Unknown Artist";
+  const artistName = artwork.artist?.full_name || "Praveen Krishnan";
   const categoryLabel = artwork.category || "Original artwork";
 
   const artworkDescription = artwork.description

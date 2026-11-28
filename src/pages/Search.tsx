@@ -44,7 +44,7 @@ const Search = () => {
   const mappedArtworks: Artwork[] = artworks.map((artwork: any) => ({
     id: artwork.slug || artwork.id,
     title: artwork.title,
-    artist: artwork.artist?.full_name || "Unknown Artist",
+    artist: artwork.artist?.full_name || "Praveen Krishnan",
     artistId: artwork.artist?.id,
     image: getDisplayImage(artwork.image_path),
     price: artwork.price,

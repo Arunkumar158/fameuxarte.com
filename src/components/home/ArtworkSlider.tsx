@@ -37,7 +37,7 @@ const ArtworkSlide = ({ artwork }: { artwork: {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
           <div className="text-white">
             <h3 className="font-semibold text-lg">{artwork.title}</h3>
-            <p className="text-sm">{artwork.artist?.full_name || "Unknown Artist"}</p>
+            <p className="text-sm">{artwork.artist?.full_name || "Praveen Krishnan"}</p>
           </div>
         </div>
       </Link>

@@ -89,8 +89,12 @@ const ShareActions = ({
   generationFailed,
 }: ShareActionsProps) => {
   const [copied, setCopied] = useState(false);
+  const artistName =
+    artwork.artistName && artwork.artistName !== 'Unknown Artist'
+      ? artwork.artistName
+      : 'Praveen Krishnan';
   const shareUrl  = buildArtworkShareUrl(artwork.slug, artwork.id);
-  const shareText = buildArtworkShareText(artwork.title, artwork.artistName);
+  const shareText = buildArtworkShareText(artwork.title, artistName);
   const caps      = detectShareCapabilities();
 
   const filename = `fameuxarte-${artwork.title
@@ -241,6 +245,11 @@ const ShareContent = ({ artwork, onClose }: ShareContentProps) => {
   const [corsBlocked, setCorsBlocked]     = useState(false);
   const [generationFailed, setFailed]     = useState(false);
 
+  const artistName =
+    artwork.artistName && artwork.artistName !== 'Unknown Artist'
+      ? artwork.artistName
+      : 'Praveen Krishnan';
+
   const metaParts: string[] = [];
   if (artwork.medium) metaParts.push(artwork.medium);
   if (artwork.creation_year) metaParts.push(String(artwork.creation_year));
@@ -248,7 +257,7 @@ const ShareContent = ({ artwork, onClose }: ShareContentProps) => {
   const config: ShareCardConfig = {
     type:     'artwork',
     title:    artwork.title,
-    subtitle: artwork.artistName,
+    subtitle: artistName,
     imageUrl: artwork.imageUrl,
     metaLine: metaParts.length > 0 ? metaParts.join(' · ') : undefined,
     url:      buildArtworkShareUrl(artwork.slug, artwork.id),
@@ -280,7 +289,7 @@ const ShareContent = ({ artwork, onClose }: ShareContentProps) => {
           "{artwork.title}"
         </p>
         <p className="text-[12px] text-[#666] mt-0.5">
-          by {artwork.artistName}
+          by {artistName}
         </p>
       </div>
 

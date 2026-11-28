@@ -102,7 +102,7 @@ export class MetadataPipeline {
           name: input.rawEntity.name || input.title || 'Artwork',
           description,
           image: input.image || '/og-image.jpg',
-          creator: input.rawEntity.artist || 'Unknown Artist',
+          creator: input.rawEntity.artist || 'Praveen Krishnan',
           medium: input.rawEntity.medium,
           dateCreated: input.rawEntity.yearCreated,
           trustSignals

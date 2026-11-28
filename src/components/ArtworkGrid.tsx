@@ -39,7 +39,7 @@ const ArtworkCardWithImage = ({ artwork }: { artwork: {
         id: artwork.id,
         slug: artwork.slug,
         title: artwork.title,
-        artist: artwork.artist?.full_name || "Unknown Artist",
+        artist: artwork.artist?.full_name || "Praveen Krishnan",
         price: artwork.price,
         image: imageUrl,
         status: artwork.status,
